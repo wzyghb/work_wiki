@@ -46,6 +46,42 @@ eval "$(docker-machine env default)"
 
 ### 启动、停止对应的docker
 
-docker ps   // 在启动后会输出相关的机器信息。
-docker-compose stop
-docker-compose up -d
++ docker-machine start default          // 启动docker机器
++ docker ps                             // 在启动后会输出相关的机器信息。
++ docker-compose stop
++ docker-compose up -d                  // 打开
+
+
+### bugfix
+
+出现下面的问题：
+
+```
+>>> docker-machine env default (运行这一命令)
+Error checking TLS connection: Error checking and/or regenerating the certs: 
+There was an error validating certificates for host "192.168.99.100:2376": 
+tls: DialWithDialer timed out
+```
+
+解决方案如下：
++ 首先停止运行的docker机器
+    docker-machine stop default
++ 删除这个docker机器
+    docker-machine rm default
++ 创建一个新的docker机器
+    docker-machine create --driver virtualbox default
++ 将docker机器绑定到当前的shell
+    eval $(docker-machine env default)
++ 在docker配置文件夹下运行一下命令，重新安装container
+    docker-compose up -d
++ 导入测试数据
+    docker-compose run --rm malaita-web bash -c 
+    'source ../python3/bin/activate && eval `python deploy/env.py` 
+    && python manage.py db upgrade heads && python malaita/tests/test_data.py'
++ 启动web-package
+    docker-compose run --rm malaita-web bash -c 
+    'cd front-end; npm install; ./node_modules/.bin/webpack -w'
+
++ 端口
+
+malaita-web: 5000 malaita-mysql: 3306

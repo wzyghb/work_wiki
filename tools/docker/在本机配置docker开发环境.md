@@ -85,3 +85,29 @@ tls: DialWithDialer timed out
 + 端口
 
 malaita-web: 5000 malaita-mysql: 3306
+
+### 使用命令说明
+
+#### 1
+docker-compose run -rm malaita-web bash
+进入到docker的bash中去，开始运行bash
+
+#### 2
+启动和停止某个特定的容器：
++ docker-compose stop malaita-web
++ docker-compose start malaita-web
+
+#### 3
+另一种运行docker容器bash的方法：
+docker exec -it malaita-web bash
+
+#### 4
+查看logs：
+docker logs --tail=100 malaita-web
+docker-compose logs malaita-web
+
+#### 5 
+本地开发测试：
+docker-compose -f docker-compose.test.yml up -d
+
+git fetch ssh://lifei@review.byted.org:29418/ee/malaita refs/changes/98/115098/15 && git checkout FETCH_HEAD

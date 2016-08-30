@@ -15,7 +15,7 @@ brew install docker-compose
 
 + 创建一个docker machine
 
-```
+```https://docs.google.com/a/bytedance.com/spreadsheets/d/1uJQZ6hHljIQiMjOhpcL8n79HuHTCCZ0TMCYarvwGC0s/edit?usp=sharing
 docker-machine create --driver virtualbox default
 ```
 ~/.docker/machine/machines/default
@@ -71,16 +71,13 @@ tls: DialWithDialer timed out
 + 创建一个新的docker机器
     docker-machine create --driver virtualbox default
 + 将docker机器绑定到当前的shell
-    eval $(docker-machine env default)
+    eval "$(docker-machine env default)"
 + 在docker配置文件夹下运行一下命令，重新安装container
     docker-compose up -d
 + 导入测试数据
-    docker-compose run --rm malaita-web bash -c 
-    'source ../python3/bin/activate && eval `python deploy/env.py` 
-    && python manage.py db upgrade heads && python malaita/tests/test_data.py'
+    docker-compose run --rm malaita-dev bash -c 'source ../python3/bin/activate && eval `python deploy/env.py` && python manage.py db upgrade heads && python malaita/tests/import_data.py'
 + 启动web-package
-    docker-compose run --rm malaita-web bash -c 
-    'cd front-end; npm install; ./node_modules/.bin/webpack -w'
+    docker-compose run --rm malaita-dev bash -c 'cd front-end; npm install; ./node_modules/.bin/webpack -w'
 
 + 端口
 
@@ -110,4 +107,10 @@ docker-compose logs malaita-web
 本地开发测试：
 docker-compose -f docker-compose.test.yml up -d
 
-git fetch ssh://lifei@review.byted.org:29418/ee/malaita refs/changes/98/115098/15 && git checkout FETCH_HEAD
+#### 6
+连接到malaita-redis主机，访问相关接口。
+docker run -it --link malaita-dev-redis:redis --rm redis redis-cli -h redis -p 6379
+
+
+git fetch && git shortlog origin/online..origin/test
+        

@@ -70,5 +70,3 @@ applet
 
 
 code complete 第11章
-
-git fetch && git shortlog origin/online..origin/test

@@ -1,8 +1,8 @@
 
-### 基本命令
+## 基本命令
 
 
-#### 镜像
+### 镜像
 
 docker pull 
 
@@ -32,13 +32,58 @@ docekr load 从本地文件加载到本地镜像库
 docker rmi 移除本地镜像 移除镜像前要用docker rm删除所有依赖的本地容器
 docker rm 移除本地容器
 
-#### 容器
+### 容器
 
 docker run xxx
 docker run -d xxx
 docker ps xxx
 docker logs --tail=1000 xxx
+docker logs -f xxx
 
 docker start xxx
 docker stop xxx
 docker attach
+
+## Dockerfile 最佳实践
+### 1 基本命令
+
++ FROM
++ RUN 将复杂的 run 命令分开为多行，可以使 Dockerfile 更加具备可读性。
++ apt-get 
++ CMD
++ EXPOSE
++ ENV
++ ADD or COPY
++ ENTRYPOINT
++ VOLUME
++ USER
++ WORKDIR
++ ONBUILD
+
+## 示例
+
+### 1 scala-sbt
+
+```
+# Pull base image
+FROM java:8
+
+ENV SCALA_VERSION 2.11.8
+ENV SBT_VERSION 0.13.12
+
+# Install Scala
+## Piping curl directly in tar
+RUN \
+  curl -fsL http://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.tgz | tar xfz - -C /root/ && \
+  echo >> /root/.bashrc && \
+  echo 'export PATH=~/scala-$SCALA_VERSION/bin:$PATH' >> /root/.bashrc
+
+# Install sbt
+RUN \
+  curl -L -o sbt-$SBT_VERSION.deb http://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
+  dpkg -i sbt-$SBT_VERSION.deb && \
+  rm sbt-$SBT_VERSION.deb && \
+  apt-get update && \
+  apt-get install sbt && \
+  sbt sbtVersion
+```

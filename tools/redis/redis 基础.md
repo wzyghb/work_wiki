@@ -63,16 +63,19 @@ redis-cli shutdown
 + 相比于 AOF， RDB 支持 redis 进行快速的重启。
 
 ### 3 RDB 的缺点
+
 + 当发生诸如断电之类的意外情况时，RDB 会丢失一些数据。
 + 因为 RDB 会 fork 一个子进程进行持久化，当数据集较大以及CPU性能不好时，这是比较昂贵的，可能会导致 redis 停止服务几毫秒到几秒。 AOF 也会 fork 但是会好很多。
 
 ### 4 AOF 的有点
+
 + 使用 AOF redis 是持久的，可以使用不同的 fsync 策略： 完全不进行 fsync，每秒进行 fsync，每个查询都进行 fsync。
 + AOF log 是一个 append only 的文件，所以即使发生崩溃，只有一个不完整的 log 行被写入，也可以使用 redis-check-aof 修复。
 + 可以覆盖掉以节省存储空间。
 + AOF log 容易理解。
 
 ### 5 AOF 的缺点
+
 + AOF 的备份文件会比 RDB 的大
 + AOF 在一些fsync 策略的选择情况下回比 RDB 大。
 + 有一些还没有解决的 bug
@@ -108,6 +111,7 @@ AOF 使用 fsync 系统调用将 in-core 状态的文件和存储设备进行同
 建议每秒实行 fsync。
 
 ### 9  AOF 和 RDB 持久化的交互
+
 应该避免 BGSAVE 和 AOF rewrite 的同时出现。
 RDB 永远不会在创建后改变。
 建议：

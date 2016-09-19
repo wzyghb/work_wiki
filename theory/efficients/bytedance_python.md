@@ -70,3 +70,53 @@ applet
 
 
 code complete 第11章
+
+
+## abc
+
+这个模块用于在 Python 中定义 abstract base classes.
+
++ register(subclass)
+注册一个子类作为这个 ABC 的 “虚子类”。
+
++ __subclasshook__(subclass) 
+检查一个 subclass 是不是 ABC 的子类。这是自定义 issubclass 方法，但不需要调用 register 的另一种方法。
+如果 返回 True，会认为是子类，如果返回 False，则不会被认为是子类，若返回 NotImplemented，则会用常规的方法来处理。
+
+```python
+class Foo:
+    def __getitem__(self, index):
+        ...
+    def __len__(self):
+        ...
+    def get_iterator(self):
+        return iter(self)
+
+class MyIterable(metaclass=ABCMeta):
+
+    @abstractmethod
+    def __iter__(self):
+        while False:
+            yield None
+
+    def get_iterator(self):
+        return self.__iter__()
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is MyIterable:
+            if any("__iter__" in B.__dict__ for B in C.__mro__):
+                return True
+        return NotImplemented
+
+MyIterable.register(Foo)
+```
+
+ABC `MyIterable` 定义了一个标准迭代器方法 `__iter__` 做为抽象方法。这个实现在此处可以从 subclasses 中调用。
+`__subclasshook__` 类方法在此处定义了任何实现了 __iter__ 方法的类（在其 __dict__ 中有这个方法或者通过 `__mro__` 都可以得到）也会被认为是一个 MyIterable.
+
+
+class abc.ABC
+
++ @abc.abstractmethod
+装饰器所在的类必须以 ABCMeta 为元类，或者从其继承。只有覆盖了所有的 abstractmethod 后，这个类才能够被实例化。可以使用 abstractmethod

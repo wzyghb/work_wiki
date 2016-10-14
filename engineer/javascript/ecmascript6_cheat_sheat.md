@@ -196,3 +196,92 @@ if (true) {
 
 在代码块内，使用let命令声明变量之前，该变量都是不可用的。这在语法上，称为“暂时性死区”（temporal dead zone，简称TDZ）。
 不允许重复声明，let 不允许在相同的作用域内重复声明一个变量。
+
+
+### 字符串
+
++ charCodeAt
++ codePointAt
++ String.fromCharCode
++ 字符串遍历接口 for (let codepoint of str) { ... }
+
+```javascript
+var text = String.fromCodePoint(0x20BB7);
+
+for (let i = 0; i < text.length; i++) {
+  console.log(text[i]);
+}
+// " "
+// " "
+
+for (let i of text) {
+  console.log(i);
+}
+```
+
++ normalize
++ include
++ startsWith
++ endsWith
++ repeat
++ padStart
++ padEnd
+
+### 数组扩展
+
++ Array.from()
++ Array.of()
++ Array.prototype.copyWithin(target, start, end)
++ find, findIndex, fill(value, start, end)
++ keys(), values(), entries()
++ includes
++ Map.prototype.has(key)、WeakMap.prototype.has(key)、Reflect.has(target, propertyKey)
++ Set.prototype.has(value)、WeakSet.prototype.has(value)
++ forEach(), filter(), every() 和some()都会跳过空位。
++ map()会跳过空位，但会保留这个值
++ join()和toString()会将空位视为undefined，而undefined和null会被处理成空字符串。
++ Array.from方法会将数组的空位，转为undefined
++ for...of循环也会遍历空位。
++ fill()会将空位视为正常的数组位置。
++ entries()、keys()、values()、find()和findIndex()会将空位处理成undefined。
+
+### 函数扩展
+
+javascript 中函数的默认值。
+javascript 默认值和解构相结合。
+双重默认值
+函数的 length 属性是函数参数中没有默认值的参数个数。
+rest 参数 *args
+扩展运算符 
+
+### 对象的扩展
+
+Object.is
+Object.assign
+描述对象：Object.getOwnPropertyDescriptor
+属性的遍历：
+  - for .. in
+  - Object.keys() Object.values() Object.entries()
+  - Object.getOwnPropertyDescriptyNames(obj)
+  - Object.getOwnPropertyDescriptySymbols(obj)
+  - Reflect.ownKeys(obj)
+__proto__, Object.setPrototypeOf(), Object.getPrototypeOf(), Object.create()
+
+### Symbol
+
++ 表示独一无二
++ Symbol 不能与其他值进行运算
++ 可以显示转化为字符串和布尔型，但是不能转化为数字。
+
+Symbol 可以作为对象的属性名。Symbol值作为对象属性名时，不能用点运算符
+
+```javascript
+var sym = Symbol("foo")
+a[sym] = "value"
+
+a[sym]
+```
+
+
+javascript 中的其中数据类型： Undefined\Null\Boolean\String\Number\Object\Symbol
+

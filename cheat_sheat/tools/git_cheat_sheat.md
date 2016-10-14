@@ -144,4 +144,23 @@ git reset xxxxx         # 将HEAD重置到某个commit的状态，并保留所�
 git checkout -- hello.rb # 将hello.rb从最近的commit中取出，并恢复为那时的状态
 
 
+# 复杂命令
+
+## 1. git stash
+
+git stash list
+git stash apply
+git stash apply --index
+git stash clear
+git stash show -p stash@{0} | git apply -R
+git stash branch testchanges // stash branch 从 stash 创建一个分支
+git stash drop stash@{0}
+
+
+## 2. git revert
+
+## 3. git cherry-pick
+git cherry-pick <commit id> 将对应的commit应用到当前分支
+
+## 4. git reset
 

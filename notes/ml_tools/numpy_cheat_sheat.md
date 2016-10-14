@@ -12,7 +12,7 @@
 
 ### 创建数组
 
-```
+```python
 import numpy as np
 
 a = np.array([1,2,3,4])
@@ -29,9 +29,12 @@ d = np.exp(c*1j)
 ```
 
 总结：
+
+```
 array, zeros, zeros_like, ones, ones_like, empty, empty_like, 
 arange, linspace, numpy.random.rand, numpy.random.randn, 
 fromfunction, fromfile
+```
 
 ### 基本计算
 
@@ -86,7 +89,7 @@ view
 copy
 
 矩阵计算
-```
+```python
 a.transpose()
 np.linalg.inv(a)
 ```

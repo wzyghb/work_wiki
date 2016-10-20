@@ -141,6 +141,7 @@ table,th, td
 | 属性 | 描述 |
 |:---:|:---:|
 | border-collapse | 是否将表格边框合并为单一边框 |
+| border-radius | 设置边框圆角 |
 | border-spacing | 设置分隔单元格边框的距离 |
 | caption-side | 表格标题的位置 |
 | empty-cells | 是否显示表格中的空单元格 |
@@ -153,6 +154,7 @@ p
 {
     border:red solid thin;
     outline:#00ff00 dotted thick;
+    border-radius: 0 8px 8px 0;
 }
 ```
 
@@ -346,8 +348,11 @@ img:hover
     opacity:1.0;
 }
 ```
+`linear-gradient()` 函数创建了一个呈现线性渐变颜色的image
 
-
+```css
+ackground-image: linear-gradient(to bottom, #4d90fe, #4787ed);
+```
 
 ## 备忘录
 

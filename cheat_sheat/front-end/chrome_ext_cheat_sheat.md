@@ -1,5 +1,96 @@
 
-Manifest 模板
+## Manifest 配置文件
+
+说明文件：
+
+```json
+{
+  // 必须
+  "manifest_version": 2,
+  "name": "My Extension",
+  "version": "versionString",
+
+  // 推荐
+  "default_locale": "en",
+  "description": "A plain text description",
+  "icons": {...},
+
+  // Pick one (or none)
+  "browser_action": {...},
+  "page_action": {...},
+
+  // Optional
+  "author": ...,
+  "automation": ...,
+  "background": {
+    // Recommended
+    "persistent": false
+  },
+  "background_page": ...,
+  "chrome_settings_overrides": {...},
+  "chrome_ui_overrides": {
+    "bookmarks_ui": {
+      "remove_bookmark_shortcut": true,
+      "remove_button": true
+    }
+  },
+  "chrome_url_overrides": {...},
+  "commands": {...},
+  "content_capabilities": ...,
+  "content_scripts": [{...}],
+  "content_security_policy": "policyString",
+  "converted_from_user_script": ...,
+  "current_locale": ...,
+  "devtools_page": "devtools.html",
+  "event_rules": [{...}],
+  "externally_connectable": {
+    "matches": ["*://*.example.com/*"]
+  },
+  "file_browser_handlers": [...],
+  "file_system_provider_capabilities": {
+    "configurable": true,
+    "multiple_mounts": true,
+    "source": "network"
+  },
+  "homepage_url": "http://path/to/homepage",
+  "import": [{"id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+  "incognito": "spanning, split, or not_allowed",
+  "input_components": ...,
+  "key": "publicKey",
+  "minimum_chrome_version": "versionString",
+  "nacl_modules": [...],
+  "oauth2": ...,
+  "offline_enabled": true,
+  "omnibox": {
+    "keyword": "aString"
+  },
+  "optional_permissions": ["tabs"],
+  "options_page": "options.html",
+  "options_ui": {
+    "chrome_style": true,
+    "page": "options.html"
+  },
+  "permissions": ["tabs"],
+  "platforms": ...,
+  "plugins": [...],
+  "requirements": {...},
+  "sandbox": [...],
+  "short_name": "Short Name",
+  "signature": ...,
+  "spellcheck": ...,
+  "storage": {
+    "managed_schema": "schema.json"
+  },
+  "system_indicator": ...,
+  "tts_engine": {...},
+  "update_url": "http://path/to/updateInfo.xml",
+  "version_name": "aString",
+  "web_accessible_resources": [...]
+}
+
+```
+
+一个简单的例子
 
 ```json
 {
@@ -54,23 +145,23 @@ Manifest 模板
 }
 ```
 
-### 1 content_scripts
+### 1 content_scripts：操作用户正在浏览的页面
+`content_scripts`: 数组类型，可以包含 `matches`、`exclude_matches`、`css`、`js`、`run_at`、`all_frames`、`include-globs`、`exclude_globs` 等。
 指定将哪些脚本何时注入到哪些页面中，当用户访问这些页面后，相应的脚本即可自动执行，从而对 DOM 进行操作。
-`matches`：该属性定义了哪些页面会被注入脚本
-`exclude_matches` 定义了哪些页面不会被注入脚本
-css 和 js 定义了要注入的样式表和 JavaScript。
-`run_at`: 定义了何时运行注入
-`all_frame`: 定义脚本是否会注入嵌套式框架中。
-`include_globs` 和 `exclude_globs` 是全局 URL 匹配
-最终脚本是否会被注入由 `matches`、`exclude_matches`、`include_globs`、`exclude_globs` 的值共同决定。
+
++ `matches`：该属性定义了哪些页面会被注入脚本
++ `exclude_matches` 定义了哪些页面不会被注入脚本
++ `css` 和 `js` 定义了要注入的样式表和 JavaScript。 会在被注入页面中生效。
++ `run_at`: 定义了何时运行注入
++ `all_frame`: 定义脚本是否会注入嵌套式框架中。
++ `include_globs` 和 `exclude_globs` 是全局 URL 匹配。最终脚本是否会被注入由 `matches`、`exclude_matches`、`include_globs`、`exclude_globs` 的值共同决定。
 
 如果 URL 匹配 matches 的值同时也匹配 `include_globs` 的值，会被注入，如果 URL 匹配 `exclude_matches` 或者 `exclude_globs` 的值则不会被注入。
-
-content_scripts 中的脚本只是共享页面的 DOM，不会共享页面中嵌套的 JavaScript 命名空间。
+`content_scripts` 中的脚本只是共享页面的 DOM，不会共享页面中嵌套的 JavaScript 命名空间。
 
 ### 2 跨域请求
 
-JavaScript 通过 XMLHttpRequest 请求数据时，调用 JavaScript 的页面所在的域和被请求的域不一致，
+JavaScript 通过 `XMLHttpRequest` 请求数据时，调用 JavaScript 的页面所在的域和被请求的域不一致，
 对于网站来讲，浏览器会出于安全考虑不允许跨域。另外对于域相同，但是协议不同、端口不同时，
 
 ```json
@@ -81,26 +172,34 @@ JavaScript 通过 XMLHttpRequest 请求数据时，调用 JavaScript 的页面�
 
 ### 3 常驻后台
 
-在 Manifest 中指定 background 域可以使扩展常驻后台。background 可以包含三种属性，分别是 scripts、page 和 persistent。
+在 `Manifest` 中指定 `background` 域可以使扩展常驻后台。`background` 可以包含三种属性，分别是 `scripts`、`page` 和 `persistent`。
 
-指定了 scripts 属性，则 Chrome 会在扩展启动时自动创建一个包含所有指定脚本的页面；
-指定了 page 属性，则 Chrome 会将指定的 HTML 文件作为后台页面运行。
-通常我们只需要使用 scripts 属性即可，除非在后台页面中需要构建特殊的HTML——但一般情况下后台页面的 HTML 我们是看不到的。
++ 指定了 `scripts` 属性，则 Chrome 会在扩展启动时自动创建一个包含所有指定脚本的页面；
++ 指定了 `page` 属性，则 Chrome 会将指定的 HTML 文件作为后台页面运行。
+通常我们只需要使用 `scripts` 属性即可，除非在后台页面中需要构建特殊的HTML——但一般情况下后台页面的 `HTML` 我们是看不到的。
++ `persistent` 属性定义了常驻后台的方式——当其值为 `true` 时，表示扩展将一直在后台运行，无论其是否正在工作；当其值为 false 时，
+表示扩展在后台按需运行，这就是 Chrome 后来提出的 `Event Page`。`Event Page` 可以有效减小扩展对内存的消耗，如非必要，请将 `persistent` 设置为 `false`。`persistent` 的默认值为 `true`。
 
-persistent 属性定义了常驻后台的方式——当其值为 true 时，表示扩展将一直在后台运行，无论其是否正在工作；
-当其值为 false 时，表示扩展在后台按需运行，这就是 Chrome 后来提出的 `Event Page`。
-`Event Page` 可以有效减小扩展对内存的消耗，如非必要，请将 persistent 设置为 false。persistent 的默认值为 true。
+例子，在 `manifest.json` 中设置：
+
+```javascript
+"background": {
+        "scripts": [
+            "js/status.js"
+        ]
+    },
+```
 
 ### 4 选项页面
 
-Manifest 文件的 options_page 属性可以为开发者提供选项页面。
-使用HTML5新增的localStorage接口来保存用户的选项数据。
-localStorage是HTML5新增的方法，它允许JavaScript在用户计算机硬盘上永久储存数据（除非用户主动删除）
+`Manifest` 文件的 `options_page` 属性可以为开发者提供选项页面。
+使用 HTML5 新增的 `localStorage` 接口来保存用户的选项数据。
+`localStorage` 是 `HTML5` 新增的方法，它允许JavaScript在用户计算机硬盘上永久储存数据（除非用户主动删除）
 
-localStorage 的局限性：
-+ localStorage和Cookies类似，都有域的限制，运行在不同域的JavaScript无法调用其他域localStorage的数据。
-+ 单个域在localStorage中存储数据的大小通常有限制（虽然W3C没有给出限制），对于Chrome这个限制是5MB
-+ localStorage只能储存字符串型的数据，无法保存数组和对象，但可以通过join、toString和JSON.stringify等方法先转换成字符串再储存。
+`localStorage` 的局限性：
++ `localStorage` 和 `Cookies` 类似，都有域的限制，运行在不同域的 `JavaScript` 无法调用其他域 `localStorage` 的数据。
++ 单个域在 `localStorage` 中存储数据的大小通常有限制（虽然W3C没有给出限制），对于Chrome这个限制是 5MB
++ `localStorage` 只能储存字符串型的数据，无法保存数组和对象，但可以通过 `join`、`toString` 和 `JSON.stringify` 等方法先转换成字符串再储存。
 
 而通过声明 `unlimitedStorage`, Chrome 扩展和应用可以突破这一限制。
 
@@ -112,8 +211,8 @@ localStorage 的局限性：
 + runtime.connect
 + runtime.onConnect
 
-前两个是初级接口，后两个是高级接口。Chrome 提供的大部分 API 是不能够在 content_scripts 之中运行的，但是 runtime.sendMessage 和 runtime.onMessage
-可以在 content_scripts 之中运行，所以扩展的其他页面也可以同 content_scripts 相互通信。
+前两个是初级接口，后两个是高级接口。Chrome 提供的大部分 API 是不能够在 `content_scripts` 之中运行的，但是 `runtime.sendMessage` 和 `runtime.onMessage`
+可以在 `content_scripts` 之中运行，所以扩展的其他页面也可以同 `content_scripts` 相互通信。
 
 runtime.sendMessage 完整的方法为：
 ```JavaScript
@@ -135,7 +234,7 @@ sender 包含四个属性，分别是 tab(发起消息的标签 参见4.5)
 ### 6 存储数据
 
 chrome 扩展可以通过三种方式进行数据存储：
-+ html5 的 localStorage ---- 简单，特殊的 JavaScript 变量
++ html5 的 `localStorage` ---- 简单，特殊的 JavaScript 变量
 + chrome 提供的存储 API  ---- 保存任意类型的数据，需要异步调用 Chrome 的 API，结果需要回调函数接收，
 + 使用 Web SQL Database ---- 需要使用 SQL 语句来对数据库进行读写操作。
 
@@ -143,14 +242,14 @@ chrome 扩展可以通过三种方式进行数据存储：
 本身是 localStorage 的改进，与 localStorage 相比区别如下：
 
 + 如果存储区域指定为 sync, 数据可以自动同步
-+ content_scripts 可以直接读取数据，不必通过 background 页面
++ `content_scripts` 可以直接读取数据，不必通过 background 页面
 + 读写速度快
 + 用户数据可以以对象的类型保存
 
-第二点的解释：localStorage 是基于域名的，而 content_scripts 直接读取 localStorage 所读取到的数据是当前浏览器页面所在域中，通常的解决方案是
-content_scripts 通过 runtime.sendMessage 和 background 通信，由 background 读写扩展所在域的 localStorage，然后再传递给 content_scripts。
+第二点的解释：`localStorage` 是基于域名的，而 `content_scripts` 直接读取 `localStorage` 所读取到的数据是当前浏览器页面所在域中，通常的解决方案是
+`content_scripts` 通过 `runtime.sendMessage` 和 background 通信，由 background 读写扩展所在域的 localStorage，然后再传递给 content_scripts。
 
-manifest: permissions storage
+`manifest: permissions storage`
 chrome storage api 提供了 2 种存储区域，分别是 sync 和 local。sync 存储的区域会根据当前在 chrome 上登陆的 google 账户自动进行同步数据，当没有
 sync 区域对数据的读写和 local 区域对数据的读写行为一致。
 
@@ -248,7 +347,6 @@ else {
 
 ```javascript
 browser_action.default_icon ->
-
 chrome.browserAction.setIcon(details, callback);
 ```
 
@@ -272,11 +370,18 @@ details: imageData、path、tabId
 }
 
 chrome.browserAction.setTitle({title: 'This is a new title'});
+chrome.browserAction.setBadgeBackgroundColor({color: '#0000FF'});
+chrome.browserAction.setBadgeText({text: 'Dog'});
 ```
+badge目前还不支持更改文字的颜色——始终是白色，所以应避免使用浅颜色作为背景。
 
 #### 4 右键菜单
 
 右键菜单提供了四中类型，分别是 普通菜单，复选菜单，单选菜单和分割线，其中普通菜单还可以有下级菜单。
+
++ 权限：permissions: "contextMenus"
++ 图标：icons：{"16": "icon16.png"}
++ 
 
 ```javascript
 chrome.contextMenus.create({
@@ -331,7 +436,7 @@ chrome.contextMenus.create({
 ```
 
 总结：
-+ type: 'normal | radio | checkbox | separator'
++ 类型 type: 'normal | radio | checkbox | separator'
 + id
 + title
 + parentId
@@ -391,6 +496,43 @@ chrome.contextMenus.create({
 ### 桌面提醒
 
 实验失败
++ 权限："permissions": "notifications"
+
+例子：
+
+```javascript
+var notification = webkitNotifications.createNotification(
+    'icon48.png',
+    'Notification Demo',
+    'Merry Christmas'
+);
+
+notification.show();
+```
+对于需要在桌面窗口中显示的图像，必须进行如下的声明：
+```javascript
+"web_accessible_resources": [
+    "icon48.png"
+]
+"web_accessible_resources": [
+    "images/*.png"
+]
+```
+
+桌面提醒提供了四种事件：
+
++ ondisplay
++ onerror
++ onclose
++ onclick
+
+一般通过 `cancel` 方法自动关闭：
+
+```javascript
+setTimeout(function(){
+    notification.cancel();
+},5000);
+```
 
 ### Omnibox 多功能框
 
@@ -416,6 +558,14 @@ tabId为标签id，可以通过tabs接口获取，有关tab相关的内容将在
 
 ## 浏览器管理
 
++ 书签
++ Cookies
++ 历史
++ 管理扩展与应用
++ 标签
++ Override Pages 使用自定义的页面替换 Chrome 相应的默认页面
+
+
 书签的权限声明：
 
 ```javascript
@@ -433,4 +583,17 @@ tabId为标签id，可以通过tabs接口获取，有关tab相关的内容将在
 + dateAdded
 + dateGroupModified
 + children
+
+
+## 高级 API
+
+### 1 下载
+
+### 2 网络请求
+
+### 3 代理
+
+### 4 系统信息
+
+## Chrome 应用基础
 

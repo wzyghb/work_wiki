@@ -152,7 +152,7 @@ table,th, td
 ```css
 p 
 {
-    border:red solid thin;
+    border: red solid thin;
     outline:#00ff00 dotted thick;
     border-radius: 0 8px 8px 0;
 }

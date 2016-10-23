@@ -584,11 +584,111 @@ tabId为标签id，可以通过tabs接口获取，有关tab相关的内容将在
 + dateGroupModified
 + children
 
+### 标签
+
+标签对象的结构：
+
+```javascript
+{
+    id: 标签id,
+    index: 标签在窗口中的位置，以0开始,
+    windowId: 标签所在窗口的id,
+    openerTabId: 打开此标签的标签id,
+    highlighted: 是否被高亮显示,
+    active: 是否是活动的,
+    pinned: 是否被固定,
+    url: 标签的URL,
+    title: 标签的标题,
+    favIconUrl: 标签favicon的URL,
+    status :标签状态，loading或complete,
+    incognito: 是否在隐身窗口中,
+    width: 宽度,
+    height: 高度,
+    sessionId: 用于sessions API的唯一id
+}
+```
+
+当需要访问标签的 url\title\favIconUrl 时，需要声明 tabs 权限：{"permissions": "tabs"}
+
+chrome 提供了三种获得标签信息的方法：
++ get 获取到指定id的标签
++ getCurrent 获取运行的脚本本身所在的标签
++ query 获取所有符合指定条件的标签
+例子：
+
+```javascript
+chrome.tabs.get(tabId, function(tab){
+    console.log(tab);
+});
+
+chrome.tabs.getCurrent(function(tab){
+    console.log(tab);
+});
+```
+
+query 可以指定的匹配条件如下：
+
+```javascript
+{
+    active: 是否是活动的,
+    pinned: 是否被固定,
+    highlighted: 是否正被高亮显示,
+    currentWindow: 是否在当前窗口,
+    lastFocusedWindow: 是否是上一次选中的窗口,
+    status: 状态，loading或complete,
+    title: 标题,
+    url: 所打开的url,
+    windowId: 所在窗口的id,
+    windowType: 窗口类型，normal、popup、panel或app,
+    index: 窗口中的位置
+}
+```
+获得所有活动的标签：
+
+```javascript
+chrome.tabs.query({
+    active: true
+}, function(tabArray){
+    console.log(tabArray);
+});
+```
+
+创建标签：
+
+```javascript
+chrome.tabs.create({
+    windowId: wId,                  //创建标签的所在窗口id，默认在当前窗口下代开
+    index: 0,
+    url: 'http://www.google.com',
+    active: true,
+    pinned: false,
+    openerTabId: tId                // 此标签的标签 id
+}, function(tab){
+    console.log(tab);
+});
+```
+
+复制指定标签
 
 ## 高级 API
 
 ### 1 下载
 
++ 权限：permissions: "download"
++ 使用：
+
+```javascript
+options = {
+    url: 下载的 url,
+    filename: 保存的文件名,             // 可以是文件名或者相对路径，不能使绝对路径或者带有 ..q
+    conflictAction: 重名文件的处理方式,  // (uniquifyL 在文件名后添加后缀) (overwrite 覆盖) (prompt 给出提示让用户决定)
+    saveAs: 是否弹出另存为窗口,
+    method: 请求方式(POST 或者 GET),
+    headers: 自定义 header 数组,
+    body: POST 的数组
+}
+chrome.downloads.download(options, callback);
+```
 ### 2 网络请求
 
 ### 3 代理

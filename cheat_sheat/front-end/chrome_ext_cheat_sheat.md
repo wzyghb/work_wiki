@@ -691,7 +691,89 @@ chrome.downloads.download(options, callback);
 ```
 ### 2 网络请求
 
+#### 权限：
+
++ 要对网络请求进行操作，需要在Manifest中声明webRequest权限以及相关被操作的URL。阻断连接、更改header和重定向
++ 如需要阻止网络请求，需要声明webRequestBlocking权限。
+
+```
+"permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "*://*.google.com/
+]
+```
+
+阻断连接：
+
+```javascript
+chrome.webRequest.onBeforeRequest.addListener(
+    function(details){
+        return {cancel: true};
+    },
+    {
+        urls: [
+            "*://bad.example.com/*"
+        ]
+    },
+    [
+        "blocking"
+    ]
+);
+```
+
+删除 User-Agent 信息
+
+```javascript
+chrome.webRequest.onBeforeSendHeaders.addListener(
+    function(details){
+        for(var i=0, headerLen=details.requestHeaders.length; i<headerLen; ++i){
+            if(details.requestHeaders[i].name == 'User-Agent'){
+                details.requestHeaders.splice(i, 1);
+                break;
+            }
+        }
+        return {requestHeaders: details.requestHeaders};
+    },
+    {
+        urls: [
+            "<all_urls>"
+        ]
+    },
+    [
+        "blocking",
+        "requestHeaders"
+    ]
+);
+```
+
+重定向
+
+```javascript
+chrome.webRequest.onBeforeRequest.addListener(
+    function(details){
+        return {redirectUrl: details.url.replace( "www.google.com.hk", "www.google.com")};
+    },
+    {
+        urls: [
+            "*://www.google.com.hk/*"
+        ]
+    },
+    [
+        "blocking"
+    ]
+);
+```
+
 ### 3 代理
+
+权限：
+
+```json
+"permissions": [
+    "proxy"
+]
+```
 
 ### 4 系统信息
 

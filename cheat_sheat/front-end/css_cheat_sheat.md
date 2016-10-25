@@ -216,7 +216,7 @@ margin : 0.25in;
 margin : 10px 0px 15px 5px;
 
 设置的基本顺序：
-margin: top right bottom left
+margin: top right bottom left;
 
 相对于元素的 width 计算百分比：
 margin : 10%;
@@ -351,7 +351,7 @@ img:hover
 `linear-gradient()` 函数创建了一个呈现线性渐变颜色的image
 
 ```css
-ackground-image: linear-gradient(to bottom, #4d90fe, #4787ed);
+background-image: linear-gradient(to bottom, #4d90fe, #4787ed);
 ```
 
 ## 备忘录

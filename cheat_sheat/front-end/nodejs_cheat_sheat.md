@@ -84,12 +84,12 @@ xxx/project/                # 工程目录
 
 ### npm
 
-npm install xxx
-npm adduser
-npm publish
-npm help
-npm update
-npm cache
++ npm install xxx
++ npm adduser
++ npm publish
++ npm help
++ npm update
++ npm cache
 
 ### 文件操作
 
@@ -369,13 +369,13 @@ request.end();
 
 自制 SSL 证书的配置：
 
-options 中加入 rejectUnauthorized: false 字段。
+options 中加入 `rejectUnauthorized: false` 字段。
 
 [URL](http://nodejs.org/api/url.html)
 
 解析URL
 
-非完整的 URL 也可以使用 parse 方法来解析，如 ""
+非完整的 URL 也可以使用 parse 方法来解析，如:
 ```javascript
 url.parse('http://user:pass@host.com:8080/p/a/t/h?query=string#hash');
 

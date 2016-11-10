@@ -19,5 +19,17 @@
 + gevent.resolver_thread
 + gevent.resolver_ares
 
-gevent.backdoor
-gevent.fileobject
+### 其他
++ gevent.backdoor
++ gevent.fileobject
++ gevent.local
++ gevent.monkey
++ gevent.os
++ gevent.signal
++ gevent.pool
++ gevent.queue
++ genvet.server
++ gevent.subprocess
++ gevent.thread
++ gevent.threadpool
++ gevent.util

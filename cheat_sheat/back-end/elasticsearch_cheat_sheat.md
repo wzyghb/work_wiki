@@ -1,4 +1,11 @@
 
+个人认为 Elasticsearch 本身是比较复杂的。这个cheatsheat 主要包括三个部分。第一部分是 Elasticsearch 本身的原理，主要来自
+[Elasticsearch 权威指南](https://www.gitbook.com/book/looly/elasticsearch-the-definitive-guide-cn/details)。因为
+平时的工作主要使用 Python 进行开发，所以第二部分主要介绍 Elasticsearch 官方的 Python 的客户端 elasticsearch-py。项目中主要使用
+elasticsearch-dsl，所以在第三部分也对这个更加抽象的库进行总结。
+
+# Elasticsearch 基础
+
 ## 初步设置
 ```
 java -version

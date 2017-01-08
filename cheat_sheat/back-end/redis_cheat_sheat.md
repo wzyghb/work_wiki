@@ -120,13 +120,32 @@ RDB 永远不会在创建后改变。
 + 每次 cron script 运行时，应该使用 find 命令确保老旧的 RDB 文件被删除了。
 + 保证至少每天会将一个 RDB 快照传输到自己数据中心的外部。
 
-## 4 事件通知
+## 4 发布与订阅
 
-PUBLISH __keyspace@0__:mykey del
-PUBLISH __keyevent@0__:del mykey
+### 订阅某个频道
 
-目前的事件分发是不可靠的。
-通知的设置参见文档。
+#### 主要命令
++ SUBSCRIBE: 订阅某个频道
++ UNSUBSCRIBE: 取消订阅某个频道
++ PUBLISH: 向某个频道发送消息
+
+#### 返回消息的格式
+
+1) "message"/"subscribe"/"ubsubscribe"  表示消息的类型
+2) 消息的来源频道
+3) 消息的内容
+
+### 使用模式匹配来实现多过个频道的匹配订阅
+
+#### 主要的命令
++ PSUBSCRIBE: 订阅某个模式，可以包括多个 glob 风格的通配符，比如 *\?\[...] 等。
++ PUNSUBSCRIBE: 
+
+#### 返回消息的格式
+1) "pmessage"
+2) 订阅命令中的模式
+3) PUBLISH 的实际 channel 的名字
+4) 消息内容
 
 ## 5 事务
 
@@ -161,3 +180,23 @@ redis 也不支持回滚操作，优点是：
 + 保持 redis 的快速简单。
 
 ### 3 redis 的脚本也可以实现类似的事务功能
+
+## 6 脚本
+Redis 内置 Lua 解释器， 可以使用 EVAL 命令对 Lua 脚本进行求值。
+
++ EVAL
++ EVALSHA
++ SCRIPT EXISTS
++ SCRIPT FLUSH
++ SCRIPT KILL
++ SCRIPT LOAD
+
+## 7 连接
+
++ AUTH
++ ECHO
++ PING
++ QUIT
++ SELECT
+
+## 8 Server 服务器

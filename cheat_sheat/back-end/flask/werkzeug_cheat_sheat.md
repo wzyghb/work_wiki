@@ -1,12 +1,36 @@
+werkzeug 基础总结
+----
 
-## 0. WSGI 基础
+在头条的开发中，基础框架使用 flask 框架，而 flask 框架底层使用 werkzeug 实现。（jinja2 很少使用。项目中大部分通过 restful api 向前端返回数据。
+因而总结了下 werkzeug 的基础知识。
+
+另外有：
+[werkzeug 源码阅读](https://github.com/LianYun/werkzeug)
+[werkzeug 中文文档 0.9.4](http://werkzeug-docs-cn.readthedocs.io/zh_CN/latest/index.html)
+[werkzeug English 0.11](http://werkzeug.pocoo.org/docs/0.11/)
+
+## 1. WSGI 基础
+
+要理解 Werkzeug 首先要理解:
++ [WSGI APP](https://www.python.org/dev/peps/pep-0333/)
++ [知乎上的解释](https://www.zhihu.com/question/19998865)
+
+首先 WSGI 组件可以分为 Server、Middleware 和 Application 三种。 其中 Middleware 是设计模式中的 Decorator。
+下面就是 Application 的基本形式：
 
 ```python
-def application(environ, start_response):
+def application(environ: Dict[String, Any], start_response: (String, List] -> Any)) -> Iterable[String]:   
+    """
+    接受 environ 和 start_response 两个参数。
+    environ: 数据。
+    start_response: 上层处理方法。
+    这两个部分由 Server 注入给 Application，称之为依赖注入。
+    实际上，这在设计模式称之为控制反转 IoC
+    """
     start_response('200 OK', [('Content-Type', 'text/plain')])
     return ['Hello World!']
 ```
-Werkzeug 就是这种底层的 WSGI 的封装“
+Application 就是一个 Python 的可调用对象。Werkzeug 就是这种底层的 WSGI 的封装。比如说下面的例子中对请求和响应进行封装：
 
 ```python
 from werkzeug.wrappers import Request, Response
@@ -18,7 +42,57 @@ def application(environ, start_response):
     return response(environ, start_response)
 ```
 
-## 1. 创建目录
+从类型的角度来讲，Application 可以定义为一个具有下面形式的类型：
+
+```python
+type Application = (Dict[String, Any], (String, List) -> Any)) -> Iterable[String]
+```
+
+而 Middleware 本质上是一个装饰器 Decorator，和 Application 类似它也是一个 Callable 对象，其签名可以具有如下形式：
+
+```python
+def __call__(app: Application): transformedApp: Application
+```
+
+Server 更像是一个 Adapter，其基本职责是：
+1. 从 os.environ 或者 sys.stdin 中获得 Request 数据，自定义 `start_response` 和 write 函数，
+在其中使用 sys.stdout 进行响应，并且将 environ 和 `start_response` 传递给 Application 进行调用，然后遍历 Application 返回
+的 Iterable，使用 write 函数把结果写入到 sys.stdin （完成和更上层，一般是 nginx 的通讯）。
+
+
+## 2. 基本组成
+
+### 1. 请求/响应对象
+
+### 2. URL 路由
+
+### 3. WSGI 辅助函数
+
+### 4. HTTP 公共包
+
+### 5. Data Structure
+
+### 6. 公共包
+
+#### 1 HTML Helpers
+
+#### 2 一般的 Helpers
+
+#### 3 URL Helpers
+
+#### 4 UserAgent Parsing
+
+#### 5 安全 Helpers
+
+### 7 上下文局部 Context local
+
+### 8 中间件 Middleware
+
+### 9 HTTP Exception
+
+## 3. 一个简单的教程
+
+### 1. 创建目录
 
 ```
 /shortly
@@ -26,7 +100,7 @@ def application(environ, start_response):
     /templates
 ```
 
-## 2 一个基本的应用程序
+### 2 一个基本的应用程序
 
 ```python
 import os
@@ -75,7 +149,7 @@ if __name__ == '__main__':
     run_simple('127.0.0.1', 5000, app, use_debugger=True, use_reloader=True)
 ```
 
-## 3 环境
+### 3 环境
 
 实现模板的渲染和数据库的连接。
 
@@ -91,7 +165,7 @@ def render_template(self, template_name, **context):
     return Response(t.render(context), mimetype='text/html')
 ```
 
-## 4 路由
+### 4 路由
 
 ```python
 self.url_map = Map([
@@ -124,7 +198,7 @@ values = {'short_id': u'foo'}
 
 如果 adapter 没有匹配到任何东西，他将会抛出一个 NotFound 异常，实质上是一个 HTTPException 异常。所有的 HTTP 异常将会跳转到 WSGI 应用渲染的默认错误页面。
 
-## 5 第一个视图
+### 5 第一个视图
 
 ```python
 def on_new_url(self, request):
@@ -167,7 +241,7 @@ def base36_encode(number):
     return ''.join(reversed(base36))
 ```
 
-## 6 重定向视图
+### 6 重定向视图
 
 重定向视图的作用是从 redis 中读取一个 url 并跳转到它。另外还会给对应的统计数字增加 1.
 
@@ -181,7 +255,7 @@ def on_follow_short_link(self, request, short_id):
 ```
 如果 url 不存在，则会抛出一个 NotFound 异常。通过 dispatch_request 会返回一个 404 响应。
 
-## 7 描述视图
+### 7 描述视图
 
 ```python
 def on_short_link_details(self, request, short_id):
@@ -197,4 +271,3 @@ def on_short_link_details(self, request, short_id):
 
 ```
 
-## 8 模板

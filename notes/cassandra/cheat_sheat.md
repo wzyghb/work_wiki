@@ -3,6 +3,19 @@
 
 + [创建 keyspace](http://docs.datastax.com/en/cql/3.3/cql/cql_reference/cqlCreateKeyspace.html)
 + [创建 table](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateTable.html)
++ [Materialized View](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateMV.html)
++ [复杂的数据结构](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAdvancedDataTypesTOC.html)
++ [用户自定义函数](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateUDF.html)
++ [插入、删除、更新数据](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useInsertDataTOC.html)
++ [批量更新](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useBatch.html)
++ [查询表](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useScanPartition.html)
++ [索引表](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateQueryIndexes.html)
++ [修改表](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAlterAddColl.html)
++ [修改 materialized view](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAlterMV.html)
++ [修改用户自定义类型](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAlterType.html)
++ [删除 keyspace、table、shema、data](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useRemoveData.html)
++ [表的安全、权限控制](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useSecureTOC.html)
++ [一致性](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useTracing.html)
 + []()
 
 ## 命令示例
@@ -50,3 +63,320 @@ SELECT * FROM cycling.popular_count;
 ```
 
 [key 的定义解释](http://datascale.io/cassandra-partitioning-and-clustering-keys-explained/)
+
+## Materialized View
+Materialized View 由另外一个表的数据构建得到，但是有不同的 key 和新的 properties。在 Casssadra 中，查询使用 primary key 来定义。一般的
+实践方法是，创建一个表用于查询，然后创建另一个表用于不同的其他查询。在 cassandra 3.0 之前， 这些额外的表都需要在客户端应用中手动增加。而 Materialized
+View 可以更具他的原数据表来自动的更新数据。
+
+Secondary indexes 适用于不太常用的数据的查询。如果这个列有很高的查询需求，并需要 Cassandra 在一个查询中访问集群中所有的结点，这回引起较高的阅读延迟。
+
+Materialized View 适用于较高频率的查询数据。在 Materialized view 中的数据会按照 view 的 primary key 重新组织。
+
++ 原始表中的 primary key 必须在 Materialized view 中也是 primary key。
++ 只能有一个新的列可以增加到 Materialized view 的 primary key 中。而且不能使 static columns。
+
+例子：
+
+```sql
+CREATE TABLE cyclist_mv (cid UUID PRIMARY KEY, name text, age int, birthday date, country text);
+```
+
+```sql
+CREATE MATERIALIZED VIEW cyclist_by_age 
+AS SELECT age, birthday, name, country 
+FROM cyclist_mv 
+WHERE age IS NOT NULL AND cid IS NOT NULL 
+PRIMARY KEY (age, cid);
+```
+
+CREATE MATERIALIZED VIEW 语句有如下特征：
++ AS SELECT 语句将列中的数据复制到 Materialized view 中，
++ FROM 子句标识了 Cassandra 中用于复制数据的 source table。
++ WHERE 子句包括所有的 primary key 列包括 IS NOT NULL 阶段，限定哪些行拷贝到 Materialized view 中。
++ 由于原始表使用 cid 作为其 primary key，因而在 Materialized view 中，也应该使用 cid 作为其 primary key。
++ 注意在 Materialized view 中 age 变成了 patition key，而 cid 变成了 clustering column。
+
+在 cassandra 3.10 及其之后的版本中，materialized view 能够使用 filtering 语句创建，包括在 non-primary-key 列上增加限制。
+
+```sql
+-- 对不同的列创建不同的 materialiezd view 用于查询
+CREATE MATERIALIZED VIEW cyclist_by_birthday 
+AS SELECT age, birthday, name, country 
+FROM cyclist_mv 
+WHERE birthday IS NOT NULL AND cid IS NOT NULL
+PRIMARY KEY (birthday, cid);
+
+-- 
+CREATE MATERIALIZED VIEW cyclist_by_country 
+AS SELECT age,birthday, name, country 
+FROM cyclist_mv 
+WHERE country IS NOT NULL AND cid IS NOT NULL
+PRIMARY KEY (country, cid);
+
+-- 使用 country 进行查询
+SELECT age, name, birthday FROM cyclist_by_country WHERE country = 'Netherlands';
+
+-- 创建 materialized view 时，使用 filter 子句并用非主键进行限定
+CREATE MATERIALIZED VIEW cyclist_by_birthday_Netherlands 
+AS SELECT age, birthday, name, country 
+FROM cyclist_mv 
+WHERE birthday IS NOT NULL AND cid IS NOT NULL
+AND country='Netherlands'   -- 不是主键也可以作为约束。
+PRIMARY KEY (birthday, cid);
+
+SELECT age, name, birthday FROM cyclist_by_birthday WHERE birthday = '1997-02-08';
+```
+
+完成了 materialized view 的创建后，当更新 source table 的数据后，materialized view 的数据会同步更新。
+materialiezd view 的查询方式和普通的 cassandra 表没有差异，但是写入性能较差。Cassandra 增加了一个额外的
+read-before-write 来更新每个 materialized view。为了完成更新，cassandra 在每一个 replica 上进行一次数据
+一致性检查。这回带来源数据表的写入和删除时延。Cassandra 也可以支持直接写入到源表中，当数据已近插入到 source table 后，再异步地
+进行同步。
+
+## 集合
+在关系数据库中，用户拥有多个 email、电话之类的会导致创建多个关系表，然后查询时会有很多个 join 操作。当集合中的数据是有限定时，推荐使用 collections 来存储数据。
+如果数据的增长潜力是无限时，比如消息发送、事件发生这种没有边界的数据，不要使用 collections 来存储这种数据。而是使用 compound primary key 在 clustering column 中存储数据。
+
+注意：
++ 不要将超过 2 billion 条目存储到集合中。而且只有 number 可以用于查询。
++ map 集合中最大的 key 的数量是 65535
++ list 集合的最大尺寸不能超过 2 GB
++ set 集合每个元素的大小不能超过 65535 bytes
++ 始终保持集合的数据比较小，由此来避免查询过程中的时延。 cassandra 只能整体地将集合全都 load 出来。
++ lists 会引发一个 read-before-write 的操作，因而最好在可能的地方使用 set
+
+除了 map、list、set 还可以创建 tuple 类型。可以将多个值保存在一个 tuple 中：
+```
+CREATE TABLE cycling.route (race_id int, race_name text, point_id int, lat_long tuple<text, tuple<float,float>>, PRIMARY KEY (race_id, point_id));
+CREATE TABLE cycling.nation_rank ( nation text PRIMARY KEY, info tuple<int,text,int> );
+CREATE TABLE cycling.popular (rank int PRIMARY KEY, cinfo tuple<text,text,int> );
+```
+
+创建自定义类型: 注意自定义类型的范围也是 keyspace。
+
+```sql
+CREATE TYPE cycling.basic_info (
+  birthday timestamp,
+  nationality text,
+  weight text,
+  height text
+);
+```
+创建一个有自定义类型值的表：
+
+```sql
+CREATE TABLE cycling.cyclist_stats ( id uuid PRIMARY KEY, lastname text, basics FROZEN<basic_info>); 
+```
+
+也可以将自定义类型封装到一个集合中如下所示：
+
+```sql
+CREATE TYPE cycling.race (race_title text, race_date timestamp, race_time text);
+CREATE TABLE cycling.cyclist_races ( id UUID PRIMARY KEY, lastname text, firstname text, races list<FROZEN <race>> );
+```
+
+## 创建自定义函数
++ 设定返回值的类型、定义函数使用的真实代码语言
+
+创建 fLog 函数，计算输入值的 logarithmic。
+```sql
+CREATE OR REPLACE FUNCTION fLog (input double) CALLED ON NULL INPUT RETURNS double LANGUAGE java AS 'return Double.valueOf(Math.log(input.doubleValue()));';
+```
+
++ CALLED ON NULL INPUT 保证函数可以被执行
++ RETURNS NULL ON NULL INPUT 保证函数会在输入为 NULL 时返回 NULL
++ RETURNS 定义了函数返回的数据类型
+
+## 插入数据
+
+例子：
+
+```sql
+-- 普通插入
+INSERT INTO cycling.cyclist_name (id, lastname, firstname) VALUES (5b6962dd-3f90-4c93-8f61-eabfa4a803e2, 'VOS','Marianne');
+
+-- 集合更新 
+INSERT INTO cycling.cyclist_career_teams (id,lastname,teams) 
+  VALUES (5b6962dd-3f90-4c93-8f61-eabfa4a803e2, 'VOS', 
+  { 'Rabobank-Liv Woman Cycling Team','Rabobank-Liv Giant','Rabobank Women Team','Nederland bloeit' } );
+
+UPDATE cycling.cyclist_career_teams 
+  SET teams = teams + {'Team DSB - Ballast Nedam'} WHERE id = 5b6962dd-3f90-4c93-8f61-eabfa4a803e2;
+
+UPDATE cycling.cyclist_career_teams
+  SET teams = teams - {'WOMBATS - Womens Mountain Bike & Tea Society'} WHERE id = 5b6962dd-3f90-4c93-8f61-eabfa4a803e2;
+
+UPDATE cyclist.cyclist_career_teams SET teams = {} WHERE id = 5b6962dd-3f90-4c93-8f61-eabfa4a803e2;
+
+-- 列表更新
+-- 创建
+INSERT INTO cycling.upcoming_calendar (year, month, events) VALUES (2015, 06, ['Criterium du Dauphine','Tour de Suisse']);
+-- 添加到列表头
+UPDATE cycling.upcoming_calendar SET events = ['The Parx Casino Philly Cycling Classic'] + events WHERE year = 2015 AND month = 06;
+-- 添加到列表尾
+UPDATE cycling.upcoming_calendar SET events = events + ['Tour de France Stage 10'] WHERE year = 2015 AND month = 06;
+-- 更改某个元素
+UPDATE cycling.upcoming_calendar SET events[2] = 'Vuelta Ciclista a Venezuela' WHERE year = 2015 AND month = 06;
+
+-- 删除列表中某个元素
+DELETE events[2] FROM cycling.upcoming_calendar WHERE year = 2015 AND month = 06;
+
+-- 删除列表中所有值为指定值的元素
+UPDATE cycling.upcoming_calendar SET events = events - ['Tour de France Stage 10'] WHERE year = 2015 AND month = 06;
+
+-- 字典映射
+-- 在下面的情景下使用 INSERT 会替换掉整个 map
+INSERT INTO cycling.cyclist_teams (id, lastname, firstname, teams) 
+VALUES (
+  5b6962dd-3f90-4c93-8f61-eabfa4a803e2,
+  'VOS', 
+  'Marianne', 
+  {2015 : 'Rabobank-Liv Woman Cycling Team', 2014 : 'Rabobank-Liv Woman Cycling Team', 2013 : 'Rabobank-Liv Giant', 
+    2012 : 'Rabobank Women Team', 2011 : 'Nederland bloeit' }); 
+
+-- 使用 update 函数来在 map 中增加一些元素
+UPDATE cycling.cyclist_teams SET teams = teams + {2009 : 'DSB Bank - Nederland bloeit'} WHERE id = 5b6962dd-3f90-4c93-8f61-eabfa4a803e2;
+
+-- 设定 map 指定 key 的值
+UPDATE cycling.cyclist_teams SET teams[2006] = 'Team DSB - Ballast Nedam' WHERE id = 5b6962dd-3f90-4c93-8f61-eabfa4a803e2;
+
+-- 删除 map 中一个指定的 key 的值
+DELETE teams[2009] FROM cycling.cyclist_teams WHERE id=e7cd5752-bc0d-4157-a80f-7523add8dbcd;
+
+-- 删除 map 中指定的一些 key 的值
+UPDATE cycling.cyclist_teams SET teams = teams - {'2013','2014'} WHERE id=e7cd5752-bc0d-4157-a80f-7523add8dbcd;
+
+-- 在表中插入 tuple 数据
+INSERT INTO cycling.route (race_id, race_name, point_id, lat_long) VALUES (500, '47th Tour du Pays de Vaud', 2, ('Champagne', (46.833, 6.65)));
+
+INSERT INTO cycling.nation_rank (nation, info) VALUES ('Spain', (1,'Alejandro VALVERDE' , 9054));
+
+-- UDF 数据更新：在 table 创建时，所有的 collection fields 必须是 frozen 的。而且 individual field 的值不能够单独更新。 (cassandra 3.6 以上可以独立更新)如下：
+CREATE TABLE cycling.cyclist_stats ( id UUID, lastname text, basics basic_info, PRIMARY KEY (id) );
+INSERT INTO cycling.cyclist_stats (id, lastname, basics) 
+    VALUES (220844bf-4860-49d6-9a4b-6b5d3a79cbfb, 'TIRALONGO', { birthday:'1977-07-08',nationality:'Italy',weight:'63 kg',height:'1.78 m' });
+UPDATE cyclist_stats SET basics.birthday = '2000-12-12' WHERE id = 220844bf-4860-49d6-9a4b-6b5d3a79cbfb;
+
+INSERT INTO cycling.cyclist_races (id, lastname, firstname, races) VALUES (
+  5b6962dd-3f90-4c93-8f61-eabfa4a803e2,
+  'VOS',
+  'Marianne',
+  [{ race_title : 'Rabobank 7-Dorpenomloop Aalburg',race_date : '2015-05-09',race_time : '02:58:33' },
+  { race_title : 'Ronde van Gelderland',race_date : '2015-04-19',race_time : '03:22:23' }]
+);
+
+INSERT INTO cycling.cyclist_stats (id, lastname, basics) VALUES (
+  e7ae5cf3-d358-4d99-b900-85902fda9bb0, 
+  'FRAME', 
+  { birthday : '1993-06-18', nationality : 'New Zealand', weight : null, height : null }
+);
+
+-- 将 JSON 数据插入到一个 table 中
+INSERT INTO cycling.cyclist_category JSON '{
+  "category" : "GC", 
+  "points" : 780, 
+  "id" : "829aa84a-4bba-411f-a4fb-38167a987cda",
+  "lastname" : "SUTHERLAND" }';
+
+INSERT INTO cycling.cyclist_category JSON '{
+  "category" : "Sprint", 
+  "points" : 700, 
+  "id" : "829aa84a-4bba-411f-a4fb-38167a987cda"
+}';
+```
+
+## 使用轻量级的锁
+ INSERT 和 UPDATE 语句使用 IF clause 可以支持轻量级事务，也可认为是 Conpare and Set。
+ 
+ 例子：
+
+ ```sql
+ INSERT INTO cycling.cyclist_name (id, lastname, firstname)
+  VALUES (4647f6d3-7bd2-4085-8d6c-1229351b5498, 'KNETEMANN', 'Roxxane')
+  IF NOT EXISTS;
+
+UPDATE cycling.cyclist_name
+  SET firstname = ‘Roxane’
+  WHERE id = 4647f6d3-7bd2-4085-8d6c-1229351b5498
+  IF firstname = ‘Roxxane’;
+ ```
+
+ ## 共享一个静态的 column
+
+static 指的是在一个 patition 里面是静态的。共享一个值。
+
+ ```sql
+CREATE TABLE t (
+  k text,
+  s text STATIC,
+  i int,
+  PRIMARY KEY (k, i)
+);
+INSERT INTO t (k, s, i) VALUES ('k', 'I''m shared', 0);
+INSERT INTO t (k, s, i) VALUES ('k', 'I''m still shared', 1);
+SELECT * FROM t;
+ ```
+
+输出：
+
+```sql
+ k |                  s | i   
+----------------------------
+k  | "I'm still shared" | 0 
+k  | "I'm still shared" | 1      
+```
+
+注意：
++ 没有定义 clustering column 的表不能够拥有 static column
++ 一个定义了 COMPACT STORAGE 不能够直接拥有一个 static column
++ 作为 partition key 的列不能成为 static
+
+
+## 支持过期时间的 column
+
+列和表支持一个可选地过期时间，称之为 TTL (time-to-live)；counter 类型不支持 TTL。TTL 的值精确到秒。过期的数据会被标记为 tombstone。
+
+```sql
+INSERT INTO cycling.calendar (race_id, race_name, race_start_date, race_end_date) VALUES (200, 'placeholder', '2015-05-27', '2015-05-27') USING TTL 86400;
+```
+tombstone：在 cassandra 中标记 column 已经被删除。在 Compaction 时，标记的 columns 会被删除。
+
+```sql
+UPDATE cycling.calendar USING TTL 259200 
+  SET race_name = 'Tour de France - Stage 12' 
+  WHERE race_id = 200 AND race_start_date = '2015-05-27' AND race_end_date = '2015-05-27';
+```
+
+```sql
+UPDATE cycling.calendar USING TTL 0 
+  SET race_name = 'Tour de France - Stage 12' 
+  WHERE race_id = 200 AND race_start_date = '2015-05-27' AND race_end_date = '2015-05-27';
+```
+
+## 数据插入和更新的批处理
+
+```sql
+BEGIN BATCH
+  INSERT INTO cycling.cyclist_expenses (cyclist_name, balance) VALUES ('Vera ADRIAN', 0) IF NOT EXISTS;
+  INSERT INTO cycling.cyclist_expenses (cyclist_name, expense_id, amount, description, paid) VALUES ('Vera ADRIAN', 1, 7.95, 'Breakfast', false);
+  APPLY BATCH;
+```
+
+## 查询表
+
+```sql
+
+```
+
+## 索引表
+
+改进：SSTable Attached Secondary Indexes (SASI)
+
+注意，在以下情况下不要使用 index：
++ 在一个数据量极大的表中查询一小部分数据。  [参考](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useWhenIndex.html#useWhenIndex__highCardCol)
++ 在使用 counter 列的表中。
++ 在一个需要经常插入和删除列的表中。
++ 
+
+重要概念： cardinality 基数，一般来说如果数据是文章实体，每个都包含大量的数据，则这个列是高基数的，反之如果只是 bool 类型的，则是低基数的。

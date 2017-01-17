@@ -2,19 +2,19 @@
 # 1 基本的命令
 | 命令           | 说明 |  
 |---            |:------:|  
-| downgrade     |       Revert to a previous version|
-| merge         |       Merge two revisions together. Creates a new migration file|
-| branches      |       Show current branch points|
-| revision      |       Create a new revision file.|
-| history       |       List changeset scripts in chronological order.|
-| upgrade       |       Upgrade to a later version|
-| heads         |       Show current available heads in the script directory|
-| current       |       Display the current revision for each database.|
-| show          |       Show the revision denoted by the given symbol.|
-| init          |       Generates a new migration|
-| stamp         |       'stamp' the revision table with the given revision; don't run any migrations|
-| migrate       |       Alias for 'revision --autogenerate'|
-| edit          |       Edit current revision.|
+| downgrade     | Revert to a previous version|
+| merge         | Merge two revisions together. Creates a new migration file|
+| branches      | Show current branch points|
+| revision      | 创建一个新的版本更新文件 |
+| history       | 显示按时间排序的版本信息 |
+| upgrade       | Upgrade to a later version|
+| heads         | 显示当前脚本下可用的 heads 信息（多个分支才会有） |
+| current       | 显示当前版本的 reversion 信息（只有版本号） |
+| show          | 显示给定版本的 reversion 信息 |
+| init          | 初始化一个新的迁移 |
+| stamp         | 'stamp' the revision table with the given revision; don't run any migrations|
+| migrate       | Alias for 'revision --autogenerate'|
+| edit          | 编辑当前数据库的 commit 信息 |
 
 # 2 基本使用
 
@@ -63,7 +63,7 @@ def configure_alembic(config):
 
 ## 2 多个数据库支持
 
-Flask-SQLAlchemy 具有 binds 特征，Flask-Migrate集成了这个特征。
+Flask-SQLAlchemy 具有 binds 特征，Flask-Migrate 集成了这个特征。
 
 > flask db init --multidb
 

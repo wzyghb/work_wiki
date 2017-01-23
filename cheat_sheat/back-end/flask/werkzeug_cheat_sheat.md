@@ -64,32 +64,186 @@ Server 更像是一个 Adapter，其基本职责是：
 
 ### 1. 请求/响应对象
 
+request 和 response 对象封装了 WSGI 环境或者从 WSGI 应用返回的值，婴儿是另一种 WSGI application。
+WSGI 函数有两个参数， environ 和 start_response, Request 类包装了 environ，使得我们可以更加方便地访问请求变量，如 data、请求头等。
+而 Response 则是一个标准的 WSGI 应用。
+
+使用的例子：
+```python
+from werkzeug.wrappers import Request, Response
+
+# 1
+application = Response('Hello World!')
+
+# 2
+def application(environ, start_response):
+    request = Request(environ)
+    response = Response("Hello %s!" % request.args.get('name', 'World!'))
+    return response(environ, start_response)
+
+# 3
+@Request.application
+def application(request):
+    return Response("Hello %s!" % request.args.get('name', 'World!'))
+```
+
+#### 设计准则
++ request 对象：
+    1. request 对象是不可变的。默认是不支持修改的。
+    2. request 对象可以在同一个线程中共享，但是自身并不支持线程安全。
+    3. 不能对 request 对象进行 pickle。
++ response 对象：
+    1. response 对象是可变的。
+    2. 对其调用 freeze() 方法后可以进行 pickle 和 copy。
+    3. 可以使用一个 response 对象用于多个 WSGI 的响应。
+    4. 可以使用 copy.deepcopy 创建一个副本。
+
+#### 包的组成
+
+基本组成：
++ werkzeug.wrappers.BaseRequest(environ, populate_request=True, shallow=False)
++ werkzeug.wrappers.BaseResponse(response=None, status=None, headers=None, mimetype=None, content_type=None)
+
+werkzeug 也提供了一些 Mixin 来丰富处理逻辑：
++ Request(BaseRequest, AcceptMixin, ETagRequestMixin, UserAgentMixin, AuthorizationMixin, CommonRequestDescriptorsMixin)
++ Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin, CommonResponseDescriptorsMixin, WWWAuthenticateMixin)
+
 ### 2. URL 路由
 
 ### 3. WSGI 辅助函数
+
+日期的解析
+头部的解析
+Cookies 的解析
 
 ### 4. HTTP 公共包
 
 ### 5. Data Structure
 
+#### 1 General Purpose
+
++ werkzeug.datastructures.TypeConversionDict
++ werkzeug.datastructures.ImmutableTypeConversionDict
++ werkzeug.datastructures.MultiDict
++ werkzeug.datastructures.ImmutableMultiDict
++ werkzeug.datastructures.ImmutableOrderedMultiDict
++ werkzeug.datastructures.CombinedMultiDict
++ werkzeug.datastructures.ImmutableDict
++ werkzeug.datastructures.ImmutableList
++ werkzeug.datastructures.FileMultiDict
+
+#### 2 HTTP 相关
+
++ werkzeug.datastructures.Headers
++ werkzeug.datastructures.EnvironHeaders
++ werkzeug.datastructures.HeaderSet
++ werkzeug.datastructures.Accept
++ werkzeug.datastructures.MIMEAccept
++ werkzeug.datastructures.CharsetAccept
++ werkzeug.datastructures.LanguageAccept
++ werkzeug.datastructures.RequestCacheControl
++ werkzeug.datastructures.ResponseCacheControl
++ werkzeug.datastructures.ETags
++ werkzeug.datastructures.Authorization
++ werkzeug.datastructures.WWWAuthenticate
++ werkzeug.datastructures.IfRange
++ werkzeug.datastructures.Range
++ werkzeug.datastructures.ContentRange
+
+#### 3 其他
+
+werkzeug.datastructures.FileStorage
+
 ### 6. 公共包
 
 #### 1 HTML Helpers
 
++ werkzeug.utils.HTMLBuilder
++ werkzeug.utils.escape
++ werkzeug.utils.unescape
+
 #### 2 一般的 Helpers
+
++ werkzeug.utils.cached_property
++ werkzeug.utils.environ_property
++ werkzeug.utils.header_property
++ werkzeug.utils.parse_cookie
++ werkzeug.utils.dump_cookie
++ werkzeug.utils.redirect
++ werkzeug.utils.append_slash_redirect
++ werkzeug.utils.import_string
++ werkzeug.utils.find_modules
++ werkzeug.utils.validate_arguments
++ werkzeug.utils.secure_filename
++ werkzeug.utils.bind_arguments
 
 #### 3 URL Helpers
 
++ werkzeug.urls.Href
++ werkzeug.urls.url_decode
++ werkzeug.urls.url_decode_stream
++ werkzeug.urls.url_encode
++ werkzeug.urls.url_encode_stream
++ werkzeug.urls.url_quote
++ werkzeug.urls.url_quote_plus
++ werkzeug.urls.url_unquote
++ 
+
 #### 4 UserAgent Parsing
+
+werkzeug.useragents.UserAgent
 
 #### 5 安全 Helpers
 
++ werkzeug.security.generate_password_hash
++ werkzeug.security.check_password_hash
++ werkzeug.security.safe_str_cmp
++ werkzeug.security.safe_join
++ werkzeug.security.pbkdf2_hex
++ werkzeug.security.pbkdf2_bin
+
 ### 7 上下文局部 Context local
+
+示例代码：
+
+```python
+from werkzeug.local import Local, LocalManager
+
+local = Local()
+local_manager = LocalManager([local])
+
+def application(environ, start_response):
+    local.request = request = Request(environ)
+    ...
+
+application = local_manager.make_middleware(application)
+```
+
++ werkzeug.local.LocalManager
++ werkzeug.local.LocalStack
++ werkzeug.local.LocalProxy
 
 ### 8 中间件 Middleware
 
-### 9 HTTP Exception
+werkzeug.wsgi.SharedDataMiddleware(app, exports, disallow=None, cache=True, cache_timeout=43200, fallback_mimetype='text/plain')
+主要用于挂载静态文件。
 
+werkzeug.wsgi.DispatcherMiddleware(app, mounts=None)
+将多个 wsgi app 组合起来。
+
+### 9 HTTP Exception
+400 - 431
+500-503
+
+所有异常的基类：
+
+```python
+werkzeug.exceptions.HTTPException(description=None, response=None)
+    def __call__(environ, start_response):
+        pass
+    def get_response(environ=None):
+        pass
+```
 ## 3. 一个简单的教程
 
 ### 1. 创建目录

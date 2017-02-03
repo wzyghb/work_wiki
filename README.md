@@ -28,6 +28,7 @@
 | 序列化 | protobuf |
 | 机器学习 | numpy、scipy、pandas、sklearn、tensorflow、keros、spark |
 | 前端 | react、redux |
+| 编程语言 | python、java、scala、c、go、javascript |
 
 ## 个人工具
 

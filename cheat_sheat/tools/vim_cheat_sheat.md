@@ -100,13 +100,18 @@
 | :tabn | 后一个 tab |
 
 标准模式下：
-gT      前一个 tab
-gt      后一个 tab
+| 命令 | 说明 |
+|---:|---:|
+| gT | 前一个 tab |
+| gt | 后一个 tab |
 
 MacVim 还可以借助快捷键来完成 tab 的关闭、切换
-cmd+w   关闭当前的 tab
-cmd+{   前一个 tab
-cmd+}   后一个 tab
+| 命令 | 说明 |
+|---:|---:|
+| cmd+w | 关闭当前的 tab |
+| cmd+{ | 前一个 tab |
+| cmd+} | 后一个 tab |
+
 ### nerd tree
 
 | 命令 | 说明 |

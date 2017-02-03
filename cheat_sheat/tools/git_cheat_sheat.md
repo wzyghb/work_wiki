@@ -1,4 +1,6 @@
 
+# 最佳实践
+
 ### 1. 最常见case, 基于master分支开发
 
 ```
@@ -136,31 +138,25 @@ git push origin issue1:master
 
 让工作目录回到上次提交时的状态：
 
-git reset --hard HEAD   # 到最近的commit，且删除修改
-git reset HEAD          # 到最近的commit，并且保留所有更改
-
-git reset xxxxx         # 将HEAD重置到某个commit的状态，并保留所有更改
-
-git checkout -- hello.rb # 将hello.rb从最近的commit中取出，并恢复为那时的状态
-
++ git reset --hard HEAD   # 到最近的commit，且删除修改
++ git reset HEAD          # 到最近的commit，并且保留所有更改
++ git reset xxxxx         # 将HEAD重置到某个commit的状态，并保留所有更改
++ git checkout -- hello.rb # 将hello.rb从最近的commit中取出，并恢复为那时的状态
 
 # 复杂命令
 
 ## 1. git stash
 
-git stash list
-git stash apply
-git stash apply --index
-git stash clear
-git stash show -p stash@{0} | git apply -R
-git stash branch testchanges // stash branch 从 stash 创建一个分支
-git stash drop stash@{0}
++ git stash list
++ git stash apply
++ git stash apply --index
++ git stash clear
++ git stash show -p stash@{0} | git apply -R
++ git stash branch testchanges // stash branch 从 stash 创建一个分支
++ git stash drop stash@{0}
 
 
 ## 2. git revert
 
 ## 3. git cherry-pick
-git cherry-pick <commit id> 将对应的commit应用到当前分支
-
-## 4. git reset
-
++ git cherry-pick <commit id> 将对应的commit应用到当前分支

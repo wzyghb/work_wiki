@@ -225,15 +225,15 @@ application = local_manager.make_middleware(application)
 
 ### 8 中间件 Middleware
 
-werkzeug.wsgi.SharedDataMiddleware(app, exports, disallow=None, cache=True, cache_timeout=43200, fallback_mimetype='text/plain')
++ werkzeug.wsgi.SharedDataMiddleware(app, exports, disallow=None, cache=True, cache_timeout=43200, fallback_mimetype='text/plain')
 主要用于挂载静态文件。
 
-werkzeug.wsgi.DispatcherMiddleware(app, mounts=None)
++ werkzeug.wsgi.DispatcherMiddleware(app, mounts=None)
 将多个 wsgi app 组合起来。
 
 ### 9 HTTP Exception
-400 - 431
-500-503
++ 400 - 431
++ 500-503
 
 所有异常的基类：
 
@@ -244,6 +244,7 @@ werkzeug.exceptions.HTTPException(description=None, response=None)
     def get_response(environ=None):
         pass
 ```
+
 ## 3. 一个简单的教程
 
 ### 1. 创建目录

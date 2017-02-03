@@ -228,13 +228,7 @@ CELERY_INCLUDE = [
     xxxxx.biz.es.tasks',
     xxxxx.biz.comment.tasks',
     xxxxx.biz.notification.tasks',
-    xxxxx.biz.topic.tasks',
-    xxxxx.user.tasks',
-    xxxxx.events.tasks',
-    xxxxx.biz.post.cf.tasks',
-    xxxxx.sort.lr.tasks',
-    xxxxx.user.group.tasks',
-    xxxxx.biz.batch.tasks'
+    xxxxx.biz.topic.tasks'
 ]
 
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']

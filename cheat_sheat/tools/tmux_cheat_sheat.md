@@ -20,9 +20,9 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 | 离开 session | prefix d |
 | 重命名当前 session | prefix $ |
 | 前 or 后一个会话 | prefix ( or ) |
-| 选择要离开的 会话 | prefix D |
+| 选择要离开的会话 | prefix D |
 | 进入命令行模式 | prefix : |
-| 
+
 
 ### Windows 相关的操作
 

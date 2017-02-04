@@ -37,3 +37,5 @@
 + idea
 + iterm2
 + zsh
++ tmux
+

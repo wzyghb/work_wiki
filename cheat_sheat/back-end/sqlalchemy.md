@@ -1,14 +1,14 @@
 
 ### 版本检查
 
-```
+```python
 import sqlalchemy
 sqlalchemy.__version__
 ```
 
 ### 连接
 
-```
+```python
 from sqlalchemy import create_engine
 engine = create_engine('sqlite:///:memory:', echo=True)
 
@@ -33,7 +33,7 @@ class User(Base):
 
 ### 定义范式
 
-```
+```python
 >>> User.__table__ 
 Table('users', MetaData(bind=None),
             Column('id', Integer(), table=<users>, primary_key=True, nullable=False),
@@ -57,14 +57,14 @@ COMMIT
 
 ### 创建Mapped Class的实例
 
-```
+```python
 ed_user = User(name='ed', fullname='Ed Jones', password='edspassword')
 ed_user.name ＃ ed
 ```
 
 ### 创建会话Session
 
-```
+```python
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 
@@ -80,7 +80,7 @@ session = Session()
 
 ### 加入与更新数据
 
-```
+```python
 ed_user = User(name='ed', fullname='Ed Jones', password='edspassword')
 session.add(ed_user)
 our_user = session.query(User).filter_by(name='ed').first()
@@ -95,7 +95,7 @@ ed_user is our_user  ＃ True
 
 ### 回滚
 
-```
+```python
 session.rollback()
 fake_user in session  ＃ False
 ```
@@ -104,42 +104,42 @@ fake_user in session  ＃ False
 
 + order_by语句
 
-```
+```python
 for instance in session.query(User).order_by(User.id):
      print(instance.name, instance.fullname)
 ```
 
 + 有限查询
 
-```
+```python
 for name, fullname in session.query(User.name, User.fullname):
      print(name, fullname)
 ```
 
 + 元组查询
 
-```
+```python
 for row in session.query(User, User.name).all():
     print(row.User, row.name)
 ```
 
 + 
 
-```
+```python
 for row in session.query(User.name.label('name_label')).all():
     print(row.name_label)
 ```
 
 + 范围查询
 
-```
+```python
 for u in session.query(User).order_by(User.id)[1:3]:
     print(u)
 ```
   
 + 过滤
 
-```
+```python
 for name, in session.query(User.name).\
              filter_by(fullname='Ed Jones'):
     print(name)
@@ -175,7 +175,7 @@ MATCH:
 
 ### Events
 
-```
+```python
 from sqlalchemy.event import listen
 from sqlalchemy.pool import Pool
 
@@ -195,9 +195,10 @@ def my_on_connect(dbapi_con, connection_record):
 ```
 ### 
 
+```python
 from sqlalchemy.event import listens_for
 from sqlalchemy.pool import Pool
-
+```
 
 ### Flask-SQLalchemy 可以识别的扩展清单
 

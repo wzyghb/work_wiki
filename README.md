@@ -31,11 +31,12 @@
 | 编程语言 | python、java、scala、c、go、javascript |
 
 ## 个人工具
+按照重要程度排名如下：
 
-+ vscode
-+ vim
++ git
 + idea
++ vim
++ tmux
++ vscode
 + iterm2
 + zsh
-+ tmux
-

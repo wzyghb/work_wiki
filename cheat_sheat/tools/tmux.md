@@ -68,3 +68,12 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 | 删除 session | tmux kill-session -t session-name |
 | 重新连接session | tmux attach -t session-name |
 | 显示保存的会话 | tmux ls |
+
+### gpakosz 模式引入的特性
+
+[gpakosz](https://github.com/gpakosz/.tmux)
+
+| 操作 | 快捷键 |
+| ---: | ---: |
+| 鼠标模式 | prefix + m |
+| 

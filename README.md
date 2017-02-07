@@ -18,9 +18,9 @@
 | ---: | ---: |
 | web 框架 | flask，以及 flask-admin、flask-migrate、flask-script |
 | rpc | thrift |
-| MySQL | SQLAlchemy |
-| Cassandra | python-driver |
-| 搜索 | elasticsearch-dsl |
+| MySQL | mysql\SQLAlchemy |
+| NoSQL | cassandra\python-driver |
+| 搜索 | elasticsearch\elasticsearch-dsl |
 | 开发环境 | docker |
 | 缓存、消息队列 | redis |
 | 异步任务 | celery |
@@ -28,7 +28,8 @@
 | 序列化 | protobuf |
 | 机器学习 | numpy、scipy、pandas、sklearn、tensorflow、keros、spark |
 | 前端 | react、redux |
-| 编程语言 | python、java、scala、c、go、javascript |
+| 编程语言 | python、java、scala、c、go | javascript、rust |
+| api | graphql |
 
 ## 个人工具
 按照重要程度排名如下：

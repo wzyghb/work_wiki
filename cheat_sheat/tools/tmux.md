@@ -1,6 +1,6 @@
 
-[使用的配置](https://github.com/gpakosz/.tmux)
-[中文文档](http://mindonmind.github.io/notes/linux/tmux.html)
++ [使用的配置](https://github.com/gpakosz/.tmux)
++ [中文文档](http://mindonmind.github.io/notes/linux/tmux.html)
 
 ## tmux 基本概念
 
@@ -32,14 +32,13 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 | 采用下一个内置布局 | prefix space |
 | 关闭一个窗口 | prefix & |
 | 使用窗口号切换 | prefix 窗口号 |
-| 切换到下一个窗口 | prefix n |
-| 切换到上一个窗口 | prefix p |
 | 切换到最近使用的窗口 | prefix l |
 | 以菜单方式显示和选择窗口 | prefix w |
 | 修改窗口的名称 | prefix , |
 | 搜索并切换窗口到结果 | prefix f |
 | 修改窗口编号 | prefix . |
-
+| ~~切换到下一个窗口~~ | prefix n |
+| ~~切换到上一个窗口~~ | prefix p |
 
 ### Pane 相关操作
 

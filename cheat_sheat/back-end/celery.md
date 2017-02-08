@@ -1,6 +1,5 @@
 # Celery
 
-
 Celery是一个分布式任务队列工具，是一个异步的任务队列基于分布式消息传递。参考[官网](http://www.celeryproject.org/)。
 
 ## 1. 基础概念

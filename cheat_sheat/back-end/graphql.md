@@ -1,10 +1,11 @@
 
 graphql 是一种新的 api 表现形式，相比于 restful api，其优点是更加灵活(个人见解)。
 
-[官网主页](http://graphql.org/)
-[github 教程](https://github.com/facebook/graphql)
+## 参考资料
++ [官网主页](http://graphql.org/)
++ [github 教程](https://github.com/facebook/graphql)
 
-graphql api 的学习主要包括:
+## graphql api 的学习主要包括
 + 查询语句：GraphQL query language
 + 类型系统：GraphQL schema language
 + GraphQL 服务是如何工作的
@@ -17,6 +18,7 @@ GraphQL 主要关键字：
 | query | 查询 |
 | mutation | 修改 |
 | type | 类型 |
+| input | 输入 |
 
 
 ## 查询和更改

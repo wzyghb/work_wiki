@@ -75,4 +75,19 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 | 操作 | 快捷键 |
 | ---: | ---: |
 | 鼠标模式 | prefix + m |
-| 
+| 粘贴复制的内容 | prefix + p |
+| 列出所有的 paste-buffer | prefix + b |
+| 提供 paste-buffer 的选择选项 | prefix + P |
+| vim 模式移动光标所在的 pane | prefix + h/j/k/l |
+|
+
+### vi-choice
+
+### vi-edit
+
+### vi-copy
+
+| 操作 | 快捷键 |
+| ---: | ---: |
+| prefix + enter | 进入 copy 模式 |
+|

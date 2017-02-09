@@ -30,6 +30,7 @@
 | 前端 | react、redux |
 | 编程语言 | python、java、scala、c、go | javascript、rust |
 | api | graphql |
+| ci | travis-ci |
 
 ## 个人工具
 按照重要程度排名如下：

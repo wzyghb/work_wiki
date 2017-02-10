@@ -1,7 +1,7 @@
 
 # 1 基本的命令
 | 命令           | 说明 |  
-|---            |:------:|  
+| :---          | :------ |  
 | downgrade     | Revert to a previous version|
 | merge         | Merge two revisions together. Creates a new migration file|
 | branches      | Show current branch points|

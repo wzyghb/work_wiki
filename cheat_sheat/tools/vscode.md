@@ -11,7 +11,7 @@
 ## 基本命令
 
 | 命令 | 说明 |
-| ---: | ---: |
+| :--- | :--- |
 | Alt + Up / Alt + Down | 移动这一行代码 |
 | Shift+Alt+Up / Shift+Alt+Down | 向上向下复制一行 |
 | ctrl + tab | 切换标签 |

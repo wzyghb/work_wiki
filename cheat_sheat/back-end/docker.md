@@ -1,6 +1,7 @@
 
 目前项目中 docker 主要作为开发环境，以后也可能将服务迁移到公司使用 k8s 搭建的 服务平台上。
 因为是微服务架构，因而使用了 docker-compose 作为编排工具。
+
 本部分主要分为 docker 和 docker-compose 两部分。最后总结了下最近看到的 docker 的原理。
 
 ## docker
@@ -79,7 +80,7 @@
 #### 常用组合命令
 
 | 命令 | 说明 |
-| ---: | ---: |
+| :--- | :--- |
 | docker rm $(docker ps -a -q) | 清理所有处于终止状态的容器 |
 | docker-compose run --rm <compose-name> bash | 临时打开一个用后即删的 container 并连接到 bash |
 | docker exec -it <container-name> bash | 连接到一个运行中的 container |
@@ -91,7 +92,7 @@
 #### Dockerfile 构成：
 
 | 功能说明 | 关键字 |
-| ---: | ---: |
+| :--- | :--- |
 | 基础镜像信息 | FROM |
 | 维护者信息 | MAINTAINER |
 | 镜像操作指令 | RUN ADD EXPOSE |
@@ -102,7 +103,7 @@ Dockerfile 中每一条指令都创建了Docker镜像中的一层
 #### Dockerfile 关键字详细说明
 
 | 关键字 | 说明 |
-| ---: | ---: |
+| :--- | :--- |
 | # | 为注释 |
 | FROM | 表示Docker以哪个镜像为基础来创建 |
 | RUN | 会在docker创建时运行。将复杂的 run 命令分开为多行，可以使 Dockerfile 更加具备可读性 |

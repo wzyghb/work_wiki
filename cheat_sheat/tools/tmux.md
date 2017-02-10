@@ -15,7 +15,7 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 ### Session 相关操作
 
 | 操作 | 快捷键 |
-| ---: | ---: |
+| :--- | :--- |
 | 查看/切换 session | prefix s |
 | 离开 session | prefix d |
 | 重命名当前 session | prefix $ |
@@ -27,7 +27,7 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 ### Windows 相关的操作
 
 | 操作 | 快捷键 |
-| ---: | ---: |
+| :--- | :--- |
 | 新建窗口 | prefix c |
 | 采用下一个内置布局 | prefix space |
 | 关闭一个窗口 | prefix & |
@@ -43,7 +43,7 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 ### Pane 相关操作
 
 | 操作 | 快捷键 |
-| ---: | ---: |
+| :--- | :--- |
 | 切换到下一个窗格 | prefix o |
 | 查看所有窗格的编号 | prefix q |
 | 垂直拆分出一个新的窗格 | prefix " |
@@ -62,7 +62,7 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 ### 其他操作
 
 | 操作 | 快捷键 |
-| ---: | ---: |
+| :--- | :--- |
 | 显示快捷键帮助 | prefix ? |
 | 删除 session | tmux kill-session -t session-name |
 | 重新连接session | tmux attach -t session-name |
@@ -73,7 +73,7 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 [gpakosz](https://github.com/gpakosz/.tmux)
 
 | 操作 | 快捷键 |
-| ---: | ---: |
+| :--- | :--- |
 | 鼠标模式 | prefix + m |
 | 粘贴复制的内容 | prefix + p |
 | 列出所有的 paste-buffer | prefix + b |
@@ -88,6 +88,6 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 ### vi-copy
 
 | 操作 | 快捷键 |
-| ---: | ---: |
+| :--- | :--- |
 | prefix + enter | 进入 copy 模式 |
 |

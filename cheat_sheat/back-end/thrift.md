@@ -26,7 +26,7 @@ brew unlink bison (如果需要)
 #### 基本类型 Base Type
 
 | type | description |
-|:---:|:---:|
+| :--- | :--- |
 | bool | A boolean value (true or false) |
 | byte | An 8-bit signed integer |
 | i16  | A 16-bit signed integer |

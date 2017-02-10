@@ -15,7 +15,7 @@
 ## 个人技术栈
 
 | 类别 | 包 |
-| ---: | ---: |
+| :--- | :--- |
 | web 框架 | flask，以及 flask-admin、flask-migrate、flask-script |
 | rpc | thrift |
 | MySQL | mysql\SQLAlchemy |

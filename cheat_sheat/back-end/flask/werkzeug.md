@@ -5,9 +5,9 @@ werkzeug 基础总结
 因而总结了下 werkzeug 的基础知识。
 
 另外有：
-[werkzeug 源码阅读](https://github.com/LianYun/werkzeug)
-[werkzeug 中文文档 0.9.4](http://werkzeug-docs-cn.readthedocs.io/zh_CN/latest/index.html)
-[werkzeug English 0.11](http://werkzeug.pocoo.org/docs/0.11/)
++ [werkzeug 源码阅读](https://github.com/LianYun/werkzeug)
++ [werkzeug 中文文档 0.9.4](http://werkzeug-docs-cn.readthedocs.io/zh_CN/latest/index.html)
++ [werkzeug English 0.11](http://werkzeug.pocoo.org/docs/0.11/)
 
 ## 1. WSGI 基础
 
@@ -423,6 +423,4 @@ def on_short_link_details(self, request, short_id):
         short_id=short_id,
         click_count=click_count
     )
-
 ```
-

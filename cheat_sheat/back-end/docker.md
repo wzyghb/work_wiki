@@ -82,7 +82,7 @@
 | 命令 | 说明 |
 | :--- | :--- |
 | docker rm $(docker ps -a -q) | 清理所有处于终止状态的容器 |
-| docker-compose run --rm <compose-name> bash | 临时打开一个用后即删的 container 并连接到 bash |
+| docker-compose run --rm <container-name> bash | 临时打开一个用后即删的 container 并连接到 bash |
 | docker exec -it <container-name> bash | 连接到一个运行中的 container |
 
 
@@ -127,3 +127,18 @@ Dockerfile 中每一条指令都创建了Docker镜像中的一层
 + Namespaces 隔离的第一级，确保每一个容器中运行一个进程，而不影响容器以外的其他进程
 + Control Groups 是 LXC 的重要组成部分，具有资源核算与限制的关键功能
 + UnionFS 容器的构建块，支持 Docker 的轻量级以及快速性，构建了用户层
+
+## 坑
+
+### 加入验证
+
+在使用公司的 docker 源时，遇到以下的问题：
+
+```
+ERROR: Get https://hub.xxxx.org/v1/_ping: x509: certificate signed by unknown authority
+```
+
+发现在 `/etc/docker/certs.d/hub.xxxx.org` 下设置 ca.crt 对 docker for mac 不生效。实际上只需要在以下设置即可：
+
+`docker -> Preferences -> Daemon -> Basic -> Insecure registries`
+下增加 `hub.xxxx.org`。

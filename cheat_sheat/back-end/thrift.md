@@ -1,8 +1,9 @@
+
 ## 安装
 
-[mac上安装](https://thrift.apache.org/docs/install/os_x)
-[libevent](http://libevent.org/)
-[boost](http://www.boost.org/)
++ [mac上安装](https://thrift.apache.org/docs/install/os_x)
++ [libevent](http://libevent.org/)
++ [boost](http://www.boost.org/)
 
 ### 1. openssl问题
 

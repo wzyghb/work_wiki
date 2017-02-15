@@ -156,6 +156,7 @@ git push origin issue1:master
 + git stash show -p stash@{0} | git apply -R
 + git stash branch testchanges // stash branch 从 stash 创建一个分支
 + git stash drop stash@{0}
++ git stash pop
 
 
 ## 2. git revert

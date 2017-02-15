@@ -1,13 +1,27 @@
 
-graphql 是一种新的 api 表现形式，相比于 restful api，其优点是更加灵活(个人见解)。
+graphql 是一种新的 api 表现形式，相比于 restful api，官网首页给出了一些观点表示如下：
+
+> GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data. 
+> GraphQL provides a complete and understandable description of the data in your API, 
+> gives clients the power to ask for exactly what they need and nothing more, 
+> makes it easier to evolve APIs over time, and enables powerful developer tools.
+
+总结来说就是：
+
++ 可以更加细粒度得获得所需要的数据
++ 可以在一次查询中获取更多的资源
++ 有类型系统，描述更加精确
++ 有 GraphiQL 这样更加强大的开发工具
++ API 的演化不再需要使用 versions
+
 
 ## 参考资料
 + [官网主页](http://graphql.org/)
 + [github 教程](https://github.com/facebook/graphql)
 
 ## graphql api 的学习主要包括
-+ 查询语句：GraphQL query language
-+ 类型系统：GraphQL schema language
++ 类型系统：GraphQL schema language 描述所需要的数据。
++ 查询语句：GraphQL query language 
 + GraphQL 服务是如何工作的
 + 使用 GraphQL 解决常见问题的最佳实践
 
@@ -878,5 +892,5 @@ Human: {
 
 ## Introspection 反射
 
-基本作用：向 GraphQL schema 查询那些 query 他可以支持。
+基本作用：向 GraphQL schema 查询哪些 query 可以支持。
 

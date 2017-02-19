@@ -14,6 +14,8 @@
 
 ## 个人技术栈
 
+### 整体总结
+
 | 类别 | 包 |
 | :--- | :--- |
 | web 框架 | flask，以及 flask-admin、flask-migrate、flask-script |
@@ -31,6 +33,9 @@
 | 编程语言 | python、java、scala、c、go | javascript、rust |
 | api | graphql |
 | ci | travis-ci |
+
+### python 项目相关
+
 
 ## 个人工具
 按照重要程度排名如下：

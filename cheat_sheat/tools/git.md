@@ -160,6 +160,7 @@ git push origin issue1:master
 
 
 ## 2. git revert
++ git revert <commit id> 创建一个 commit，是指定 commit 的 revert。
 
 ## 3. git cherry-pick
-+ git cherry-pick <commit id> 将对应的commit应用到当前分支
++ git cherry-pick <commit id> 将对应的 commit 应用到当前分支。

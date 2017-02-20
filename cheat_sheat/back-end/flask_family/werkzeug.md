@@ -406,7 +406,7 @@ def on_follow_short_link(self, request, short_id):
     if link_target is None:
         raise NotFound()
     self.redis.incr('click-count:' + short_id)
-    return redirect(link_ta rget)
+    return redirect(link_target)
 ```
 如果 url 不存在，则会抛出一个 NotFound 异常。通过 dispatch_request 会返回一个 404 响应。
 

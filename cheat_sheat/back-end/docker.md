@@ -10,7 +10,7 @@
 
 #### 镜像管理
 
-+ `images`
++ `images` 
 
 + `pull`
 

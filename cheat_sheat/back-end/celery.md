@@ -25,6 +25,7 @@ delay(*args, **kwargs)
 calling(__call__)
 ```
 关于execution options有这些主要的参数：
+
 ### Link(callbacks/errbacks)
 就是一个任务接着一个，回调任务作为一个partial argument在父任务完成的时候被调用。
 
@@ -77,7 +78,6 @@ subtasks的实例也支持调用API，也就是delay和apply_async方法。
 s1 = add.s(2, 2)
 res = s1.delay()
 res.get()
-4
 ```
 add任务接受两个参数，这个subtasks指定了两个参数，它就完成了一个complete signature。  
 
@@ -261,34 +261,7 @@ CELERYBEAT_SCHEDULE = {
     'user-batch-sync-zoho': {
         'task': 'user.batch.sync.zoho',
         'schedule': crontab(hour='4,5,15,17', minute=50)
-    },
-    'update-user-avatar-uris': {
-        'task': 'user.update.avatar.uris',
-        'schedule': crontab(hour='5', minute=0)
-    },
-    'user-newbie-invitation': {
-        'task': 'user.newbie.invitation',
-        'schedule': crontab(hour=10, minute=0)
-    },
-    'events-create-daily-report': {
-        'task': 'events.create_daily_report',
-        'schedule': crontab(hour=1, minute=0)
-    },
-    'cf-recall-train-model': {
-        'task': 'post.cf.model.train',
-        'schedule': crontab(hour='8,9,10,11,14,15,16,17,18,19,20,21,22', minute=0)
-    },
-    'lr-sort-train-model': {
-        'task': 'sort.lr.model.train',
-        'schedule': crontab(hour='5,10,14,18,22', minute=20)
-    },
-    'user-group-sync': {
-        'task': 'user.group.sync.dingtalkgroup',
-        'schedule': crontab(hour='3', minute=20)
-    },
-    'user-name-duplicated-sync': {
-        'task': 'user.name.duplicated.sync',
-        'schedule': crontab(hour='3', minute=30)
+    }
     }
 }
 CELERYBEAT_SCHEDULE_REDIS_URL = app.config['CELERYBEAT_SCHEDULE_REDIS_URL']
@@ -301,62 +274,62 @@ CELERY_ALWAYS_EAGER = app.config.get('CELERY_ALWAYS_EAGER', False)
 基本解释
 
 时间和日期设置
-CELERY_ENABLE_UTC
-CELERY_TIMEZONE
++ `CELERY_ENABLE_UTC`
++ `CELERY_TIMEZONE`
 
 任务设置
-CELERY_ANNOTATIONS
++ `CELERY_ANNOTATIONS`
 
 并发设置
-CELERYD_CONCURRENCY ：并发 worker 的数量
-CELERYD_PREFETCH_MULTIPLIER ：并发进程可以并行领取的最大消息数量 （设置为1，表示没有预领取，设置为0表示可以预领取任意的数量
++ `CELERYD_CONCURRENCY` ：并发 worker 的数量
++ `CELERYD_PREFETCH_MULTIPLIER` ：并发进程可以并行领取的最大消息数量 （设置为1，表示没有预领取，设置为0表示可以预领取任意的数量
 
 任务结果保存（backend）设置
 
-CELERY_RESULT_BACKEND
-CELERY_RESULT_SERIALIZER
++ `CELERY_RESULT_BACKEND`
++ `CELERY_RESULT_SERIALIZER`
 backend 的设置比较复杂：
 
-DB backend settings
-RPC backend settings
-Cache backend settings
-redis backend settings
-MongoDB backend settings
-Cassandra backend settings
-IronCache backend settings
-Couchbase backend settings
-AMQP backend settings
++ DB backend settings
++ RPC backend settings
++ Cache backend settings
++ redis backend settings
++ MongoDB backend settings
++ Cassandra backend settings
++ IronCache backend settings
++ Couchbase backend settings
++ AMQP backend settings
 
 消息路由 很抽象
 
-CELERY_QUEUES
-CELERY_ROUTES
-CELERY_QUEUE_HA_POLICY
-CELERY_WORKER_DIRECT
-CELERY_CREATE_MISSING_QUEUES
-CELERY_DEFAULT_QUEUE：如果 message 没有 route 或者自定义的 Queue，这个值将会是默认的 Queue 的名称
-CELERY_DEFAULT_EXCHANGE：默认交换是什么意思
-CELERY_DEFAULT_EXCHANGE_TYPE
-CELERY_DEFAULT_ROUTING_KEY
-CELERY_DEFAULT_DELIVERY_MODE： transient 或者 persistent，默认地是发送 persistent 消息。
++ `CELERY_QUEUES`
++ `CELERY_ROUTES`
++ `CELERY_QUEUE_HA_POLICY`
++ `CELERY_WORKER_DIRECT`
++ `CELERY_CREATE_MISSING_QUEUES`
++ `CELERY_DEFAULT_QUEUE`：如果 message 没有 route 或者自定义的 Queue，这个值将会是默认的 Queue 的名称
++ `CELERY_DEFAULT_EXCHANGE`：默认交换是什么意思
++ `CELERY_DEFAULT_EXCHANGE_TYPE`
++ `CELERY_DEFAULT_ROUTING_KEY`
++ `CELERY_DEFAULT_DELIVERY_MODE`： transient 或者 persistent，默认地是发送 persistent 消息。
 
 Broker settings
-CELERY_ACCEPT_CONTENT
-BROKER_FAILOVER_STRATEGY
-BROKER_TRANSPORT
-BROKER_URL
-BROKER_HEARTBEAT
-BROKER_HEARTBEAT_CHECKRATE
-BROKER_USE_SSL
-BROKER_POOL_LIMIT
-BROKER_CONNECTION_TIMEOUT
-BROKER_CONNECTION_RETRY
-BROKER_CONNECTION_MAX_RETRIES
-BROKER_LOGIN_METHOD
-BROKER_TRANSPORT_OPTIONS
++ `CELERY_ACCEPT_CONTENT`
++ `BROKER_FAILOVER_STRATEGY`
++ `BROKER_TRANSPORT`
++ `BROKER_URL`
++ `BROKER_HEARTBEAT`
++ `BROKER_HEARTBEAT_CHECKRATE`
++ `BROKER_USE_SSL`
++ `BROKER_POOL_LIMIT`
++ `BROKER_CONNECTION_TIMEOUT`
++ `BROKER_CONNECTION_RETRY`
++ `BROKER_CONNECTION_MAX_RETRIES`
++ `BROKER_LOGIN_METHOD`
++ `BROKER_TRANSPORT_OPTIONS`
 
 任务执行设置
-CELERY_ALWAYS_EAGER
-CELERY_EAGER_PROPAGATES_EXCEPTIONS
-CELERY_IGNORE_RESULT
-CELERY_MESSAGE_COMPRESSION
++ `CELERY_ALWAYS_EAGER`
++ `CELERY_EAGER_PROPAGATES_EXCEPTIONS`
++ `CELERY_IGNORE_RESULT`
++ `CELERY_MESSAGE_COMPRESSION`

@@ -10,21 +10,21 @@
 
 #### 镜像管理
 
-+ `images` 
++ `images` 查看本机的镜像
 
-+ `pull`
++ `pull` 拉取远程服务器的镜像
 
-+ `build`
++ `build` 从 Dockerfile 构建镜像
 
-+ `commit`
++ `commit` 保存更改
 
-+ `tag`
++ `tag` 增加标签
 
-+ `save`
++ `save` 保存
 
-+ `load`
++ `load` 加载
 
-+ `rmi`
++ `rmi` 删除指定镜像
 
 #### 容器管理
 
@@ -46,14 +46,14 @@
     - 行用户指定的应用程序
     - 执行完毕后容器被终止
 
-+ `exec`
++ `exec` 运行
 
 + `ps` 查看容器
 
   + 常用选项
     - `-a` 查看本地的所有容器，包括没有运行的容器
 
-+ `rm`
++ `rm` 删除容器
 
   + 常用选项
     - `-f` 删除正在运行的容器
@@ -61,12 +61,12 @@
 + `logs`
   
   + 常用选项
-    - `--tail <container-name>` 查看最近的日志，例子：`--tail=300`
+    - `--tail=<xxx> <container-name>` 查看最近的日志，例子：`--tail=300`
     - `-f <container-name>` 将正在运行的 docker 的日志打印终端绑定到当前窗口
 
-+ `start`
++ `start` 启动
 
-+ `stop`
++ `stop` 停止
 
 + `expose` 导出容器
 

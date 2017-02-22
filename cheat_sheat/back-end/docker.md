@@ -1,34 +1,100 @@
 
+## 参考资料
+
++ [docker 入门和实践](https://www.gitbook.com/book/hujb2000/docker-flow-evolution/details)
++ []()
+
 目前项目中 docker 主要作为开发环境，以后也可能将服务迁移到公司使用 k8s 搭建的 服务平台上。
 因为是微服务架构，因而使用了 docker-compose 作为编排工具。
 
-本部分主要分为 docker 和 docker-compose 两部分。最后总结了下最近看到的 docker 的原理。
+本部分主要分为 docker、 docker-compose、 docker-swarm 等。最后总结了下最近看到的 docker 的原理。
 
-## docker
+## 待补充
+
++ `docker-compose`
++ `swarm`
++ `kubernetes`
+
+## docker 主组件
 
 ### docker 命令
+
+#### 管理命令
+
+管理命令包括了其他命令，其他命令可以看做是管理命令的语法糖，提供了快速的调用方法。
+
++ `container` container 相关的命令
+  - `attach`
+  - `commit`
+  - `cp`
+  - `create`
+  - `diff`
+  - `exec`
+  - `export`
+  - `inspect`
+  - `kill`
+  - `logs`
+  - `ls`
+  - `pause`
+  - `port`
+  - `prune` 删除所有没有运行的 container
+  - `rename`
+  - `restart`
+  - `rm`
+  - `run`
+  - `start`
+  - `stats`
+  - `stop`
+  - `top` 显示 container 中运行的进程
+   
+
++ `image`
+
++ `network`
+
++ `plugin`
+
++ `stack`
+
++ `swarm`
+
++ `system`
+
++ `volume`
+
++ `checkpoint`
+
++ `node`
 
 #### 镜像管理
 
 + `images` 查看本机的镜像
-
-+ `pull` 拉取远程服务器的镜像
+  - `-a` 显示所有 images
+  - `-f` 进行条件过滤
+  - `-q` 只显示 numeric IDs
 
 + `build` 从 Dockerfile 构建镜像
 
-+ `commit` 保存更改
 
-+ `tag` 增加标签
++ `tag` 创建一个 `TARGET_IMAGE` 指向 `SOURCE_IMAGE`
 
-+ `save` 保存
++ `save` 将一个或者多个 images 报错到 tar 归档中，默认输出到 STDOUT
 
 + `load` 加载
 
 + `rmi` 删除指定镜像
 
++ `history` 显示容器的历史
+
 #### 容器管理
 
 镜像可以创建容器，容器的运行结果会得到保留。
+
++ `create` 创建一个镜像
+
++ `attach` 连接到一个运行的容器
+
++ `cp` 在本地文件系统和 docker 之间复制文件或者目录
 
 + `run` 从镜像创建容器
 
@@ -49,33 +115,57 @@
 + `exec` 运行
 
 + `ps` 查看容器
-
   + 常用选项
     - `-a` 查看本地的所有容器，包括没有运行的容器
 
 + `rm` 删除容器
-
   + 常用选项
     - `-f` 删除正在运行的容器
 
 + `logs`
-  
   + 常用选项
     - `--tail=<xxx> <container-name>` 查看最近的日志，例子：`--tail=300`
     - `-f <container-name>` 将正在运行的 docker 的日志打印终端绑定到当前窗口
 
 + `start` 启动
 
-+ `stop` 停止
++ `stop` 停止一个或者多个容器
 
 + `expose` 导出容器
-
   + 例子： `sudo docker export 7691a814370e > ubuntu.tar`
 
 + `import` 导入容器
-
   + 例子： `cat ubuntu.tar | sudo docker import - test/ubuntu:v1.0`
 
++ `kill` 杀死一个或者多个运行的容器
+
++ `pause` 暂停一个或者多个容器
+
++ `rename`
+
++ `restart` 重启一个或者多个 container
+
++ `port` 显示指定 container 的端口映射
+
++ `commit` 从 container 的更改创建一个新的镜像
+
+#### docker hub 相关命令
+
++ `login` 登陆到一个 docker register
+
++ `logout` 从 docker register 退出
+
++ `search` 在 Docker Hub 中搜索 image
+
++ `pull` 拉取远程服务器的镜像
+
++ `push` 向 register 推送一个 image 或者 repository
+
+
+
+#### 其他命令
+
++ `deploy` 部署
 
 #### 常用组合命令
 
@@ -119,6 +209,59 @@ Dockerfile 中每一条指令都创建了Docker镜像中的一层
 | ONBUILD | |
 
 ## compose 组件
+
+
+## swarm
+
+Docker swarm 是一套管理 Docker 集群的工具。可以将一群 Docker 宿主机变成一个单一的虚拟主机。
+
+> docker daemon: docker 最核心的后台进程，负责响应来自 Docker client的请求，然后将这些请求翻译成系统调用完成容器的管理。该
+> 进程在后台启动一个 API Server，负责接收由 Docker client 发送的请求，接收到的请求将通过 Docker daemon 内部的一个路由分发调度，
+> 再由具体的函数来执行请求。
+
+### 准备
+首先要把集群中所有节点的 docker daemon 监听方式指定为 `0.0.0.0:2375`。
+
+1. 启动 docker daemon 时指定：
+
+```bash
+docker -H 0.0.0.0:2375&
+```
+2. 修改配置文件，ubuntu 下是：
+
+在 /etc/default/docker 文件最后添加：
+
+```bash
+DOCKER_OPTS="-H 0.0.0.0:2375 -H unix:///var/run/docker.sock"
+```
+
+完成上述配置后，重启 docker：
+```bash
+sudo service docker restart
+```
+### 服务发现
+
+docker 集群管理需要使用服务发现（Discovery service backend）Swarm 支持以下几种方式：
++ DockerHub 提供的服务发现
++ 本地的文件
++ etcd
++ consul
++ zookeeper
++ ip 地址列表
+
+#### DockerHub 上的服务发现
+
+集群由三个节点组成，机器分别为 `83`, `84`, `124`
+
++ 获取 token：
+  - 在任意一台机器上运行 `docker run --rm swarm create` 
+  - 返回全球唯一的 token `b7625e5a7a2dc7f8c4faacf2b510078e`，记住这个 token，会在后面加入集群时使用。
++ 加入集群： 
+  - 在要加入集群的节点（如 `83`）上执行 `docker run -d swarm join --addr=ip_address:2375 token://token_id`
+  - `-d` 参数启动了一个容器，使得对应的机器加入了集群，如果这个容器被停止或者删除，则这台机器就会从集群中退出。
+  - 要让其他机器也加入集群，和上面的方式类似。
++ 启动 swarm manager 管理集群：
+  - 如果需要 `83` 作为 swarm 管理节点，所以需要在 `83` 上执行 swarm
 
 
 ## 原理

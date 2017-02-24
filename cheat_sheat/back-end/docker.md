@@ -1,8 +1,8 @@
 
 ## 参考资料
 
-+ [docker 入门和实践](https://www.gitbook.com/book/hujb2000/docker-flow-evolution/details)
-+ []()
++ [docker 最佳实践](https://www.gitbook.com/book/hujb2000/docker-flow-evolution/details)
++ [docker 入门和实践](https://www.gitbook.com/book/yeasy/docker_practice)
 
 目前项目中 docker 主要作为开发环境，以后也可能将服务迁移到公司使用 k8s 搭建的 服务平台上。
 因为是微服务架构，因而使用了 docker-compose 作为编排工具。
@@ -49,22 +49,83 @@
    
 
 + `image`
+  - `build`
+  - `history`
+  - `import`
+  - `inspect`
+  - `load`
+  - `ls`
+  - `prune`
+  - `pull`
+  - `push`
+  - `rm`
+  - `save` 和 `load` 相对应，将 image 存储为 tar 格式的文件。
+  - `tag`
 
 + `network`
+  - `connect [OPTIONS] NETWORK CONTAINER`
+  - `create`
+  - `disconnect`
+  - `inspect`  显示一个或者多个网络的详细信息
+  - `ls`  列表展示所有网络
+  - `prune`  删除没有使用的网络
+  - `rm`  删除一个或者多个网络
 
-+ `plugin`
++ `plugin` 这个还没有用过
+  - `create`
+  - `disable`
+  - `enable`
+  - `install`
+  - `inspect`
+  - `ls`
+  - `push`
+  - `rm`
+  - `set`
+  - `upgrade`
 
-+ `stack`
++ `stack` 和 swarm 相关的命令
+  - `deploy`
+  - `ls`
+  - `ps`
+  - `rm`
+  - `services`
 
-+ `swarm`
++ `swarm` 
+  - `init`  初始化
+  - `join`  作为 node 或者 manager 加入到 swarm
+  - `join-token`  管理 join token
+  - `leave`  离开 swarm
+  - `unlock`  
+  - `unlock-key`
+  - `update`  
 
 + `system`
+  - `df`  显示 docker 对硬盘的使用
+  - `events`  从服务器获得实时的事件
+  - `info`  显示系统层级的信息
+  - `prune`  删除无用数据
 
 + `volume`
+  - `create`  创建一个卷
+  - `inspect`  显示一个或者多个卷的细节
+  - `ls`  列表显示所有的卷
+  - `prune`  删除所有没有使用的卷
+  - `rm`  删除一个或者多个卷
 
 + `checkpoint`
+  - `create`  创建一个 checkpoint
+  - `ls`  列表显示一个 container 的 checkpoint
+  - `rm`  删除一个 checkpoint
+> 创建的 checkpoint 可以使用 `docker start` 命令启动，从而将状态 restore 回来。
 
-+ `node`
++ `node` 管理 swarm 的 node
+  - `demote`  降级 swarm 中的一个或者多个 manager 节点
+  - `inspect`  显示一个或者多个 node 的详细信息
+  - `ls`  显示 swarm 中的节点列表
+  - `promote`  将 swarm 中的一个或者多个节点提升为 manager
+  - `ps`  列表展示在一个或者多个节点上运行的任务，默认显示当前节点的任务
+  - `rm`  在 swarm 中删除一个或者多个 node
+  - `update`  更新一个 node
 
 #### 镜像管理
 
@@ -128,6 +189,10 @@
     - `-f <container-name>` 将正在运行的 docker 的日志打印终端绑定到当前窗口
 
 + `start` 启动
+  - `-a`  连接到 STDOUT/STDERR 并输出一个 signal
+  - `--checkpoint <string>`  从 checkpoint restore
+  - `--checkpoint-dir <string>`  使用自定义的 checkpoint 存储目录
+  - `-i`  连接到 container 的 STDIN
 
 + `stop` 停止一个或者多个容器
 

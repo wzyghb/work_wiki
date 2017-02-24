@@ -16,3 +16,6 @@ flask 基于 werkzeug 实现，项目中涉及到的功能和对应的源代码�
 | `ctx.py` | 上下文对象，包括 RequestContext 和 AppContext | doing |
 | `config.py` | 配置策略定义 | done |
 |
+
+## app 模块
+

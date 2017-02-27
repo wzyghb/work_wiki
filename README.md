@@ -19,7 +19,7 @@
 | 类别 | 包 |
 | :--- | :--- |
 | web 框架 | flask，以及 flask-admin、flask-migrate、flask-script |
-| rpc | thrift |
+| rpc / 序列化 | thrift protobuf |
 | MySQL | mysql\SQLAlchemy |
 | NoSQL | cassandra\python-driver |
 | 搜索 | elasticsearch\elasticsearch-dsl |
@@ -27,7 +27,6 @@
 | 缓存、消息队列 | redis |
 | 异步任务 | celery |
 | 协程、并发 | gevent |
-| 序列化 | protobuf |
 | 机器学习 | numpy、scipy、pandas、sklearn、tensorflow、keros、spark |
 | 前端 | react、redux |
 | 编程语言 | python、java、scala、c、go | javascript、rust |

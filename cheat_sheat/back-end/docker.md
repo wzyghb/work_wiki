@@ -236,9 +236,9 @@
 
 | 命令 | 说明 |
 | :--- | :--- |
-| docker rm $(docker ps -a -q) | 清理所有处于终止状态的容器 |
-| docker-compose run --rm <container-name> bash | 临时打开一个用后即删的 container 并连接到 bash |
-| docker exec -it <container-name> bash | 连接到一个运行中的 container |
+| `docker rm $(docker ps -a -q)` | 清理所有处于终止状态的容器 |
+| `docker-compose run --rm <container-name> bash` | 临时打开一个用后即删的 container 并连接到 bash |
+| `docker exec -it <container-name> bash` | 连接到一个运行中的 container |
 
 
 
@@ -248,10 +248,10 @@
 
 | 功能说明 | 关键字 |
 | :--- | :--- |
-| 基础镜像信息 | FROM |
-| 维护者信息 | MAINTAINER |
-| 镜像操作指令 | RUN ADD EXPOSE |
-| 容器启动时执行指令 | CMD |
+| 基础镜像信息 | `FROM` |
+| 维护者信息 | `MAINTAINER` |
+| 镜像操作指令 | `RUN ADD EXPOSE` |
+| 容器启动时执行指令 | `CMD` |
 
 Dockerfile 中每一条指令都创建了Docker镜像中的一层
 
@@ -259,30 +259,134 @@ Dockerfile 中每一条指令都创建了Docker镜像中的一层
 
 | 关键字 | 说明 |
 | :--- | :--- |
-| # | 为注释 |
-| FROM | 表示Docker以哪个镜像为基础来创建 |
-| RUN | 会在docker创建时运行。将复杂的 run 命令分开为多行，可以使 Dockerfile 更加具备可读性 |
-| ADD | 添加本地文件。 `ADD <src> <dest>` <src> 可以是 Dockerfile所在目录的一个相对路径;也可以是一个 URL;还可以是一个 tar 文件 (自动解压为目录) |
-| COPY | `COPY <src> <dest>` 当使用本地目录为源目录时，推荐使用 COPY |
-| EXPOSE | 向外部开放端口 |
-| CMD | 命令为容器启动后运行的命令。每个 Dockerfile 只能有一条 CMD 命令。如果指定了 多条命令，只有最后一条会被执行 |
-| ENV | `ENV <key> <value>` 指定一个环境变量，会被后续 RUN 指令使用， 并在容器运行时保持 |
-| ENTRYPOINT | 配置容器启动后执行的命令，并且不可被 docker run 提供的参数覆盖 |
-| VOLUME | VOLUME ["/data"] 创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等 |
-| USER | USER daemon 指定运行容器时的用户名或 UID，后续的 RUN 也会使用指定用户。要临时获取管理员权限可以使用 gosu，不推荐使用 sudo |
-| WORKDIR | /path/to/workdir 为后续的 RUN 、 CMD 、 ENTRYPOINT 指令配置工作目录 |
-| ONBUILD | |
+| `#` | 为注释 |
+| `FROM` | 表示Docker以哪个镜像为基础来创建 |
+| `RUN` | 会在docker创建时运行。将复杂的 run 命令分开为多行，可以使 Dockerfile 更加具备可读性 |
+| `ADD` | 添加本地文件。 `ADD <src> <dest>` <src> 可以是 Dockerfile所在目录的一个相对路径;也可以是一个 URL;还可以是一个 tar 文件 (自动解压为目录) |
+| `COPY` | `COPY <src> <dest>` 当使用本地目录为源目录时，推荐使用 COPY |
+| `EXPOSE` | 向外部开放端口 |
+| `CMD` | 命令为容器启动后运行的命令。每个 Dockerfile 只能有一条 CMD 命令。如果指定了 多条命令，只有最后一条会被执行 |
+| `ENV` | `ENV <key> <value>` 指定一个环境变量，会被后续 RUN 指令使用， 并在容器运行时保持 |
+| `ENTRYPOINT` | 配置容器启动后执行的命令，并且不可被 docker run 提供的参数覆盖 |
+| `VOLUME` | VOLUME ["/data"] 创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等 |
+| `USER` | USER daemon 指定运行容器时的用户名或 UID，后续的 RUN 也会使用指定用户。要临时获取管理员权限可以使用 gosu，不推荐使用 sudo |
+| `WORKDIR` | /path/to/workdir 为后续的 RUN 、 CMD 、 ENTRYPOINT 指令配置工作目录 |
+| `ONBUILD` | |
 
 ## compose 组件
 
+用 python 编写的 docker 项目编排管理工具。调用 docker 服务的 api 实现了对容器的管理。
+
+### 基本概念
++ 服务(service)： 应用的容器，实际上可以包括若干运行相同镜像的容器实例
++ 项目(project)：由一组关联的应用容器组成的业务单元
+
+### docker-compose命令
+
+基本形式：
+
+```
+docker-compose [-f=<arg>...] [options] [COMMAND] [ARGS...]
+```
+#### 命令选项
+
++ `-f`, `--file` `FILE` 指定使用的 compose 模板文件，默认为 docker-compose.yml
++ `-p`, `--project-name` `NAME` 指定项目名称，默认将使用所在目录名称作为项目名
++ `--x-networking` 使用 docker 的可插拔网络后端特性
++ `--x-networking-driver DRIVER` 指定网络后端的驱动，默认为 `bridge`
++ `--verbose` 输出更多调试信息
++ `-v, --version` 打印版本并退出
+
+#### 命令使用说明
+
++ `build` 构建、重新构建项目中的容器
+  - `--force-rm`  删除构建过程中的临时容器
+  - `--no-cache`  构建过程中不适用 cache
+  - `--pull`  尝试使用 pull 来获取更新的版本镜像
+
++ `help` 
++ `kill` 发送 `SIGKILL` 信号来强制停止服务容器
+  - `-s`  指定发送的信号
++ `logs`
++ `pause`
++ `port`
++ `ps`
++ `pull`  拉取服务依赖的镜像
++ `restart`  重启项目中的服务
++ `rm`  删除所有处于停止状态服务的容器
++ `run`  在指定的服务上执行一个命令
+  - `docker-compose run [options] [-p PORT...] [-e KEY=VAL...] SERVICE [COMMAND] [ARGS...]`
+  - 给定命令会自动覆盖原有的自动运行命令
+  - 不会自动创建端口，以避免冲突
++ `scale` 设置指定容器运行的容器的个数
+  - `docker-compose scale [options] [SERVICE=NUM...]`
+  - 当指定的数目多于该服务当前运行的容器时，会创建并启动容器，反之，会停止容器。
++ `start`
++ `stop`
++ `unpause`  恢复处于暂停状态中的服务。
++ `up`  组合命令，依次尝试：构建镜像、创建服务、启动服务、关联服务相关容器等一系列操作
+  - 默认启动的容器都处于前台，`Ctrl-C` 停止命令时，所有容器会停止
+  - `-d`  在后台运行服务容器
+  - `--no-color` 不使用颜色来区分不同服务的控制台输出
+  - `--no-deps`  不启动服务所链接的容器
+  - `--force-recreate`  强制重新创建容器
+  - `--no-recreate`  如果容器已经存在，则不重新创建容器
+  - `--no-build`  不自动构建确实的服务镜像
+  - `-t, --timeout TIMEOUT`  停止容器时候的超时 （默认为 10 秒）
++ `version`
+
+#### 模板文件中的命令
+
++ build
++ cap_add
++ cap_drop
++ command
++ cgroup_parent
++ container_name
++ devices
++ dns  自定义 DNS 列表，可以是一个值，也可以是一个列表。
++ dns_search  配置 DNS 搜索域，可以是一个值，也可以是一个列表。
++ dockerfile  指定额外的编译镜像的 Dockerfile 文件。
++ env_file 从文件中获取环境变量
++ environment  设置环境变量，如果只给定名字，会自动获取 Compose 主机上对应变量的值，防止数据泄露
++ expose 暴露端口，但不映射到宿主主机，只被连接的服务访问。
++ extends 基于其他的模板文件进行扩展。
++ external_links  链接到 docker-compose.yml 外部的容器，甚至并非 Compose 管理的容器。
++ extra_hosts  指定额外的 host 名称映射信息
++ image  指定镜像名称或者 id，如果不存在 compose 会尝试拉取这个镜像
++ labels  为 docker 镜像添加元数据 (metadata) 信息
++ links  链接到其他服务中的容器，使用 `服务名称` 或者 `服务名称:服务别名`
++ log_driver  
++ log_opt
++ net
++ pid  跟主机系统共享进程命名空间
++ ports  暴露端口信息，容器 (HOST:CONTAINER)。
++ security_opt
++ ulimits
++ volumes  数据卷挂载路径设置，可以摄住宿主机路径 (HOST:CONTAINER:访问模式)
++ volumes_driver
++ volumes_from  从另一个服务或者容器挂载它的数据卷
++
 
 ## swarm
 
 Docker swarm 是一套管理 Docker 集群的工具。可以将一群 Docker 宿主机变成一个单一的虚拟主机。
 
++ swarm manager
++ swarm node
++ swarm daemon
+  - scheduler
+  - router
++ discovery service
+
+
 > docker daemon: docker 最核心的后台进程，负责响应来自 Docker client的请求，然后将这些请求翻译成系统调用完成容器的管理。该
 > 进程在后台启动一个 API Server，负责接收由 Docker client 发送的请求，接收到的请求将通过 Docker daemon 内部的一个路由分发调度，
 > 再由具体的函数来执行请求。
+
+注意点：
++ 集群中每台节点的 docker 版本不小于 1.4
++ 为了让 swarm manager 能够和每台 swarm node 进行通讯，集群中的每台结点的 Docker daemon 都必须监听同一个网络接口。
 
 ### 准备
 首先要把集群中所有节点的 docker daemon 监听方式指定为 `0.0.0.0:2375`。
@@ -328,6 +432,10 @@ docker 集群管理需要使用服务发现（Discovery service backend）Swarm 
 + 启动 swarm manager 管理集群：
   - 如果需要 `83` 作为 swarm 管理节点，所以需要在 `83` 上执行 swarm
 
+
+### swarm 调度策略
+
+### swarm 过滤器
 
 ## 原理
 

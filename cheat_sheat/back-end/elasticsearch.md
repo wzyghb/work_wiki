@@ -1,13 +1,65 @@
 
-个人认为 Elasticsearch 本身是比较复杂的。这个cheatsheat 主要包括三个部分。第一部分是 Elasticsearch 本身的原理，主要来自
-[Elasticsearch 权威指南](https://www.gitbook.com/book/looly/elasticsearch-the-definitive-guide-cn/details)。因为
-平时的工作主要使用 Python 进行开发，所以第二部分主要介绍 Elasticsearch 官方的 Python 的客户端 elasticsearch-py。项目中主要使用
-elasticsearch-dsl，所以在第三部分也对这个更加抽象的库进行总结。
+业务研发中通常会有搜索需求，Elasticsearch 是常用的搜索引擎工具，这个 cheatsheat 主要组成如下：
++ 搜索的相关概念
++ Elasticsearch 基础 api
++ Elasticsearch-py 和 Elasticsearch-dsl 基本使用
 
-# Elasticsearch 基础
+参考资料：
++ [Elasticsearch 权威指南](https://es.xiaoleilu.com/)。
++ [elastic 官网](https://www.elastic.co/)
++ [elasticsearch-py](https://elasticsearch-py.readthedocs.io/en/master/)
++ [elasticsearch-dsl](https://elasticsearch-dsl.readthedocs.io/en/latest/)
++ [elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
 
-## 初步设置
+## 搜索的相关概念
+
++ 索引
+
+## Elasticsearch
+
+### 概念
+
+| 名词 | 中文 | 解释 |
+| :--- | :--- | :--- |
+| cluster | 集群 |  |
+| node |  | 结点 |
+| indices | 索引 |  |
+| types |  | 类型 |
+| documents | 文档 |  |
+| fields | 域 |  |
+| shard | 分片 |  |
+| replica | 副本 |  |
+| requesting node | 请求节点 | 实际收到查询请求的节点 |
+| mapping | 映射 | 用于字段类型确认，如 string、number、booleans、date |
+| schema definition | 模式定义 |  |
+| analysis | 分析 | 进行全文文本分词，用于后续反向索引的使用 |
+| full text | 全文文本 |  |
+| exact values | 确切值 | 不可分割的部分 |
+| tokenizer | 分词器 |  |
+| token filters | 标记过滤 |  |
+|
+
++ 每个索引有一个或者多个分片，N 个不同的分片最好存储在不同的 node 上，以较好地实现负载均衡。
++ 副本有主、副之分，就是复制的分片，以实现容灾、快速查询。
++ 分片算法：`shard = hash(routing) % number_of_primary_shards`。 routing 默认是 `_id` 但也可以自定义。
++ 
+
+### [插件](https://www.elastic.co/guide/en/elasticsearch/plugins/current/intro.html)
+
+ElasticSearch 的插件可以分为两部分：
++ Core Plugins
++ Community contributed
+
+使用命令行：
+```bash
+./bin/elasticsearch-plugin -h
 ```
+查看插件相关的帮助信息。
+
+### Starting
+
+#### 安装和启动
+```bash
 java -version
 echo $JAVA_HOME
 curl -L -O    https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.3.3/elasticsearch-2.3.3.tar.gz
@@ -17,8 +69,11 @@ cd elasticsearch-2.3.3/bin
 ./elasticsearch
 ./elasticsearch --cluster.name my_cluster_name --node.name my_node_name
 ```
+### api 指令快速浏览
 
-## 集群
+ES 提供了专有风格的 api 用于建立索引、查询等，本部分以 curl 为请求工具，总结了常用 api。
+
+#### 集群管理
 
 + 检查您的群集，节点和索引的健康，状态和统计信息
 + 管理你的集群，节点和索引数据和元数据

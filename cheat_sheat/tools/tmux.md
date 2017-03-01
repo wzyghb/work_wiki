@@ -10,52 +10,52 @@
 
 ## tmux 基本操作
 
-tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
+tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 
 ### Session 相关操作
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| 查看/切换 session | prefix s |
-| 离开 session | prefix d |
-| 重命名当前 session | prefix $ |
-| 前 or 后一个会话 | prefix ( or ) |
-| 选择要离开的会话 | prefix D |
-| 进入命令行模式 | prefix : |
+| 查看/切换 session | `prefix` `s` |
+| 离开 session | `prefix` `d` |
+| 重命名当前 session | `prefix` `$` |
+| 前 or 后一个会话 | `prefix` `(` | `)` |
+| 选择要离开的会话 | `prefix` `D` |
+| 进入命令行模式 | `prefix` `:` |
 
 
 ### Windows 相关的操作
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| 新建窗口 | prefix c |
-| 采用下一个内置布局 | prefix space |
-| 关闭一个窗口 | prefix & |
-| 使用窗口号切换 | prefix 窗口号 |
-| 切换到最近使用的窗口 | prefix l |
-| 以菜单方式显示和选择窗口 | prefix w |
-| 修改窗口的名称 | prefix , |
-| 搜索并切换窗口到结果 | prefix f |
-| 修改窗口编号 | prefix . |
-| ~~切换到下一个窗口~~ | prefix n |
-| ~~切换到上一个窗口~~ | prefix p |
+| 新建窗口 | `prefix` `c` |
+| 采用下一个内置布局 | `prefix` `space` |
+| 关闭一个窗口 | `prefix` `&` |
+| 使用窗口号切换 | `prefix` `窗口号` |
+| 切换到最近使用的窗口 | `prefix` `l` |
+| 以菜单方式显示和选择窗口 | `prefix` `w` |
+| 修改窗口的名称 | `prefix` `,` |
+| 搜索并切换窗口到结果 | `prefix` `f` |
+| 修改窗口编号 | `prefix` `.` |
+| ~~切换到下一个窗口~~ | `prefix` `n` |
+| ~~切换到上一个窗口~~ | `prefix` `p` |
 
 ### Pane 相关操作
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| 切换到下一个窗格 | prefix o |
-| 查看所有窗格的编号 | prefix q |
-| 垂直拆分出一个新的窗格 | prefix " |
-| 水平拆分出一个新的窗格 | prefix % |
-| 暂时将一个窗体放到最大 | prefix z |
-| 关闭面板 | prefix x |
-| 切换到上下左右的分割面板 | prefix + 方向键 |
-| 将当前面板变为新窗口 | prefix ! |
-| 调换面板的位置 | prefix ctrl+o |
-| 调整分割窗口的大小 | prefix ctrl + 方向键 |
-| 选择指定面板 | prefix 数字 |
-| 上 or 下交换面板 | prefix { or } |
+| 切换到下一个窗格 | `prefix` `o` |
+| 查看所有窗格的编号 | `prefix` `q` |
+| 垂直拆分出一个新的窗格 | `prefix` `"` |
+| 水平拆分出一个新的窗格 | `prefix` `%` |
+| 暂时将一个窗体放到最大 | `prefix` `z` |
+| 关闭面板 | `prefix` `x` |
+| 切换到上下左右的分割面板 | `prefix` `方向键` |
+| 将当前面板变为新窗口 | `prefix` `!` |
+| 调换面板的位置 | `prefix` `ctrl` + `o` |
+| 调整分割窗口的大小 | `prefix` `ctrl` `方向键` |
+| 选择指定面板 | `prefix` `数字` |
+| 上 or 下交换面板 | `prefix` `{` or `}` |
 
 
 
@@ -63,10 +63,10 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| 显示快捷键帮助 | prefix ? |
-| 删除 session | tmux kill-session -t session-name |
-| 重新连接session | tmux attach -t session-name |
-| 显示保存的会话 | tmux ls |
+| 显示快捷键帮助 | `prefix` `?` |
+| 删除 session | `tmux kill-session -t session-name` |
+| 重新连接session | `tmux attach -t session-name` |
+| 显示保存的会话 | `tmux ls` |
 
 ### gpakosz 模式引入的特性
 
@@ -74,11 +74,11 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| 鼠标模式 | prefix + m |
-| 粘贴复制的内容 | prefix + p |
-| 列出所有的 paste-buffer | prefix + b |
-| 提供 paste-buffer 的选择选项 | prefix + P |
-| vim 模式移动光标所在的 pane | prefix + h/j/k/l |
+| 鼠标模式 | `prefix` `m` |
+| 粘贴复制的内容 | `prefix` `p` |
+| 列出所有的 paste-buffer | `prefix` `b` |
+| 提供 paste-buffer 的选择选项 | `prefix` `P` |
+| vim 模式移动光标所在的 pane | `prefix` `h/j/k/l` |
 |
 
 ### vi-choice
@@ -89,5 +89,5 @@ tmux 的前置操作是： CTRL+b, 下文以 prefix 代替
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| prefix + enter | 进入 copy 模式 |
+| `prefix` `enter` | 进入 copy 模式 |
 |

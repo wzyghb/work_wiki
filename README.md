@@ -18,18 +18,18 @@
 
 | 类别 | 包 |
 | :--- | :--- |
-| web 框架 | flask，以及 flask-admin、flask-migrate、flask-script |
+| web 框架 | flask，以及 flask-admin、flask-migrate、flask-script、flask-swagger |
 | rpc / 序列化 | thrift protobuf |
-| MySQL | mysql\SQLAlchemy |
-| NoSQL | cassandra\python-driver |
-| 搜索 | elasticsearch\elasticsearch-dsl |
+| MySQL | mysql / SQLAlchemy |
+| NoSQL | cassandra / python-driver |
+| 搜索 | elasticsearch / elasticsearch-dsl |
 | 开发环境 | docker |
-| 缓存、消息队列 | redis |
+| 缓存、消息队列 | redis / redis-py |
 | 异步任务 | celery |
 | 协程、并发 | gevent |
 | 机器学习 | numpy、scipy、pandas、sklearn、tensorflow、keros、spark |
 | 前端 | react、redux |
-| 编程语言 | python、java、scala、c、go | javascript、rust |
+| 编程语言 | python、java、scala、c、go .. javascript、rust |
 | api | graphql |
 | ci | travis-ci |
 | cluster | consul |
@@ -37,6 +37,14 @@
 
 ### python 项目相关
 
++ pillow
++ py_pinyin
++ mock
++ raven / sentry
++ requests
++ gray_py / graylog
++ gevent
++ isdangerous
 
 ## 个人工具
 按照重要程度排名如下：

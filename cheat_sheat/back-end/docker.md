@@ -337,47 +337,46 @@ docker-compose [-f=<arg>...] [options] [COMMAND] [ARGS...]
 
 #### 模板文件中的命令
 
-+ build
-+ cap_add
-+ cap_drop
-+ command
-+ cgroup_parent
-+ container_name
-+ devices
-+ dns  自定义 DNS 列表，可以是一个值，也可以是一个列表。
-+ dns_search  配置 DNS 搜索域，可以是一个值，也可以是一个列表。
-+ dockerfile  指定额外的编译镜像的 Dockerfile 文件。
-+ env_file 从文件中获取环境变量
-+ environment  设置环境变量，如果只给定名字，会自动获取 Compose 主机上对应变量的值，防止数据泄露
-+ expose 暴露端口，但不映射到宿主主机，只被连接的服务访问。
-+ extends 基于其他的模板文件进行扩展。
-+ external_links  链接到 docker-compose.yml 外部的容器，甚至并非 Compose 管理的容器。
-+ extra_hosts  指定额外的 host 名称映射信息
-+ image  指定镜像名称或者 id，如果不存在 compose 会尝试拉取这个镜像
-+ labels  为 docker 镜像添加元数据 (metadata) 信息
-+ links  链接到其他服务中的容器，使用 `服务名称` 或者 `服务名称:服务别名`
-+ log_driver  
-+ log_opt
-+ net
-+ pid  跟主机系统共享进程命名空间
-+ ports  暴露端口信息，容器 (HOST:CONTAINER)。
-+ security_opt
-+ ulimits
-+ volumes  数据卷挂载路径设置，可以摄住宿主机路径 (HOST:CONTAINER:访问模式)
-+ volumes_driver
-+ volumes_from  从另一个服务或者容器挂载它的数据卷
-+
++ `build`
++ `cap_add`
++ `cap_drop`
++ `command`
++ `cgroup_parent`
++ `container_name`
++ `devices`
++ `dns`  自定义 DNS 列表，可以是一个值，也可以是一个列表。
++ `dns_search`  配置 DNS 搜索域，可以是一个值，也可以是一个列表。
++ `dockerfile`  指定额外的编译镜像的 Dockerfile 文件。
++ `env_file` 从文件中获取环境变量
++ `environment`  设置环境变量，如果只给定名字，会自动获取 Compose 主机上对应变量的值，防止数据泄露
++ `expose` 暴露端口，但不映射到宿主主机，只被连接的服务访问。
++ `extends` 基于其他的模板文件进行扩展。
++ `external_links`  链接到 docker-compose.yml 外部的容器，甚至并非 Compose 管理的容器。
++ `extra_hosts`  指定额外的 host 名称映射信息
++ `image`  指定镜像名称或者 id，如果不存在 compose 会尝试拉取这个镜像
++ `labels`  为 docker 镜像添加元数据 (metadata) 信息
++ `links`  链接到其他服务中的容器，使用 `服务名称` 或者 `服务名称:服务别名`
++ `log_driver` 
++ `log_opt`
++ `net`
++ `pid`  跟主机系统共享进程命名空间
++ `ports`  暴露端口信息，容器 (HOST:CONTAINER)。
++ `security_opt`
++ `ulimits`
++ `volumes`  数据卷挂载路径设置，可以摄住宿主机路径 (HOST:CONTAINER:访问模式)
++ `volumes_driver`
++ `volumes_from`  从另一个服务或者容器挂载它的数据卷
 
 ## swarm
 
 Docker swarm 是一套管理 Docker 集群的工具。可以将一群 Docker 宿主机变成一个单一的虚拟主机。
 
-+ swarm manager
-+ swarm node
-+ swarm daemon
-  - scheduler
-  - router
-+ discovery service
++ `swarm manager`
++ `swarm node`
++ `swarm daemon`
+  - `scheduler`
+  - `router`
++ `discovery service`
 
 
 > docker daemon: docker 最核心的后台进程，负责响应来自 Docker client的请求，然后将这些请求翻译成系统调用完成容器的管理。该
@@ -435,7 +434,26 @@ docker 集群管理需要使用服务发现（Discovery service backend）Swarm 
 
 ### swarm 调度策略
 
+目前 swarm 启动 container 时，swarm 会根据选择的调度策略来选择节点运行 container。目前有的调度策略有：
++ spread 选择一个正在运行的container的数量最少的那个节点来运行container -> 有节点坏掉不会损失太多的 container
++ binpack 尽可能的把所有的容器放在一台节点上面运行 -> 避免容器碎片化，使用最少的节点运行最多的容器。
++ random
+
+
 ### swarm 过滤器
+
+swarm 的调度器 (scheduler) 在选择节点运行容器的时候支持几种过滤器：
++ Constraint 启动 docker-daemon 时指定标签，然后就可以指定 container 运行的节点了
++ Affinity 使一个容器紧挨另一个容器运行
++ Port Filter Port 会是唯一资源，这样会使之后所有使用 80 端口的容器都启动失败
++ Dependency
++ Health
+
+## Kubernetes
+支持常见的云平台，支持内部的数据中心。
+
+核心概念：`Container Pod` 容器仓，每个 Pod 是由一组工作于同一物理工作节点的容器构成的。这些容器拥有相同的网络
+命名空间 VIP 以及存储配额，可以根据实际情况对每一个 Pod 进行端口映射。
 
 ## 原理
 
@@ -443,6 +461,11 @@ docker 集群管理需要使用服务发现（Discovery service backend）Swarm 
 + Namespaces 隔离的第一级，确保每一个容器中运行一个进程，而不影响容器以外的其他进程
 + Control Groups 是 LXC 的重要组成部分，具有资源核算与限制的关键功能
 + UnionFS 容器的构建块，支持 Docker 的轻量级以及快速性，构建了用户层
+
+### docker 中的网络
+Docker 启动时，会在主机上创建一个 `docker0` 虚拟网桥，实际上是 linux 的bridge，可以理解为一个软件交换机。
+他会在挂载到他的网口之间进行转发。
+
 
 ## 坑
 

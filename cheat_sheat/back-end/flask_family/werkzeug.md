@@ -1,7 +1,7 @@
 werkzeug 基础总结
 ----
 
-在头条的开发中，基础框架使用 flask 框架，而 flask 框架底层使用 werkzeug 实现。（jinja2 很少使用。项目中大部分通过 restful api 向前端返回数据。
+在开发中，基础框架使用 flask 框架，而 flask 框架底层使用 werkzeug 实现。（jinja2 很少使用。项目中大部分通过 restful api 向前端返回数据。
 因而总结了下 werkzeug 的基础知识。
 
 另外有：
@@ -101,20 +101,20 @@ def application(request):
 #### 包的组成
 
 基本组成：
-+ werkzeug.wrappers.BaseRequest(environ, populate_request=True, shallow=False)
-+ werkzeug.wrappers.BaseResponse(response=None, status=None, headers=None, mimetype=None, content_type=None)
++ `werkzeug.wrappers.BaseRequest(environ, populate_request=True, shallow=False)`
++ `werkzeug.wrappers.BaseResponse(response=None, status=None, headers=None, mimetype=None, content_type=None)`
 
 werkzeug 也提供了一些 Mixin 来丰富处理逻辑：
-+ Request(BaseRequest, AcceptMixin, ETagRequestMixin, UserAgentMixin, AuthorizationMixin, CommonRequestDescriptorsMixin)
-+ Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin, CommonResponseDescriptorsMixin, WWWAuthenticateMixin)
++ `Request(BaseRequest, AcceptMixin, ETagRequestMixin, UserAgentMixin, AuthorizationMixin, CommonRequestDescriptorsMixin)`
++ `Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin, CommonResponseDescriptorsMixin, WWWAuthenticateMixin)`
 
 ### 2. URL 路由
 
 ### 3. WSGI 辅助函数
 
-日期的解析
-头部的解析
-Cookies 的解析
++ 日期的解析
++ 头部的解析
++ Cookies 的解析
 
 ### 4. HTTP 公共包
 
@@ -343,6 +343,7 @@ def dispatch_request(self, request):
    except HTTPException, e:
        return e
 ```
+
 将 url_map 绑定到当前的环境并返回一个 URLAdapter。适配器可以用于匹配请求也可以用于翻转 urls。匹配的方法将会返回 endpoint 和一个 URL 的值字典。
 如上，在浏览器中输入 `http://localhost:5000/foo` 将会得到如下的值：
 

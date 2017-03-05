@@ -7,6 +7,7 @@
 参考资料：
 + [Elasticsearch 权威指南](https://es.xiaoleilu.com/)。
 + [elastic 官网](https://www.elastic.co/)
++ [elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
 + [elasticsearch-py](https://elasticsearch-py.readthedocs.io/en/master/)
 + [elasticsearch-dsl](https://elasticsearch-dsl.readthedocs.io/en/latest/)
 + [elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
@@ -58,20 +59,11 @@ ElasticSearch 的插件可以分为两部分：
 
 ### Starting
 
-#### 安装和启动
-```bash
-java -version
-echo $JAVA_HOME
-curl -L -O    https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.3.3/elasticsearch-2.3.3.tar.gz
++ [Install](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html)
 
-tar -xvf elasticsearch-2.3.3.tar.gz
-cd elasticsearch-2.3.3/bin
-./elasticsearch
-./elasticsearch --cluster.name my_cluster_name --node.name my_node_name
-```
-### api 指令快速浏览
+### API reference 简介
 
-ES 提供了专有风格的 api 用于建立索引、查询等，本部分以 curl 为请求工具，总结了常用 api。
++ 
 
 #### 集群管理
 
@@ -262,6 +254,7 @@ q = Q("multi_match", query='python django', fields=['title', 'body'])
 s = s.query(q)
 s = s.query("multi_match", query='python django', fields=['title', 'body'])
 s.query = Q('bool', must=[Q('match', title='python'), Q('match', body='best')])
+```
 
 ### 1. 查询组合 Q
 
@@ -275,6 +268,7 @@ Q("match", title='python') & Q("match", title='django')
 ~Q("match", title="python")
 # {"bool": {"must_not": [...]}}
 ```
+
 当你多次使用 `query` 方法时，& 操作将会在其内部使用：
 
 ```python

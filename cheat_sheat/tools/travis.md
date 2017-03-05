@@ -11,18 +11,18 @@
 
 ## [自定义构建过程](https://docs.travis-ci.com/user/customizing-the-build/)
 
-1. OPTIONAL Install apt addons
-2. OPTIONAL Install cache components
-3. before_install
-4. install
-5. before_script
-6. script
-7. OPTIONAL before_cache (for cleaning up cache)
-8. after_success or after_failure
-9. OPTIONAL before_deploy
-10. OPTIONAL deploy
-11. OPTIONAL after_deploy
-12. after_script
+1. `OPTIONAL Install apt addons`
+2. `OPTIONAL Install cache components`
+3. `before_install`
+4. `install`
+5. `before_script`
+6. `script`
+7. `OPTIONAL before_cache (for cleaning up cache)`
+8. `after_success or after_failure`
+9. `OPTIONAL before_deploy`
+10. `OPTIONAL deploy`
+11. `OPTIONAL after_deploy`
+12. `after_script`
 
 ### install 语句
 
@@ -54,9 +54,9 @@ script: bundle exec rake build && bundle exec rake builddoc
 
 ### 构建终止
 
-1. before_install, install, before_script 如果返回一个非零的 code，构建将会立即终止。
+1. `before_install`, `install`, `before_script` 如果返回一个非零的 code，构建将会立即终止。
 2. script 如果返回一个非零的 exit code，构建将会失败，但是 build 会继续，指导收到失败为止。
-3. after_success, after_failure, after_script 失败不会对构建造成影响。
+3. `after_success`, `after_failure`, `after_script` 失败不会对构建造成影响。
 
 ### 部署代码
 

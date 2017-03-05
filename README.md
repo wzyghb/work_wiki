@@ -26,7 +26,7 @@
 | 开发环境 | docker |
 | 缓存、消息队列 | redis / redis-py |
 | 异步任务 | celery |
-| 协程、并发 | gevent |
+| 协程、并发 | gevent、 akka |
 | 机器学习 | numpy、scipy、pandas、sklearn、tensorflow、keros、spark |
 | 前端 | react、redux |
 | 编程语言 | python、java、scala、c、go .. javascript、rust |
@@ -37,7 +37,7 @@
 
 ### python 项目相关
 
-+ pillow
++ [pillow](http://pillow.readthedocs.io/en/latest/)
 + py_pinyin
 + mock
 + raven / sentry
@@ -45,6 +45,10 @@
 + gray_py / graylog
 + gevent
 + isdangerous
+
+### scala 项目相关
+
++ [elastic4s](https://github.com/sksamuel/elastic4s)
 
 ## 个人工具
 按照重要程度排名如下：

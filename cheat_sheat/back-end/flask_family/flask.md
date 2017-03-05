@@ -17,9 +17,72 @@ flask 基于 werkzeug 实现，项目中涉及到的功能和对应的源代码�
 | `config.py` | 配置策略定义 | done |
 | `globals.py` | 全局变量 | done |
 | `helpers.py` | 辅助函数 | done |
-
+| `exthook.py` | 扩展支持 | before |
+| `json.py` | json 相关 | before |
+| `signal.py` | 信号 | before |
+| `templating.py` | 模板 | before | 
+| `cli.py` | 命令行 | before |
+| `debughelpers.py` | 提升开发测试的体验 | before |
+| `testing.py` | 测试 | before |
 
 ## app 模块
+
++ `Flask`
+
+### 配置的类：
+
++ `request_class`
++ `response_class`
++ `jinja_environment`
++ `app_ctx_global_class`
++ `request_globals_class`
++ `config_class`
++ `url_rule_class`
++ `test_client_class`
++ `session_interface`
+
+### 配置属性
+
+#### class 配置
++ `debug`
++ `testing`
++ `secret_key`
++ `session_cookie_name`
++ `permanent_session_lifetime`
++ `send_file_max_age_default`
++ `use_x_sendfile`
++ `logger_name`
++ `json_encoder`
++ `json_decoder`
++ `jinja_options`
+
+#### object 配置
++ `static_url_path`
++ `static_folder`
++ `instance_path`
++ `config`
++ `logger_name`
++ `view_functions`
++ `_error_handlers`
++ `error_handler_spec`
++ `url_build_error_handlers`
++ `before_request_funcs`
++ `before_first_request_funcs`
++ `after_request_funcs`
++ `teardown_request_funcs`
++ `teardown_appcontext_funcs`
++ `url_value_preprocessors`
++ `url_default_functions`
++ `template_context_processors`
++ `shell_context_processors`
++ `blueprints`
++ `_blueprint_order`
++ `extensions`
++ `url_map`
++ `_get_first_request`
++ `_before_request_lock`
++ `cli`
+
 
 ## config
 
@@ -142,5 +205,4 @@ flask 基于 werkzeug 实现，项目中涉及到的功能和对应的源代码�
     - `_request_ctx_stack` 中出栈
     - `app_ctx` 出栈
   - `auto_pop`
-
-难点 `_implicit_app_ctx_stack` 的作用。
+  - 难点 `_implicit_app_ctx_stack` 的作用。

@@ -12,6 +12,7 @@ message SongServerRequest {
 
 ### Enums 
 使用  CamelCase 来命名 enum type 的名字，使用大写加下划线的方式来命名 enum 中的值。
+
 ```
 enum FooCase {
     FIRST_VALUE = 1;

@@ -11,6 +11,10 @@
 + [elasticsearch-py](https://elasticsearch-py.readthedocs.io/en/master/)
 + [elasticsearch-dsl](https://elasticsearch-dsl.readthedocs.io/en/latest/)
 + [elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
++ [Cerebro](https://github.com/lmenezes/cerebro) es 的管理系统
++ [head](https://github.com/mobz/elasticsearch-head) es 集群的前端界面，暂时不支持 es 5.x
++ [bigdesk](https://github.com/lukas-vlcek/bigdesk) es 的统计和监控平台
++ [ES 配置的例子](https://github.com/hangxin1940/elasticsearch-cn-out-of-box)
 
 ## 搜索的相关概念
 
@@ -63,6 +67,21 @@ ElasticSearch 的插件可以分为两部分：
 ./bin/elasticsearch-plugin -h
 ```
 查看插件相关的帮助信息。
+
+### 配置项
+
++ `cluster.name`
++ `node.name`
++ `network.host`
++ `http.port`
++ `path.logs`
++ `discovery.zen.ping.unicast.hosts: ["10.6.16.24","10.3.132.35","10.3.132.50"]`
++ `node.master`
++ `node.data`
++ `discovery.zen.minimum_master_nodes: 2`
++ `index.number_of_replicas: 2`
++ `index.number_of_shards: 5`
+
 
 ### Starting
 

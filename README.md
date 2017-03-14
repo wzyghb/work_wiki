@@ -27,9 +27,11 @@
 | 缓存、消息队列 | redis / redis-py |
 | 异步任务 | celery |
 | 协程、并发 | gevent、 akka |
-| 机器学习 | numpy、scipy、pandas、sklearn、tensorflow、keros、spark |
+| 科学计算 | numpy、scipy |
+| 数据处理 | pandas |
+| 机器学习库 | sklearn、tensorflow、keros、spark、polylearn |
 | 前端 | react、redux |
-| 编程语言 | python、java、scala、c、go .. javascript、rust |
+| 编程语言 | python、java、scala、c、rust .. javascript、go |
 | api | graphql |
 | ci | travis-ci |
 | cluster | consul |

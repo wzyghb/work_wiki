@@ -87,7 +87,7 @@ message Foo {
 
 尽量减少 required 字段的使用。
 
-```
+```python
 import addressbook_pb2
 person = addressbook_pb2.Person()
 person.id = 1234

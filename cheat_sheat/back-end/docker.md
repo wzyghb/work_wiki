@@ -238,22 +238,12 @@
 | :--- | :--- |
 | `docker rm $(docker ps -a -q)` | 清理所有处于终止状态的容器 |
 | `docker-compose run --rm <container-name> bash` | 临时打开一个用后即删的 container 并连接到 bash |
+| `docker-compose down -v` | 停止并删除 docker-compose.yml 定义的文件 |
 | `docker exec -it <container-name> bash` | 连接到一个运行中的 container |
 
 
 
 ### Dockerfile
-
-#### Dockerfile 构成：
-
-| 功能说明 | 关键字 |
-| :--- | :--- |
-| 基础镜像信息 | `FROM` |
-| 维护者信息 | `MAINTAINER` |
-| 镜像操作指令 | `RUN ADD EXPOSE` |
-| 容器启动时执行指令 | `CMD` |
-
-Dockerfile 中每一条指令都创建了Docker镜像中的一层
 
 #### Dockerfile 关键字详细说明
 
@@ -262,15 +252,15 @@ Dockerfile 中每一条指令都创建了Docker镜像中的一层
 | `#` | 为注释 |
 | `FROM` | 表示Docker以哪个镜像为基础来创建 |
 | `RUN` | 会在docker创建时运行。将复杂的 run 命令分开为多行，可以使 Dockerfile 更加具备可读性 |
-| `ADD` | 添加本地文件。 `ADD <src> <dest>` <src> 可以是 Dockerfile所在目录的一个相对路径;也可以是一个 URL;还可以是一个 tar 文件 (自动解压为目录) |
-| `COPY` | `COPY <src> <dest>` 当使用本地目录为源目录时，推荐使用 COPY |
+| `ADD` | 添加本地文件。 `ADD <src> <dest>` <src> 可以是 Dockerfile所在目录的一个相对路径; 也可以是一个 URL;还可以是一个 tar 文件 (自动解压为目录) 就是一个 比 Copy 更高级的复制命令 |
+| `COPY` | `COPY <src> <dest>` 当使用本地目录为源目录时，推荐使用 `COPY` |
 | `EXPOSE` | 向外部开放端口 |
-| `CMD` | 命令为容器启动后运行的命令。每个 Dockerfile 只能有一条 CMD 命令。如果指定了 多条命令，只有最后一条会被执行 |
+| `CMD` | 命令为容器启动后运行的命令。每个 Dockerfile 只能有一条 `CMD` 命令。如果指定了 多条命令，只有最后一条会被执行 |
 | `ENV` | `ENV <key> <value>` 指定一个环境变量，会被后续 RUN 指令使用， 并在容器运行时保持 |
-| `ENTRYPOINT` | 配置容器启动后执行的命令，并且不可被 docker run 提供的参数覆盖 |
-| `VOLUME` | VOLUME ["/data"] 创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等 |
-| `USER` | USER daemon 指定运行容器时的用户名或 UID，后续的 RUN 也会使用指定用户。要临时获取管理员权限可以使用 gosu，不推荐使用 sudo |
-| `WORKDIR` | /path/to/workdir 为后续的 RUN 、 CMD 、 ENTRYPOINT 指令配置工作目录 |
+| `ENTRYPOINT` | 配置容器启动后执行的命令，并且不可被 `docker run` 提供的参数覆盖 |
+| `VOLUME` | `VOLUME` `["/data"]` 创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等 |
+| `USER` | `USER daemon` 指定运行容器时的用户名或 `UID`，后续的 `RUN` 也会使用指定用户。要临时获取管理员权限可以使用 `gosu`，不推荐使用 `sudo` |
+| `WORKDIR` | `/path/to/workdir` 为后续的 `RUN` 、 `CMD` 、 `ENTRYPOINT` 指令配置工作目录 |
 | `ONBUILD` | |
 
 ## compose 组件
@@ -337,13 +327,13 @@ docker-compose [-f=<arg>...] [options] [COMMAND] [ARGS...]
 
 #### 模板文件中的命令
 
-+ `build`
-+ `cap_add`
-+ `cap_drop`
-+ `command`
++ `build` 指定 Dockerfile 所在文件夹的路径
++ `cap_add` 增加内核分配能力
++ `cap_drop` 删除内核分配能力
++ `command` 覆盖容器启动后默认执行的命令
 + `cgroup_parent`
-+ `container_name`
-+ `devices`
++ `container_name` 指定容器的名称，默认会使用 `项目名称_服务名称_序号` 的格式进行命名，增加这个参数后，将无法自动扩展
++ `devices` 
 + `dns`  自定义 DNS 列表，可以是一个值，也可以是一个列表。
 + `dns_search`  配置 DNS 搜索域，可以是一个值，也可以是一个列表。
 + `dockerfile`  指定额外的编译镜像的 Dockerfile 文件。
@@ -481,3 +471,11 @@ ERROR: Get https://hub.xxxx.org/v1/_ping: x509: certificate signed by unknown au
 
 `docker -> Preferences -> Daemon -> Basic -> Insecure registries`
 下增加 `hub.xxxx.org`。
+
+
+# etcd
+
++ 简单：支持 REST 风格的 HTTP+JSON API
++ 安全：支持 HTTPS 方式的访问
++ 快速：支持并发 1k/s 的写操作
++ 可靠：支持分布式结构，基于 Raft 的一致性算法

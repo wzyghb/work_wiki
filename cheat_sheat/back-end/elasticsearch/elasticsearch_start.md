@@ -92,7 +92,7 @@ ElasticSearch 的插件可以分为两部分：
 
 #### 分词结果测试
 ```
-curl -XPOST 'http://10.4.17.18:9200/group_chats/_analyze?pretty' -d '
+curl -XPOST 'http://10.4.17.18:9200/<index>/_analyze?pretty' -d '
 {
     "analyzer": "pinyin",
     "text": "效率yufuwubu"

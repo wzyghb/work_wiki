@@ -173,6 +173,10 @@ fn main() {
 
 ## 4 [tokio](https://tokio.rs/)
 
++ `tokio-proto` 构建 servers 和 clients 的简单接口
++ `tokio-core` 构建自定义的，低层次的异步代码
++ `futures` 提供了 `futures`、`streams`、`sinks` 的概念
+
 ### 1 [future](https://tokio.rs/docs/getting-started/futures/)
 
 future 的使用场景：
@@ -181,6 +185,13 @@ future 的使用场景：
 3. 超时
 4. 一个长时间运行的 CPU 密集任务
 5. 从 socket 读取一些字节数据
+
+#### 1 简单的例子
+#### 2 combine
++ `then`: 
++ `select`: 组合两个相同类型的 futures，并根据完成时间进行 race
+
+#### 3 
 
 ## 5 [error-chain]
 
@@ -213,12 +224,16 @@ future 的使用场景：
 `error_chain` 中定义了 links，以及一个 Backtrace。
 2. 定义了 `ResultExt`，其 `chain_err` 方法可以将 `std::error::Error + Send + 'static` 类型进行 boxed 并保存到 error chain 中。（作为新 concrete error 的 inside)
 3. 他提供了自动的 `From` 方法将在 `error_chain!` 中定义的其他错误类型保留 type 信息，将他们灵活地组合起来。
-4. 
 
 
 `starting` 中给出了一个模板。
 1. 在 Cargo.toml 中添加 `error-chain = "0.10.0"`
-2. 
+
+## 6 protobuf
+
+```
+cargo install protobuf
+```
 
 # reference
 + [rustwebapp](https://github.com/superlogical/rustwebapp)

@@ -516,3 +516,16 @@ BEGIN BATCH
 + 
 
 重要概念： cardinality 基数，一般来说如果数据是文章实体，每个都包含大量的数据，则这个列是高基数的，反之如果只是 bool 类型的，则是低基数的。
+
+
+# TokenAwarePolicy
+
+一个可以包装其他 Policy 的负载均衡 Policy，使得被包装的 Policy 也可以使用 Token。
++ distance method 继承自 child policy
++ 如果可能，`newQueryPlan` 方法会给 query 返回 Local replicas (基于 `Statement.getRoutingKey` 如果 `getRoutingKey` 没有返回 null 且 getReplicas 没有返回 partition key 副本的 empty set)。只有没有发现本地副本和没有成功连接到时，剩余的查询计划会降级使用 child policy。
+
+注意：只有 child policy 的距离函数返回 `HostDistance.LOCAL` 时才会变成优先。例如，如果包装 `DCAwareRoundRobinPolicy` 时，远程数据中心的数据总是
+在本地数据中心的数据返回后才返回。
+
+# DCAwareRoundRobinPolicy
+一个辨识数据中心的 Round-Robin 负载均衡算法。

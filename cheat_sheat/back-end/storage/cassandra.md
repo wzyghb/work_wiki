@@ -16,7 +16,6 @@
 + [删除 keyspace、table、shema、data](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useRemoveData.html)
 + [表的安全、权限控制](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useSecureTOC.html)
 + [一致性](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useTracing.html)
-+ []()
 
 ## cassandra driver
 
@@ -33,9 +32,9 @@ cluster = Cluster(['10.1.1.3', '10.1.1.4', '10.1.1.5'], load_balancing_policy=DC
 session = cluster.connection()
 
 session.set_keyspace("users")   // 1
-session.execute("USER users")   // 2
+session.execute("USE users")   // 2
 
-session = cluster.connection("mykeyspace")
+session = cluster.connect("mykeyspace")
 ```
 
 ### 执行 CQL 查询语句
@@ -510,10 +509,10 @@ BEGIN BATCH
 改进：SSTable Attached Secondary Indexes (SASI)
 
 注意，在以下情况下不要使用 index：
-+ 在一个数据量极大的表中查询一小部分数据。  [参考](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useWhenIndex.html#useWhenIndex__highCardCol)
++ 在一个数据量极大的表中查询一小部分数据。
+[参考](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useWhenIndex.html#useWhenIndex__highCardCol)
 + 在使用 counter 列的表中。
 + 在一个需要经常插入和删除列的表中。
-+ 
 
 重要概念： cardinality 基数，一般来说如果数据是文章实体，每个都包含大量的数据，则这个列是高基数的，反之如果只是 bool 类型的，则是低基数的。
 
@@ -529,3 +528,11 @@ BEGIN BATCH
 
 # DCAwareRoundRobinPolicy
 一个辨识数据中心的 Round-Robin 负载均衡算法。
+
+# Problems
+
+## 1 Prepared statement 是不是绑定在一个 session 上。或者只能在一个 session 上用？
+一个 Prepared Statement 衍生自一个特定的 session 实例。session 实例又和唯一的 cluster 实例相关，允许其被查询。Prepared Statement 因而不能够单独存在，因而不能在在 session间移动它。通常每个 application 会拥有一个 keyspace。
+
+## 如何获得 Cassandra Driver 的 token range 呢？
+在 cassandra 的 system keyspace 中存储了 cassandra 相关的配置信息。cassandra 使用了 gossip 协议来同步不同节点之间的信息。

@@ -534,5 +534,109 @@ BEGIN BATCH
 ## 1 Prepared statement 是不是绑定在一个 session 上。或者只能在一个 session 上用？
 一个 Prepared Statement 衍生自一个特定的 session 实例。session 实例又和唯一的 cluster 实例相关，允许其被查询。Prepared Statement 因而不能够单独存在，因而不能在在 session间移动它。通常每个 application 会拥有一个 keyspace。
 
-## 如何获得 Cassandra Driver 的 token range 呢？
+## 2 如何获得 Cassandra Driver 的 token range 呢？
 在 cassandra 的 system keyspace 中存储了 cassandra 相关的配置信息。cassandra 使用了 gossip 协议来同步不同节点之间的信息。
+
+## 3 如何实现批量的写入？
+使用 batches 的接口是最佳的一次写入多个表的方式。但是要保持 batches 是比较小的，最多一次写入 5 kb 的数据。batches 保证了原子性，但是并非性能最优。
+> cassandra 的 batches 通常会被误认为是性能的优化，虽然 batch 在极少的 case 下确实可以优化性能，我们首先讨论几种类型的 batches：
+
++ Unlogged Batch: 通常，一个好的 unlogged batch 对数据的 partition key 做了假设。当所有的 partition key 都是相同时，batch 操作非常地高效，如下面的例子所示：
+
+```sql
+BEGIN UNLOGGED BATCH;
+INSERT INTO weather_readings (date, timestamp, temp) values (20140822,'2014-08-22T11:00:00.00+0000', 98.2); 
+INSERT INTO weather_readings (date, timestamp, temp) values (20140822,'2014-08-22T11:00:15.00+0000', 99.2); 
+APPLY BATCH;
+```
+
+此时的 batch 操作只需要内部写一次即可，这是 unlogged batch 的典型使用场合。
+
+一个反例是：
+
+```sql
+BEGIN UNLOGGED BATCH;
+INSERT INTO tester.users (userID, firstName, lastName) VALUES (1, ‘Jim’, ‘James’)
+INSERT INTO tester.users (userID, firstName, lastName) VALUES (2, ‘Ernie’, ‘Orosco’)
+INSERT INTO tester.users (userID, firstName, lastName) VALUES (3, ‘Jose’, ‘Garza’)
+INSERT INTO tester.users (userID, firstName, lastName) VALUES (4, ‘Sammy’, ‘Mason’)
+INSERT INTO tester.users (userID, firstName, lastName) VALUES (5, ‘Larry’, ‘Bird’)
+INSERT INTO tester.users (userID, firstName, lastName) VALUES (6, ‘Jim’, ‘Smith’)
+APPLY BATCH;
+```
+
+Unlogged batches 需要 coordinator 为这次插入做所有的工作，并且使一个 node 做很多工作。如果 partition key 不再同一个 node 上，coordinator node 需要额外的网络来协同操作。
+
++ logged batch
+一个常见的例子是：
+
+```sql
+BEGIN BATCH;
+UPDATE users SET name=’Jim’ where id = 1;
+UPDATE users_by_ssn set name=’Jim’ where ssn=’888–99–9999';
+APPLY BATCH;
+```
+
+这会导致 table 进行同步，并损失性能。反例同上 unlogged batch。在一张表中插入并没有严格依赖关系的数据，而这些数据又没有相同的 partition key。基于以下原因，这会导致性能的极大损失。logged batches 会导致 coordinator 做很多额外的工作，coordinator 主要的角色是保证 table 之间的一致性。当一个 batch 发送出 coordinator node 时，另外的 nodes(个人感觉是 coordinator node) 会发送 batch logs。因而如果这个 coordinator 失败了，这个 batch 将会由另外的两个 node 重试。这显然给 coordinator 和真个 cluster 增加了很多额外的工作量。因而，主要使用 logged batch 的场合是你需要同步地在几张表中写入时，而不是为了性能。
+
+[不使用 batch 以最快的方式加载数据](https://medium.com/@foundev/cassandra-batch-loading-without-the-batch-the-nuanced-edition-dd78d61e9885)
+
+## 4 batches 中使用不同 keyspace
+
+```
+BEGIN BATCH
+   INSERT INTO demo.users (lastname, age, city, email, firstname)    VALUES
+   ('Smith', 46, 'Sacramento', 'john@example.com', 'John');
+   INSERT INTO demo2.users (lastname, age, city, email, firstname
+   VALUES
+   ('Doe', 36, 'Beverly Hills', 'jane@example.com', 'Jane');
+   INSERT INTO demo3.users (lastname, age, city, email, firstname)   VALUES
+   ('Byrne', 24, 'San Diego', 'rob@example.com', 'Rob');
+APPLY BATCH;
+```
+
+同时在 demo.users、demo2.users、demo3.users 中插入数据。
+
+## 5 通过使用 token aware 连接能够提升性能？
+
+是的，使用 token aware 策略，避免了 client 搞清楚集群中每个 node 使用的 token 的范围的网络开销。
+当一个 client 连接到一个 node，但是这个 node 并没有占有用于写入的 token（可以是 primary node 或者 replica node），此时这个 node 需要
+和其他的 replica node 来协同，病假写入请求发送过去。这显然没有 client 从一开始就连接到对应的节点快。
+
+## 6 如何设定 Consistency level，是在 driver 上还是在 statement 语句上还是在整个 session 上？
+
+1. 在 Cluster 属性上设定一致性层级，从而任意使用 session.execute 的语句都会使用这个一致性层级：
+
+```python
+cluster = Cluster.builder().addContactPoint("192.168.0.30")
+   .withQueryOptions(new QueryOptions()
+   .setConsistencyLevel(ConsistencyLevel.ONE)
+   .withRetryPolicy(DeaultRetryPolicy.INSTANCE)
+   .withLoadBalancingPolicy(new TokenAwarePolicy(new DCAwareRoundRobinPolicy()))
+   .build();
+session = cluster.connect("demo");
+```
+
+也可以对每个 session.execute 语句设定特定的 consitency level:
+
+```python
+session.execute(new SimpleStatement("INSERT INTO users (lastname, age, city,email, firstname) VALUES ('Jones', 45,'Austin','<a href="mailto:bob@example.com">bob@example.com</a>','Bob')")
+.setConsistencyLevel(ConsistencyLevel.ALL));
+```
+
+## 7 在 Cassandra 中使用 IN 还是多个并行的 query？
+使用 IN 查询语句会降低性能，因为通常很多个结点都需要 query，然后这个语句被发送到 coordinator 去执行。比如使用 IN clause 来查询 60 个子句，coordinator 将会阻塞等待 60 个值来返回，最坏的情况下，这 60 个值分布在 60 个结点上，这不但导致了大的延迟，并且增加了 coordinator 的内存压力。
+如果你使用 token awareness作为你的 driver 上的 cluster 配置，这时候更加推荐使用 multiple queries，这时候这些 query 会直接发送给拥有 replica 的结点。而且不要在 where 子句中使用 in 语句。 [异步请求 cassandra](http://www.datastax.com/dev/blog/java-driver-async-queries)
+
+另外 Cassandra 的 Thrift 的 api 基本上废弃了，希望新的项目都使用 CQL3。
+
+## 8 在 loop 中使用 prepared statement 性能很差，如果要批量地通过 prepared statement 批量地插入，哪种方式更好？
+
+```
+PreparedStatement p = session.prepare("select log_entry from log_index where                      id = ?");
+BoundStatement b = new BoundStatement(statement);
+int[] array = new int[]{1,2,3,4,5,6,7,8,9,10};
+for (int i = 0; i < array.length; i++){
+   session.execute(b.bind(array[i]));
+}
+```

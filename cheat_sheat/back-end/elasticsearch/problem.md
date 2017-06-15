@@ -124,3 +124,9 @@ http://<ip>:<port: default=9200>/users/user_doc/_mapping/
 http://<ip>:<port: default=9200>/_nodes/
 http://<ip>:<port: default=9200>/_cluster/health
 ```
+
+## 11 常用运维 api 总结
+### 1. 下线几个节点
+
+
+### 2. 

@@ -633,7 +633,7 @@ session.execute(new SimpleStatement("INSERT INTO users (lastname, age, city,emai
 ## 8 在 loop 中使用 prepared statement 性能很差，如果要批量地通过 prepared statement 批量地插入，哪种方式更好？
 
 ```
-PreparedStatement p = session.prepare("select log_entry from log_index where                      id = ?");
+PreparedStatement p = session.prepare("select log_entry from log_index where id = ?");
 BoundStatement b = new BoundStatement(statement);
 int[] array = new int[]{1,2,3,4,5,6,7,8,9,10};
 for (int i = 0; i < array.length; i++){

@@ -479,3 +479,11 @@ ERROR: Get https://hub.xxxx.org/v1/_ping: x509: certificate signed by unknown au
 + 安全：支持 HTTPS 方式的访问
 + 快速：支持并发 1k/s 的写操作
 + 可靠：支持分布式结构，基于 Raft 的一致性算法
+
+
+# problem
+
+1. docker 的 1 号进程为什么会出现问题？如何解决问题。 
+  + [问题详细阐述](https://blog.phusion.nl/2015/01/20/docker-and-the-pid-1-zombie-reaping-problem/)
+  + [baseimage-docker](https://github.com/phusion/baseimage-docker)
+  + [更好的 init 进程](https://github.com/krallin/tini)

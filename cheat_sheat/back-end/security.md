@@ -1,7 +1,14 @@
 
+# 参考文章
+
++ [HTTPS 全面介绍](http://www.wxtlife.com/2016/03/27/%E8%AF%A6%E8%A7%A3https%E6%98%AF%E5%A6%82%E4%BD%95%E7%A1%AE%E4%BF%9D%E5%AE%89%E5%85%A8%E7%9A%84%EF%BC%9F/)
+
+
 ## XSS Cross-Site Script
 ### 定义
-攻击者将客户端的脚本注入到网页中，使得其在其他用户客户端也会生效。
+攻击者将客户端的脚本注入到网页中，使得其在其他用户客户端也会生效。一般可分为反射型 XSS 和 存储型 XSS。
+反射型 XSS 一般通过构建欺骗的 URL 诱惑用户点击，然后将用户的 cookie 发送给收集器。
+
 ### 后续
 这可能会导致用户的 cookie、授权信息、密钥等泄露。
 ### 防止
@@ -12,6 +19,7 @@
 ## CSRF Cross-site Request Forgery
 使得用户向被攻击网站发送一个攻击者希望的请求，而用户自己不知道。
 
+简单的身份验证只能保证请求是某个用户的浏览器发出的，不能够保证请求本身是用户自愿发出的。
 ### 防止
 + 只是用 JSON APIs
 + 禁用 CORS
@@ -21,6 +29,7 @@
   - 客户端每次提交 form 时，也会发送 token
   - 服务端会对 token 进行检查
   - 只有通过表单正常访问敏感地址才会发送 token
+  - flask 中通过设置参数 SECURY_KEY 来生成 csrf-token
 + Referer 字段：标明请求源于哪个地址，敏感数据的请求来源应该位于同一域名下。
 
 ## SSRF Server Side Request Forgery

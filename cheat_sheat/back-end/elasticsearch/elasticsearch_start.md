@@ -4,7 +4,12 @@
 + Elasticsearch 基础 api
 + Elasticsearch-py 和 Elasticsearch-dsl 基本使用
 
-参考资料：
+# ES 使用的最佳实践，好的文章
+
++ [es 实现精确搜索](http://blog.csdn.net/hereiskxm/article/details/47979013) 该博客的其他文章也可以看看
++ [es 基础配置](http://blog.csdn.net/coderLuo/article/details/62038820)
+
+# 参考资料：
 + [Elasticsearch 权威指南](https://es.xiaoleilu.com/)。
 + [elastic 官网](https://www.elastic.co/)
 + [elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
@@ -594,7 +599,7 @@ class Meta 的选项：
 
 所有 Meta 类的属性都是 MetaField 的实例。名字参数自定义如下：
 
-```
+```python
 class Post(DocType):
     title = String()
 
@@ -654,3 +659,4 @@ dev_blogs = blogs.clone('blogs', using='dev')
 # and change its settings
 dev_blogs.setting(number_of_shards=1)
 ```
+

@@ -31,3 +31,9 @@ class Employee(Base):
 1. cascade 级联：在父表上 update/delete 记录时，同步 update/delete 掉子表的匹配记录。
 2. set null ：在父表上 delete/update 时，将子表的记录列设置为 null，注意子表的外键列不能为 not null。
 3. no action：如果子表中有匹配记录，则不允许对父表进行候选键进行 update、delete 操作，一般都是这个操作。
+
+## 单列索引和联合索引
+
+相比于单列索引，联合索引限制了 `where` 子句的查询顺序，以更加高效地使用索引。
+
+[参考资料](https://my.oschina.net/857359351/blog/658668)

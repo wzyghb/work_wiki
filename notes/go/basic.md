@@ -7,6 +7,10 @@
 + `go install`
 + `go build`
 
+## tools
++ `godep`
++ [`govendor`](https://github.com/kardianos/govendor) [中文参考](https://segmentfault.com/a/1190000009268696)
+
 ## 关键字
 + `func`
 + `type`

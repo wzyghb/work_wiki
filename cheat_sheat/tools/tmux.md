@@ -54,7 +54,6 @@ tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 | 将当前面板变为新窗口 | `prefix` `!` |
 | 调换面板的位置 | `prefix` `ctrl` + `o` |
 | 调整分割窗口的大小 | `prefix` `ctrl` `方向键` |
-| 选择指定面板 | `prefix` `数字` |
 | 上 or 下交换面板 | `prefix` `{` or `}` |
 
 
@@ -90,4 +89,3 @@ tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 | 操作 | 快捷键 |
 | :--- | :--- |
 | `prefix` `enter` | 进入 copy 模式 |
-|

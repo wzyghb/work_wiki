@@ -1,229 +1,35 @@
 
-## 快速浏览
+## 资料总结
 
-+ [创建 keyspace](http://docs.datastax.com/en/cql/3.3/cql/cql_reference/cqlCreateKeyspace.html)
-+ [创建 table](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateTable.html)
-+ [Materialized View](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateMV.html)
-+ [复杂的数据结构](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAdvancedDataTypesTOC.html)
-+ [用户自定义函数](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateUDF.html)
-+ [插入、删除、更新数据](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useInsertDataTOC.html)
-+ [批量更新](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useBatch.html)
-+ [查询表](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useScanPartition.html)
-+ [索引表](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useCreateQueryIndexes.html)
-+ [修改表](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAlterAddColl.html)
-+ [修改 materialized view](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAlterMV.html)
-+ [修改用户自定义类型](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useAlterType.html)
-+ [删除 keyspace、table、shema、data](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useRemoveData.html)
-+ [表的安全、权限控制](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useSecureTOC.html)
-+ [一致性](http://docs.datastax.com/en/cql/3.3/cql/cql_using/useTracing.html)
++ [DataStax Cassandra 文档](http://docs.datastax.com/en/landing_page/doc/index.html)
++ [Python Driver 官方文档](https://datastax.github.io/python-driver/)
++ [Python Driver Github](https://github.com/datastax/python-driver)
 
-## cassandra driver
+## Cassandra Driver Summary
 
-### 连接到 cassandra
-
-```python
-from cassandra.cluster import Cluster
-
-# 连接
-cluster = Cluster() // 1 默认连接到 127。0.0.1
-cluster = Cluster(['192.168.0.1', '192.168.0.2']) // 2
-cluster = Cluster(['10.1.1.3', '10.1.1.4', '10.1.1.5'], load_balancing_policy=DCAwareRoundRobinPolicy(local_dc="US_EAST"), port=9042) // 3
-
-session = cluster.connection()
-
-session.set_keyspace("users")   // 1
-session.execute("USE users")   // 2
-
-session = cluster.connect("mykeyspace")
-```
-
-### 执行 CQL 查询语句
-
-同步执行：
-
-```python
-# 执行 CQL
-rows = session.execute('SELECT name, age, email FROM users')
-for user_row in rows:
-    print user_row.name, user_row.age, user_row.email
-
-# 执行 CQL 并传入参数
-session.execute(
-    """
-    INSERT INTO users (name, credits, user_id)
-    VALUES (%s, %s, %s)
-    """,
-    ("John O'Reilly", 42, uuid.uuid1())
-)
-
-```
-
-异步执行： 返回一个 ResponseFuture 对象
-```python
-# --- 1 ---
-from cassandra import ReadTimeout
-
-query = "SELECT * FROM users WHERE user_id=%s"
-future = session.execute_async(query, [user_id])
-
-# ... do some other work
-
-try:
-    rows = future.result()      # 阻塞直到执行成功为止
-    user = rows[0]
-    print user.name, user.age
-except ReadTimeout:
-    log.exception("Query timed out:")
-
-# --- 2 ---
-# build a list of futures
-futures = []
-query = "SELECT * FROM users WHERE user_id=%s"
-for user_id in ids_to_fetch:
-    futures.append(session.execute_async(query, [user_id])
-
-# wait for them to complete and use the results
-for future in futures:
-    rows = future.result()
-    print rows[0].name
-
-# --- 3 ---
-def handle_success(rows):
-    user = rows[0]
-    try:
-        process_user(user.name, user.age, user.id)
-    except Exception:
-        log.error("Failed to process user %s", user.id)
-        # don't re-raise errors in the callback
-
-def handle_error(exception):
-    log.error("Failed to fetch user info: %s", exception)
+1. [Getting Start](https://datastax.github.io/python-driver/getting_started.html)
+  + 连接到 cassandra
+  + 执行 CQL 查询语句
+  + 设置一致性层级 --- 可以对每个语句设定一致性层级
+  + 准备语句 
+      > 所有的 prepare 语句会被 cassandra 解析，并在之后等待使用。使用时仅需要将需要的参数发送并绑定，不需要再进行解析。所以会接收 CPU 利用。
+  + 在准备语句中设定 ConsistencyLevel
 
 
-future = session.execute_async(query)
-future.add_callbacks(handle_success, handle_error)      # 在 Future 上注册回调函数
-```
+## CQL语句
 
-+ 在 callback 函数中抛出的异常会先 logged，然后会被忽略。
-+ 你的 callback 将会在 event loop 线程中执行，如果这个函数执行时间过长，将会阻碍其他的请求响应。
-
-
-### 设置一致性层级
-
-```python
-from cassandra import ConsistencyLevel
-from cassandra.query import SimpleStatement
-
-query = SimpleStatement(                            # 将查询封装在一个 SimpleStatement 中
-    "INSERT INTO users (name, age) VALUES (%s, %s)",
-    consistency_level=ConsistencyLevel.QUORUM)      # 在语句层级设置一致性等级
-session.execute(query, ('John', 42))
-```
-
-### 准备语句
-所有的 prepare 语句会被 cassandra 解析，并在之后等待使用。使用时仅需要将需要的参数发送并绑定，不需要再进行解析。所以会接收 CPU 利用。
-
-```python
-user_lookup_stmt = session.prepare("SELECT * FROM users WHERE user_id=?")   # 注意此处的 ? 是一个占位符号，返回一个 PreparedStatement
-
-users = []
-for user_id in user_ids_to_query:
-    user = session.execute(user_lookup_stmt, [user_id])
-    users.append(user)
-```
-
-### 在准备语句中设定 ConsistencyLevel
-
-```python
-from cassandra import ConsistencyLevel
-
-cluster = Cluster()
-session = cluster.connect("mykeyspace")
-user_lookup_stmt = session.prepare("SELECT * FROM users WHERE user_id=?")
-user_lookup_stmt.consistency_level = ConsistencyLevel.QUORUM
-
-# these will both use QUORUM
-user1 = session.execute(user_lookup_stmt, [user_id1])[0]
-user2 = session.execute(user_lookup_stmt, [user_id2])[0]
-
-# 在 PrepareStatement 语句中绑定参数生成 BoundStatement 语句
-user3_lookup = user_lookup_stmt.bind([user_id3])
-user3_lookup.consistency_level = ConsistencyLevel.ALL
-user3 = session.execute(user3_lookup)
-```
-
-### Object Mapper
-
-## CQL语句示例
-```
-CREATE KEYSPACE IF NOT EXISTS cycling WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 3 };    // 创建 keyspace
-USE cycling;                                                                                                            // 使用 keyspace
-ALTER KEYSPACE system_auth WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2};              // 修改 keyspace
-CREATE TABLE cycling.cyclist_alt_stats ( id UUID PRIMARY KEY, lastname text, birthday timestamp, nationality text, weight text, height text );
-CREATE TABLE cycling.whimsey ( id UUID PRIMARY KEY, lastname text, cyclist_teams set<text>, events list<text>, teams map<int,text> );
-CREATE TABLE cycling.route (race_id int, race_name text, point_id int, lat_long tuple<text, tuple<float,float>>, PRIMARY KEY (race_id, point_id));  // 多个 primary key
-
-CREATE TABLE cycling.cyclist_category ( 
-category text, 
-points int, 
-id UUID, 
-lastname text,     
-PRIMARY KEY (category, points)
-) WITH CLUSTERING ORDER BY (points DESC);
-
-CREATE TABLE crossfit_gyms_by_location ( 
-    country_code text,
-    state_province text,
-    city text,
-    gym_name text,
-    PRIMARY KEY (country_code, state_province, city, gym_name) 
-) WITH CLUSTERING ORDER BY (state_province DESC, city ASC, gym_name ASC); 
-
-```
-
-counter:
-
-```
-USE cycling;
-CREATE TABLE popular_count (
-  id UUID PRIMARY KEY,
-  popularity counter
-);
-
-UPDATE cycling.popular_count
- SET popularity = popularity + 1
- WHERE id = 6ab09bec-e68e-48d9-a5f8-97e6fb4c9b47;
-
-SELECT * FROM cycling.popular_count;
-```
+1. 创建、使用、修改 keyspace
+2. 创建 Table
 
 [key 的定义解释](http://datascale.io/cassandra-partitioning-and-clustering-keys-explained/)
 
 ## Materialized View
-Materialized View 由另外一个表的数据构建得到，但是有不同的 key 和新的 properties。在 Casssadra 中，查询使用 primary key 来定义。一般的
-实践方法是，创建一个表用于查询，然后创建另一个表用于不同的其他查询。在 cassandra 3.0 之前， 这些额外的表都需要在客户端应用中手动增加。而 Materialized
-View 可以更具他的原数据表来自动的更新数据。
+Materialized View 由另外一个表的数据构建得到，但是有不同的 key 和新的 properties。在 Casssadra 中，查询使用 primary key 来定义。一般的实践方法是，创建一个表用于查询，然后创建另一个表用于不同的其他查询。在 cassandra 3.0 之前， 这些额外的表都需要在客户端应用中手动增加。而 Materialized View 可以更具他的原数据表来自动的更新数据。
 
-Secondary indexes 适用于不太常用的数据的查询。如果这个列有很高的查询需求，并需要 Cassandra 在一个查询中访问集群中所有的结点，这回引起较高的阅读延迟。
-
-Materialized View 适用于较高频率的查询数据。在 Materialized view 中的数据会按照 view 的 primary key 重新组织。
+Secondary indexes 适用于不太常用的数据的查询。如果这个列有很高的查询需求，并需要 Cassandra 在一个查询中访问集群中所有的结点，这回引起较高的阅读延迟。Materialized View 适用于较高频率的查询数据。在 Materialized view 中的数据会按照 view 的 Primary Key 重新组织。
 
 + 原始表中的 primary key 必须在 Materialized view 中也是 primary key。
 + 只能有一个新的列可以增加到 Materialized view 的 primary key 中。而且不能使 static columns。
-
-例子：
-
-```sql
-CREATE TABLE cyclist_mv (cid UUID PRIMARY KEY, name text, age int, birthday date, country text);
-```
-
-```sql
-CREATE MATERIALIZED VIEW cyclist_by_age 
-AS SELECT age, birthday, name, country 
-FROM cyclist_mv 
-WHERE age IS NOT NULL AND cid IS NOT NULL 
-PRIMARY KEY (age, cid);
-```
 
 CREATE MATERIALIZED VIEW 语句有如下特征：
 + AS SELECT 语句将列中的数据复制到 Materialized view 中，
@@ -234,44 +40,10 @@ CREATE MATERIALIZED VIEW 语句有如下特征：
 
 在 cassandra 3.10 及其之后的版本中，materialized view 能够使用 filtering 语句创建，包括在 non-primary-key 列上增加限制。
 
-```sql
--- 对不同的列创建不同的 materialiezd view 用于查询
-CREATE MATERIALIZED VIEW cyclist_by_birthday 
-AS SELECT age, birthday, name, country 
-FROM cyclist_mv 
-WHERE birthday IS NOT NULL AND cid IS NOT NULL
-PRIMARY KEY (birthday, cid);
-
--- 
-CREATE MATERIALIZED VIEW cyclist_by_country 
-AS SELECT age,birthday, name, country 
-FROM cyclist_mv 
-WHERE country IS NOT NULL AND cid IS NOT NULL
-PRIMARY KEY (country, cid);
-
--- 使用 country 进行查询
-SELECT age, name, birthday FROM cyclist_by_country WHERE country = 'Netherlands';
-
--- 创建 materialized view 时，使用 filter 子句并用非主键进行限定
-CREATE MATERIALIZED VIEW cyclist_by_birthday_Netherlands 
-AS SELECT age, birthday, name, country 
-FROM cyclist_mv 
-WHERE birthday IS NOT NULL AND cid IS NOT NULL
-AND country='Netherlands'   -- 不是主键也可以作为约束。
-PRIMARY KEY (birthday, cid);
-
-SELECT age, name, birthday FROM cyclist_by_birthday WHERE birthday = '1997-02-08';
-```
-
-完成了 materialized view 的创建后，当更新 source table 的数据后，materialized view 的数据会同步更新。
-materialiezd view 的查询方式和普通的 cassandra 表没有差异，但是写入性能较差。Cassandra 增加了一个额外的
-read-before-write 来更新每个 materialized view。为了完成更新，cassandra 在每一个 replica 上进行一次数据
-一致性检查。这回带来源数据表的写入和删除时延。Cassandra 也可以支持直接写入到源表中，当数据已近插入到 source table 后，再异步地
-进行同步。
+完成了 materialized view 的创建后，当更新 source table 的数据后，materialized view 的数据会同步更新。materialiezd view 的查询方式和普通的 cassandra 表没有差异，但是写入性能较差。Cassandra 增加了一个额外的read-before-write 来更新每个 materialized view。为了完成更新，cassandra 在每一个 replica 上进行一次数据一致性检查。这回带来源数据表的写入和删除时延。Cassandra 也可以支持直接写入到源表中，当数据已近插入到 source table 后，再异步地进行同步。
 
 ## 集合
-在关系数据库中，用户拥有多个 email、电话之类的会导致创建多个关系表，然后查询时会有很多个 join 操作。当集合中的数据是有限定时，推荐使用 collections 来存储数据。
-如果数据的增长潜力是无限时，比如消息发送、事件发生这种没有边界的数据，不要使用 collections 来存储这种数据。而是使用 compound primary key 在 clustering column 中存储数据。
+在关系数据库中，用户拥有多个 email、电话之类的会导致创建多个关系表，然后查询时会有很多个 join 操作。当集合中的数据是有限定时，推荐使用 collections 来存储数据。如果数据的增长潜力是无限时，比如消息发送、事件发生这种没有边界的数据，不要使用 collections 来存储这种数据。而是使用 compound primary key 在 clustering column 中存储数据。
 
 注意：
 + 不要将超过 2 billion 条目存储到集合中。而且只有 number 可以用于查询。
@@ -282,7 +54,7 @@ read-before-write 来更新每个 materialized view。为了完成更新，cassa
 + lists 会引发一个 read-before-write 的操作，因而最好在可能的地方使用 set
 
 除了 map、list、set 还可以创建 tuple 类型。可以将多个值保存在一个 tuple 中：
-```
+```sql
 CREATE TABLE cycling.route (race_id int, race_name text, point_id int, lat_long tuple<text, tuple<float,float>>, PRIMARY KEY (race_id, point_id));
 CREATE TABLE cycling.nation_rank ( nation text PRIMARY KEY, info tuple<int,text,int> );
 CREATE TABLE cycling.popular (rank int PRIMARY KEY, cinfo tuple<text,text,int> );
@@ -632,7 +404,7 @@ session.execute(new SimpleStatement("INSERT INTO users (lastname, age, city,emai
 
 ## 8 在 loop 中使用 prepared statement 性能很差，如果要批量地通过 prepared statement 批量地插入，哪种方式更好？
 
-```
+```java
 PreparedStatement p = session.prepare("select log_entry from log_index where id = ?");
 BoundStatement b = new BoundStatement(statement);
 int[] array = new int[]{1,2,3,4,5,6,7,8,9,10};
@@ -640,3 +412,55 @@ for (int i = 0; i < array.length; i++){
    session.execute(b.bind(array[i]));
 }
 ```
+
+## 9 使用异步并发请求高效地使用 Cassandra
+
+异步执行： 返回一个 ResponseFuture 对象。
+
+```python
+# --- 1 ---
+from cassandra import ReadTimeout
+
+query = "SELECT * FROM users WHERE user_id=%s"
+future = session.execute_async(query, [user_id])
+
+# ... do some other work
+
+try:
+    rows = future.result()      # 阻塞直到执行成功为止
+    user = rows[0]
+    print user.name, user.age
+except ReadTimeout:
+    log.exception("Query timed out:")
+
+# --- 2 ---
+# build a list of futures
+futures = []
+query = "SELECT * FROM users WHERE user_id=%s"
+for user_id in ids_to_fetch:
+    futures.append(session.execute_async(query, [user_id])
+
+# wait for them to complete and use the results
+for future in futures:
+    rows = future.result()
+    print rows[0].name
+
+# --- 3 ---
+def handle_success(rows):
+    user = rows[0]
+    try:
+        process_user(user.name, user.age, user.id)
+    except Exception:
+        log.error("Failed to process user %s", user.id)
+        # don't re-raise errors in the callback
+
+def handle_error(exception):
+    log.error("Failed to fetch user info: %s", exception)
+
+
+future = session.execute_async(query)
+future.add_callbacks(handle_success, handle_error)      # 在 Future 上注册回调函数
+```
+
++ 在 callback 函数中抛出的异常会先 logged，然后会被忽略。
++ 你的 callback 将会在 event loop 线程中执行，如果这个函数执行时间过长，将会阻碍其他的请求响应。

@@ -37,3 +37,51 @@ class Employee(Base):
 相比于单列索引，联合索引限制了 `where` 子句的查询顺序，以更加高效地使用索引。
 
 [参考资料](https://my.oschina.net/857359351/blog/658668)
+
+### 结论： 
+1. 联合索引上会有一个mysql索引最左匹配原则，但是如果联合索引的第一个列不在where条件语句中，并且所查询的列其中有的是没有建立索引的，那么这个联合索引就是无效的。
+2. 如果使用联合索引，那么where条件也要尽量根据联合索引的顺序来，如果不按照顺序来，索引也同样会用到，但是在执行前，SQL优化器也会将条件调整为联合索引的顺序。
+
+## SQLALCHEMY 使用总结
+
+### `__table_args__` 设置
+
+```python
+class UDFMixin(object):
+    __table_args__ = {
+        'mysql_engine': 'InnoDB',
+        'mysql_charset': 'utf8',
+    }
+
+class Xxxx(db.Model, UDFMixin)
+    xxx = xxxx.xxx()
+    __table_args__ = (
+        UniqueConstraint(user_id, official_user_id, name='uniq_official_user_id_ref'),
+        UDFMixin.__table_args__
+    )
+```
+
+### `__table__` 使用映射快速读取数据库
+
+```python
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+Base.metadata.reflect(some_engine)
+
+class User(Base):
+    __table__ = metadata.tables['user']
+
+class Address(Base):
+    __table__ = metadata.tables['address']
+```
+
+### 一种等价的 Model 定义方法
+
+```python
+class MyClass(Base):
+    __table__ = Table('my_table', Base.metadata,
+        Column('id', Integer, primary_key=True),
+        Column('name', String(50))
+    )
+```

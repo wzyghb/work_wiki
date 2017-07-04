@@ -40,18 +40,20 @@ redis 127.0.0.1:6379> get mykey
 
 [说明](http://redis.io/clients)
 
-## 3 持久化
+## 3 [持久化](http://redisdoc.com/topic/persistence.html)
 
 redis 会默认地将数据进行持久化，可以调用 SAVE 命令来手动生成一个数据集快照，在关闭时使用：
 ```
 redis-cli shutdown
 ```
++ `RDB`: 
++ `AOF`: Append-Only-File
 
 ### 1 总述
 
 + RDB：在一个特定的时间间隔后持久化一个镜像。
 + AOF 在每个操作后进行 logs，在 server 重启时将会进行 replay，重新构建原始的数据集。命令都是以 redis 协议相同的方式进行记录的。
-当日志量过大后，redis 会将以前的日志进行重写。
+当日志量过大后，redis 会将以前的日志进行重写。所有被写入AOF的命令都是以redis的协议格式来保存的。
 + 可以设置 redis 使其完全不进行 persistence。这时候数据的生命周期和 server 是相同的。
 + 可以同时使用 AOF 和 RDB 来进行持久化，重启后，redis 会从 AOF 重新构建数据。
 
@@ -67,7 +69,7 @@ redis-cli shutdown
 + 当发生诸如断电之类的意外情况时，RDB 会丢失一些数据。
 + 因为 RDB 会 fork 一个子进程进行持久化，当数据集较大以及CPU性能不好时，这是比较昂贵的，可能会导致 redis 停止服务几毫秒到几秒。 AOF 也会 fork 但是会好很多。
 
-### 4 AOF 的有点
+### 4 AOF 的优点
 
 + 使用 AOF redis 是持久的，可以使用不同的 fsync 策略： 完全不进行 fsync，每秒进行 fsync，每个查询都进行 fsync。
 + AOF log 是一个 append only 的文件，所以即使发生崩溃，只有一个不完整的 log 行被写入，也可以使用 redis-check-aof 修复。

@@ -235,6 +235,11 @@ future 的使用场景：
 cargo install protobuf
 ```
 
+## 7 hyper
++ [Guide Page](https://hyper.rs/guides/)
+
+`Body` 实现了 `Stream` trait，当收到数据时返回一系列的 `Chunk`， `Chunk` 只是一些 bytes 的表示。
+
 # reference
 + [rustwebapp](https://github.com/superlogical/rustwebapp)
 + [web docker](https://github.com/clementmiao/website-rocket)

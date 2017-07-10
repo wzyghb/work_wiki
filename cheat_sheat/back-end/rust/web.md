@@ -193,6 +193,8 @@ future 的使用场景：
 
 #### 3 
 
+> 要进一步补充相关内容
+
 ## 5 [error-chain]
 
 更好地利用 rust 的错误处理特征，定义自己的错误，并将其他错误转换过来。参考资料：
@@ -297,8 +299,115 @@ cargo install protobuf
 
 ## 7 hyper
 + [Guide Page](https://hyper.rs/guides/)
++ [document]()
 
 `Body` 实现了 `Stream` trait，当收到数据时返回一系列的 `Chunk`， `Chunk` 只是一些 bytes 的表示。
+
+```rust
+
+pub fn post_req(post_data: &PostData) -> Result<Request> {
+    let url = post_data.url.parse::<hyper::Uri>()?;
+    let mut req = Request::new(Post, url);
+    {
+        let headers = req.headers_mut();
+        let access_token = CONFIG
+            .read_lock()
+            .access_token
+            .clone()
+            .unwrap_or("".to_owned());
+
+        let mut cookie = Cookie::new();
+        cookie.append("session", access_token);
+
+        headers.set(cookie);
+
+        headers.set(ContentType(Mime::from_str("application/x-protobuf").unwrap()));
+
+        match post_data.headers {
+            Some(ref passed_headers) => {
+                headers.extend(passed_headers.iter());
+            }
+            None => {}
+        }
+    }
+    req.set_body(post_data.data.clone());
+    Ok(req)
+}
+  
+pub fn get_client(handle: &Handle) -> hyper::Client<hyper_tls::HttpsConnector<HttpConnector>> {
+    let client = hyper::Client::configure()
+        .connector((hyper_tls::HttpsConnector::new(4, handle)).unwrap())
+        .build(handle);
+
+    client
+}
+
+pub fn fetch_async(req: Request,
+                    client: &hyper::Client<hyper_tls::HttpsConnector<HttpConnector>>)
+                    -> impl Future<Item = CallbackData, Error = CallbackData> {
+    let timer = Timer::default();
+    let timeout = timer
+        .sleep(Duration::from_millis(TIMEOUT))
+        .or_else(|e| {
+                      warn!("timeout error");
+                      Err(CallbackData::new(CallbackCode::TimerError(e), None, vec![], None))
+                  })
+        .and_then(|_| {
+                      warn!("request timeout");
+                      Err(CallbackData::new(CallbackCode::Timeout,
+                                            None,
+                                            "timeout".to_string().into_bytes(),
+                                            None))
+                  });
+    trace!("start process uri: {}", req.uri());
+
+    let now = Instant::now();
+    let work = client
+        .request(req)
+        .and_then(|res| {
+            let status = res.status();
+            let headers = res.headers().clone();
+            trace!("Response: {}", status);
+            res.body()
+                .fold((status, headers, Vec::new()),
+                      |(status, headers, mut acc), chunk| {
+                          acc.extend_from_slice(chunk.as_ref());
+                          Ok::<_, hyper::Error>((status, headers, acc))
+                      })
+        })
+        .and_then(move |(status, headers, body)| {
+            let pb_status = match Fetch::get_pb_status(status, &body) {
+                Ok(pb_status) => pb_status,
+                Err(err) => {
+                    warn!("get pb status failed: err= {:?}", err);
+                    None
+                }
+            };
+            info!("fetch cost: {:?}", now.elapsed());
+
+            Ok(CallbackData::new(CallbackCode::Normal(status), Some(headers), body, pb_status))
+        })
+        .or_else(|e| {
+                      trace!("HyperError: {:?}", e);
+                      Err(CallbackData::new(CallbackCode::HyperError(e), None, vec![], None))
+                  });
+
+    let work = work.select(timeout)
+        .and_then(|(callback_data, _)| Ok(callback_data))
+        .or_else(|(e, _)| {
+                      info!("fetch_async_error: {:?}", e);
+                      Err(e)
+                  });
+
+      work
+```
+
+> 要进一步补充相关内容
+
+## 8 log
++ [log facade document](https://doc.rust-lang.org/log/log/index.html)
++ [env_logger](https://docs.rs/env_logger/*/env_logger/)
+
 
 # reference
 + [rustwebapp](https://github.com/superlogical/rustwebapp)

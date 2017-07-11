@@ -24,7 +24,7 @@
 | NoSQL | cassandra / python-driver |
 | 搜索 | elasticsearch / elasticsearch-dsl |
 | 开发环境 | docker |
-| 缓存、消息队列 | redis / redis-py |
+| 缓存、消息队列 | redis / redis-py、rabbitmq |
 | 异步任务 | celery |
 | 协程、并发 | gevent、 akka |
 | 科学计算 | numpy、scipy |

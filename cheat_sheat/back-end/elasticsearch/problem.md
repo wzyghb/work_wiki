@@ -130,3 +130,24 @@ http://<ip>:<port: default=9200>/_cluster/health
 
 
 ### 2. 
+
+
+## 12 `_routing` 
+Document 通过 `routing` 字段写入到一个特定的 index 上。
+`routing` 默认是 `_id` 或者 `_parent` ID。 当指定 `routing` 进行查询时，可以降低查询的性能消耗，此时仅会在指定的 `routing` 上进行查询。
+
+
+```
+shard_num = hash(_routing) % num_primary_shards
+```
+> num_shards 在索引创建时指定。
+
+## 13 Elasticsearch 中 Shard 数目的设定
+
+
+## 14 Advance Search
+
++ Word Proximity
++ Partial Matching
++ Fuzzy Matching
++ Language Awareness

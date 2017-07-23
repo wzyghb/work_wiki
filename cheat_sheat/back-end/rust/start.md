@@ -164,3 +164,9 @@ fn midterm2() {
 + macro `foo! args`、`foo!(...)`、`foo![...]`、`foo!{...}`
 + macro_rules `foo! arg arg` `macro_rules! name { definition }`
 
+
+Problems
+----
+
++ [format need a string literal](https://stackoverflow.com/questions/27734708/println-error-format-argument-must-be-a-string-literal)
++ [when use lazy_static?]()

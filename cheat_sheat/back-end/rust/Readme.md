@@ -11,6 +11,8 @@
 + [package-oom](http://www.arewewebyet.org/topics/)
 
 ### Common
++ [algorithm](https://github.com/EbTech/rust-algorithms)
++ [rust REPL](https://github.com/murarth/rusti)
 + [log](https://github.com/rust-lang-nursery/log) 日志
 + [lazy-static](https://github.com/rust-lang-nursery/lazy-static.rs) 一个用于定义 lazy 变量的宏
 + **[error-chain](https://github.com/brson/error-chain)** 错误样板
@@ -23,9 +25,11 @@
 + [nix](https://github.com/nix-rust/nix) *nix 操作系统的 rust 封装
 + [chrono](https://github.com/chronotope/chrono)  rust 的时间库
 + [clippy](https://github.com/Manishearth/rust-clippy) 代码风格检查工具
++ [csv](https://github.com/BurntSushi/xsv)
 
 ### ML
 + [rusty-machine](https://github.com/AtheMathmo/rusty-machine) 机器学习库
++ [tensorflow](https://github.com/tensorflow/rust)
 
 ### WEB
 + [iron](https://github.com/iron/iron) web framework

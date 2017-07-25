@@ -304,25 +304,43 @@ cargo install protobuf
 `Body` 实现了 `Stream` trait，当收到数据时返回一系列的 `Chunk`， `Chunk` 只是一些 bytes 的表示。
 
 ```rust
+#[derive(Debug, Clone)]
+pub struct PostData {
+    pub url: String,
+    pub data: Vec<u8>,
+    pub headers: Option<Headers>,
+}
+
+impl PostData {
+    pub fn new(url: &str, data: Vec<u8>, headers: Option<Headers>) -> Self {
+        PostData {
+            url: url.to_owned(),
+            data: data,
+            headers: headers,
+        }
+    }
+}
 
 pub fn post_req(post_data: &PostData) -> Result<Request> {
     let url = post_data.url.parse::<hyper::Uri>()?;
     let mut req = Request::new(Post, url);
     {
         let headers = req.headers_mut();
+
+        // 从全局配置中获得 token
         let access_token = CONFIG
             .read_lock()
             .access_token
             .clone()
             .unwrap_or("".to_owned());
-
         let mut cookie = Cookie::new();
         cookie.append("session", access_token);
 
+        // 设置 http 头文件
         headers.set(cookie);
+        headers.set(ContentType(Mime::from_str("application/json").unwrap()));
 
-        headers.set(ContentType(Mime::from_str("application/x-protobuf").unwrap()));
-
+        // post_data 增加了 header 内容
         match post_data.headers {
             Some(ref passed_headers) => {
                 headers.extend(passed_headers.iter());
@@ -400,6 +418,7 @@ pub fn fetch_async(req: Request,
                   });
 
       work
+}
 ```
 
 > 要进一步补充相关内容
@@ -408,6 +427,61 @@ pub fn fetch_async(req: Request,
 + [log facade document](https://doc.rust-lang.org/log/log/index.html)
 + [env_logger](https://docs.rs/env_logger/*/env_logger/)
 
+
+## 9 lazy_static 和配置文件的实现
+
+```rust
+#[macro_use]
+extern crate lazy_static;
+
+use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+
+#[derive(Default, Debug)]
+pub struct Config {
+    pub storage_path: String,
+    pub access_token: Option<String>,
+    pub device_id: Option<String>,
+    pub user_id: Option<i64>,
+    pub inited: bool,
+    pub net_type: Option<i32>,
+}
+
+pub trait RW<T> {
+    fn read_lock(&self) -> RwLockReadGuard<T>;
+    fn write_lock(&self) -> RwLockWriteGuard<T>;
+}
+
+impl<T> RW<T> for RwLock<T> {
+    fn read_lock(&self) -> RwLockReadGuard<T> {
+        self.read()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+    fn write_lock(&self) -> RwLockWriteGuard<T> {
+        self.write()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+}
+
+lazy_static! {
+    pub static ref CONFIG: RwLock<Config> = {
+        let m:Config = Default::default();
+        RwLock::new(m)
+    };
+}
+```
+
+`RW` trait 增加了 mutex poisoning 时的处理。
+
+使用
+```rust
+use xxx::{CONFIG, RW};
+
+let access_token = CONFIG
+            .read_lock()
+            .access_token
+            .clone()
+            .unwrap_or("".to_owned());  // access 是一个Option 对象，因而需要进行如此的处理
+```
 
 # reference
 + [rustwebapp](https://github.com/superlogical/rustwebapp)

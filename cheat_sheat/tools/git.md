@@ -1,20 +1,19 @@
+# git 最佳实践
 
 git 是最常用的开发版本管理、协作工具，应该能够熟练地、全面地掌握。不但要熟悉基本命令的意义，也要掌握对应的开发流程。
 
-# 最佳实践
+## 1. 最常见case, 基于master分支开发
 
-### 1. 最常见case, 基于master分支开发
-
-```
+```bash
 git pull --rebase # 先更新代码，基于最新代码进行开发
 # edit, commit, edit, commit, ...
 git pull --rebase # 或git fetch; git rebase origin/master 讲远程分支的内容合并到本地分支。
 git push origin master:master
 ```
 
-### 2. short-running topic branch (本地分支，不需多人协作)
+## 2. short-running topic branch (本地分支，不需多人协作)
 
-```
+```bash
 git fetch
 git checkout -b impr-pubtime-ex origin/master # 创建短期分支
 # edit, commit, edit, commit
@@ -29,9 +28,9 @@ git push origin master:master               # 讲本地主分支推送到远程�
 git branch -d impr-pubtime-ex
 ```
 
-### 3. long-running topic branch (本地分支，不需多人协作)
+## 3. long-running topic branch (本地分支，不需多人协作)
 
-```
+```bash
 git checkout -b new-abtest origin/master
  
 # 以下步骤可反复进行多次 长期分支需要在开发过程中不断进行合并远程分支
@@ -51,9 +50,9 @@ git push origin master:master
 git branch -d new-abtest
 ```
 
-### 4. fork开源代码修改，并不断merge对方的更新
+## 4. fork开源代码修改，并不断merge对方的更新
 
-```
+```bash
 git clone git@git.bytedance.com:git
 cd git
 git remote add -f gh git://github.com/git/git.git # 获取github的代码，将这个远程库取名为gh
@@ -66,16 +65,16 @@ git pull gh master              # merge github的代码
 git push origin master:master   # push到服务器
 ```
 
-### 5. rebase之后冲突的解决
+## 5. rebase之后冲突的解决
 
-```
+```bash
 # 解决冲突，然后
 git rebase --continue # 这个很重要
 ```
 
-### 6. 修改最新commit的message
+# 6. 修改最新commit的message
 
-```
+```bash
 git commit --amend
 ```
 

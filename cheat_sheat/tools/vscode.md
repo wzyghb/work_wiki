@@ -1,3 +1,6 @@
+# vscode 备忘录
+
+vscode 快捷键说明。
 
 [vscode key map](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf)
 
@@ -28,15 +31,20 @@
 | `cmd` `shift` `d` | ~~打开 debug~~ |
 | `cmd` `| 打开自带的 terminal |
 
-
 ## CMD + p 命令模式
+
 + 直接输入文件名打开文件
-+ `:` 跳转到指定的行 
++ `:` 跳转到指定的行
 + `@` 调转到指定的 symbol
 
 ## 常用插件使用总结
 
+### Code Runner
+
++ `ALT+CTRL+N` 运行这一段代码
+
 ### Dash
+
 + `ctrl` `h` : It will search for current specific documentation depends on language.
 + `ctrl` `alt` `h` : It will search for all documentation.
 

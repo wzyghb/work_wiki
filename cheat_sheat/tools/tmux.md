@@ -1,3 +1,4 @@
+# tmux 命令行备忘录
 
 + [使用的配置](https://github.com/gpakosz/.tmux)
 + [中文文档](http://mindonmind.github.io/notes/linux/tmux.html)
@@ -22,7 +23,6 @@ tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 | 前 or 后一个会话 | `prefix` `(` | `)` |
 | 选择要离开的会话 | `prefix` `D` |
 | 进入命令行模式 | `prefix` `:` |
-
 
 ### Windows 相关的操作
 
@@ -55,8 +55,6 @@ tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 | 调换面板的位置 | `prefix` `ctrl` + `o` |
 | 调整分割窗口的大小 | `prefix` `ctrl` `方向键` |
 | 上 or 下交换面板 | `prefix` `{` or `}` |
-
-
 
 ### 其他操作
 

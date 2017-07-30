@@ -72,7 +72,7 @@ git push origin master:master   # push到服务器
 git rebase --continue # 这个很重要
 ```
 
-# 6. 修改最新commit的message
+## 6. 修改最新commit的message
 
 ```bash
 git commit --amend

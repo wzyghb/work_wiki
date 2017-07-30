@@ -51,3 +51,8 @@ vscode 快捷键说明。
 ### git history
 
 在命令行輸入框中輸入history，点击 git log。
+
+| 信息 | 指令 |
+| 查看项目的 commit 历史 | git.viewHistory |
+| 查看文件的历史信息 | git.viewFileHistory |
+| 查看某几行的历史 | git.viewLineHistory |

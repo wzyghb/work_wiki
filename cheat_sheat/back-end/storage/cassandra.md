@@ -16,6 +16,9 @@
 + [raft 算法]()
 + [bloom filter]()
 + [Merkle Tree]()
++ [Murmur3Partitioner MurmurHash](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archPartitionerM3P.html)
++ [LogStructuredMergeTree](https://en.wikipedia.org/wiki/Log-structured_merge-tree)
+
 
 ## 基本概念
 
@@ -87,9 +90,16 @@ CREATE MATERIALIZED VIEW 语句有如下特征:
 注意：只有 child policy 的距离函数返回 `HostDistance.LOCAL` 时才会变成优先。例如，如果包装 `DCAwareRoundRobinPolicy` 时，远程数据中心的数据总是
 在本地数据中心的数据返回后才返回。
 
-#### DCAwareRoundRobinPolicy
+#### [DCAwareRoundRobinPolicy](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archDataDistributeReplication.html#archDataDistributeReplication__nts)
 
 一个辨识数据中心的 Round-Robin 负载均衡算法。
+这个策略设定了每个数据中心中有多少个副本。
+副本的策略定义在 keyspace 之上。
+
+更加局部地写入，避免跨中心的传输损耗；同时保证出错时会完整处理。常见配置：
+
++ 每个数据中心有两个副本：允许一个节点出错，并且在一致性级别设定为 ONE 时保持可用。
++ 每个数据中心有三个副本：一致性级别为 LOCAL_QUORUN 时，允许有一个节点失败，一致性级别为 ONE 时允许两个节点失败。
 
 ### [Repair](http://docs.datastax.com/en/cassandra/3.0/cassandra/operations/opsRepairNodesTOC.html#opsRepairNodesTOC)
 
@@ -112,7 +122,119 @@ A snitch determines which datacenters and racks nodes belong to.
 + GossipingPropertyFile
 + ...
 
+### [Gossip](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archGossipAbout.html)
+
+周期性地和其他节点交换状态信息。每秒运行一次，对象是集群中另外的三台节点。有版本信息，因而xin的信息会覆盖旧的信息。
+
++ 作用：发现、共享位置和状态数据。
++ 每个集群中必须有一个节点在 seed list 中。
++ seeds 中的机器越少越好 (why?)，每个集群最多三台。
+
+#### Failure detection and recovery
+
+Cassandra use this infomation to avoid routing client requests to unreachable nodes whenever possible.
+
+Rather than have a fixed threshold for marking failing nodes, Cassandra uses an accrual detection mechanism to calculate a per-node threshold that takes into account network performance, workload, and historical conditions. 
+
+### [Partitioner](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archPartitionerAbout.html)
+
+determines which node will receive the first replica of a piece of data, and how to distribute other replicas across other nodes in the cluster.
+
+A partitioner is a hash function that derives a token from the primary key of a row.
+
+[partition index\ partition summary](https://stackoverflow.com/questions/26244456/internals-of-partition-summary-in-cassandra)
+
+#### Virtual Nodes
+
+将数据更加细致地分散到节点上。
+
++ token 可以自动地计算并且分散到每个节点上。
++ 当有 node 加入时可以快速的 rebalance。
++ Rebuilding a dead node is faster。
++ Computer in a cluster has different capacity。
+
+> [数据在 cassandra 中的分布](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archDataDistributeDistribute.html)
+
+### Storage Engine
+
+A, B client write to cassandra parallel, result a race condition. To avoid using read-before-write for most
+writes in Cassandra, the storage engine groups inserts and updates in memory, and at intervals, sequentially
+writes the data to disk in append mode.
+Once written to disk, the data is immutable and is never overwritten. Reading data involves combining this immutable sequentially-written data to discover the correct query results.
+
+> [cassandra 中的事务](http://docs.datastax.com/en/cassandra/3.0/cassandra/dml/dmlLtwtTransactions.html)
+
+#### Data write process
+
++ Logging data in the commit log
++ Writing data to the memtable
++ Flushing data from the memtable
++ Storing data on disk in SSTables
+
+什么时候写到 disk 的 sstable 中：
+
+1. memtable content 超过了设定的 threshold
+1. commitlog space 超过了 commitlog_total_space_in_mb
+
+通过将这些数据顺序地发送给一个队列，实现写入到 disk。
+
+队列的配置参数：
+
++ `memtable_heap_space_in_mb`
++ `memtable_offheap_space_in_mb`
++ `memtable_cleanup_threshold`
+
+也可以通过 `nodetool flush` 和 `nodetool drain` 来 flush 一个 table。 在重启一个节点前最好 flush 下 memtable，减少 commit log 的 replay 次数。
+
+当 memtable 写入到 sstable 后， commit log 中对应的数据会被清理。
+
+memtable 和 sstable 会区分每个 table 单独进行维护。而 commit log 会在各个 tables 间共享数据。
+[所有的存储文件介绍](http://docs.datastax.com/en/cassandra/3.0/cassandra/dml/dmlHowDataWritten.html)：
+
+| 文件名 | 说明  |
+| :---  | :--- |
+| `xxx-Data.db` | SSTable data |
+| `xxx-Index.db` | row key to data file positions |
+| `xxx-Filter.db` | bloom filter， check if exists in SStable |
+| `xxx-CompressionInfo.db` |  |
+| `xxx-Statistics.db` |  |
+| `Digest |  |
+| `xxx- CRC.db` |  |
+| `SUMMARY.db` |  |
+| `TOC.db` |  |
+| `Sl_.*.db` |  |
+
+cassandra 为每个 table 创建了单独的存储目录，因而我们可以将数据分散到不同的物理位置上，如快的数据放在 ssd 上。
+
+#### Compaction
+
+cassandra 将新版本的数据(经过 update) 以不同的 timestamp 写入到不同的的 SSTable 中。最终每个 version 的数据
+分散在一个 columns 的集合中，拥有不同的 timestamp。因而为了获取完整的一行数据，可能需要访问越来越多的 SSTable 来获取
+数据。
+
+Merge SSTable is performant, because rows are sorted by partition key within each SSTable.
+
+1. start compaction
+1. merge data
+1. evict tombstones remove deletions
+1. end compaction
+
+##### Compaction Strategies
+
++ SizeTieredCompactionStrategy (STCS)
++ LeveledCompactionStrategy (LCS)
++ TimeWindowCompactionStrategy (TWCS)
++ DataTieredCompactionStrategy (DTCS)
+
+#### Update
+
+
+
 ## Problems
+
+### 0 time in cassandra
+
+[why cassandra time important](http://zhaoyanblog.com/archives/271.html)
 
 ### 1 Prepared statement 是不是绑定在一个 session 上。或者只能在一个 session 上用？
 
@@ -212,6 +334,7 @@ session.execute(new SimpleStatement("INSERT INTO users (lastname, age, city,emai
 ```
 
 ### 7 在 Cassandra 中使用 IN 还是多个并行的 query？
+
 使用 IN 查询语句会降低性能，因为通常很多个结点都需要 query，然后这个语句被发送到 coordinator 去执行。比如使用 IN clause 来查询 60 个子句，coordinator 将会阻塞等待 60 个值来返回，最坏的情况下，这 60 个值分布在 60 个结点上，这不但导致了大的延迟，并且增加了 coordinator 的内存压力。
 如果你使用 token awareness作为你的 driver 上的 cluster 配置，这时候更加推荐使用 multiple queries，这时候这些 query 会直接发送给拥有 replica 的结点。而且不要在 where 子句中使用 in 语句。 [异步请求 cassandra](http://www.datastax.com/dev/blog/java-driver-async-queries)
 

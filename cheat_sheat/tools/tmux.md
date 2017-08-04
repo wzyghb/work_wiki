@@ -64,6 +64,7 @@ tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 | 删除 session | `tmux kill-session -t session-name` |
 | 重新连接session | `tmux attach -t session-name` |
 | 显示保存的会话 | `tmux ls` |
+| 鼠标滚屏模式下选择 | `alt` + mouse |
 
 ### gpakosz 模式引入的特性
 

@@ -15,53 +15,57 @@
     因而有 10 个分片。
 
 ## 5. 查询的关键术语
-    + 相关度 relevance
-    + 分词器 analysis
+
++ 相关度 relevance
++ 分词器 analysis
 
 ## 6. 查询方法
-    + 基于术语 Term-based queries: 主要用于反向索引术语的精确匹配
-    + 基于全文的查询 Full-text queries
+
++ 基于术语 Term-based queries: 主要用于反向索引术语的精确匹配
++ 基于全文的查询 Full-text queries
 
 ## 7. 精度控制 Controlling Precision
-    + 索引只包含所有术语的文档
 
-    ```json
-    POST /my_index/my_type/_search
-    {
-        "query":{
-            "match": {
-                "title": {
-                    "query":"BROWN DOG!",
-                    "operator": "and"
-                }
-            }
-        }
-    }
-    ```
++ 索引只包含所有术语的文档
 
-    + 最小匹配 `minimum_should_match`
-
-    ```json
-    POST /my_index/my_type/_search
-    {
-        "query": {
-            "match": {
+```json
+POST /my_index/my_type/_search
+{
+    "query":{
+        "match": {
             "title": {
-                "query": "quick brown dog",
-                "minimum_should_match":"75%"
-            }
+                "query":"BROWN DOG!",
+                "operator": "and"
             }
         }
     }
-    ```
+}
+```
 
-    [minimum_should_matchn 详细使用文档](http://t.cn/RXQcWOm)
++ 最小匹配 `minimum_should_match`
+
+```json
+POST /my_index/my_type/_search
+{
+    "query": {
+        "match": {
+        "title": {
+            "query": "quick brown dog",
+            "minimum_should_match":"75%"
+        }
+        }
+    }
+}
+```
+
+[minimum_should_matchn 详细使用文档](http://t.cn/RXQcWOm)
     
 ## 8. ElasticSearch 执行 match 查询的操作步骤：
-    1. 检索字段类型 (Check the field type) 如果是全文字段，对查询字符串本身进行分析。
-    2. 分析查询字符串 (Analyze the query string)。
-    3. 查找匹配文档，即使用 term 在反向索引中进行过滤。
-    4. 为每个文档计算分数 (term frequency)
+
+ 1. 检索字段类型 (Check the field type) 如果是全文字段，对查询字符串本身进行分析。
+ 1. 分析查询字符串 (Analyze the query string)。
+ 1. 查找匹配文档，即使用 term 在反向索引中进行过滤。
+ 1. 为每个文档计算分数 (term frequency)
 
 ## 9. 一个复杂的查询
 

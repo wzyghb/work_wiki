@@ -4,13 +4,14 @@
 ## 1 获取 docker 镜像
 
 使用 [docker 官方 nginx 镜像](https://hub.docker.com/_/nginx/)
-```
+
+```conf
 docker pull nginx
 ```
 
 ## 2 配置 docker-compose 文件方便启动
 
-```
+```conf
 xxxx-dev-nginx:
     image: nginx
     command: bash -c 'nginx'
@@ -30,7 +31,7 @@ xxxx-dev-nginx:
 
 nginx 目录如下所示：
 
-```
+```conf
 > nginx
     > sites-enabled
         > xxxx.xxxserver.conf
@@ -70,12 +71,13 @@ http {
 ```
 
 注意：
+
 + 日志文件的配置要和 docker 载入的数据卷对应起来
 + 注意目录
 
 upstream.conf 文件如下所示：
 
-```
+```conf
 upstream xx_xxxx_xx {
     server 10.32.11.xx:xxxx weight=5;
     server host:port weight=xx
@@ -84,7 +86,7 @@ upstream xx_xxxx_xx {
 
 xxxx.xxxserver.conf 可以配置如下：
 
-```
+```conf
 server {
 
     listen 443 ssl;
@@ -120,3 +122,54 @@ server {
 
 修改系统的 hosts 文件，将域名映射到本地，完成测试, 在 docker 中，其对应的 ip 地址通常是 `192.168.99.100`。
 这样就可以进行本地测试了。
+
+```conf
+server {
+    listen 80;
+    server_name localhost;
+    location / {
+        proxy_pass http://10.6.24.195:5998;
+        proxy_hide_header Origin;
+        proxy_set_header Origin "";
+        proxy_http_version 1.1;
+        proxy_read_timeout 3600s;
+        proxy_set_header Host $http_host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+```conf
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+```

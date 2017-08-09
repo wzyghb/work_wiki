@@ -1,8 +1,11 @@
 # 常见的 linux 命令总结
 
+[linux tools](http://linuxtools-rst.readthedocs.io/zh_CN/latest/index.html)
+
 ## table cheat
 
 | 命令 | 说明 | 补充 |
+| :--- | :--- | :--- |
 | wc | 统计文件行数 | -c -l -w |
 | grep |  |  |
 | zgrep |  |  |
@@ -10,12 +13,22 @@
 | free |  |  |
 | df |  |  |
 | du |  |  |
+| ipset |  |  |
+| iptables |  |  |
+
+## 查看系统的版本
+
++ `cat /proc/version`
++ `uname -a`
++ `lsb_release -a`
++ `cat /etc/issue`
 
 ## 让进程在后台可靠运行
 
 用户注销 (logout) 和网络断开时，终端会收到 HUP （hangup) 信号，从而关闭所有子进程，所以有两种办法：
+
 1. 让进程忽略 hangup 信号 ---> `nohup`
-2. 让进程运行在新的会话里从而成为不属于此终端的子进程
+1. 让进程运行在新的会话里从而成为不属于此终端的子进程
 
 + `nohup`
 + `setsid`
@@ -49,6 +62,7 @@
 [参考](http://smarden.org/runit/)
 
 `runit` 是一个用于服务监控的 UNIX 控件，提供了以下两种功能：
+
 + 当服务启动时，启动定义好的服务
 + 监控运行的服务，当服务意外发生中断的时候，自动重启服务
 

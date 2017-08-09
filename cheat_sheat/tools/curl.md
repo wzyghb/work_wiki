@@ -1,36 +1,48 @@
+# curl 常用指令总结
 
-### 一般请求
+## 一般请求
+
 > `curl www.sina.com`
 
-### 保存文件 相当于 wget
+## 保存文件 相当于 wget
+
 > `curl -o [文件名] www.sina.com`
 
-### 自动跳转
+## 自动跳转
+
 > `curl -L www.sina.com`
 
-### 显示头文件 http response
+## 显示头文件 http response
+
 > `curl -i www.sina.com` | `curl -I www.sina.com` (仅显示头文件)
 
-### 显示 http 的详细通信过程，包括端口连接和 http response 头信息
+## 显示 http 的详细通信过程，包括端口连接和 http response 头信息
+
 > `curl -v www.sina.com`
 
-### 显示更加详细的通信过程
+## 显示更加详细的通信过程
+
 > `curl --trace output.txt www.sina.com`
 > `curl --trace-ascii output.txt www.sina.com`
 
-### 发送表单信息
-- 发送 GET 消息   
+## 发送表单信息
+
+- 发送 GET 消息
+
 > `curl example.com/form.cgi?data=xxx`
 
-- 发送 POST 消息 (POST 要把网址和数据分开，所以要使用 --data 参数)  
+- 发送 POST 消息 (POST 要把网址和数据分开，所以要使用 --data 参数)
+
 > `curl -X POST --data "data=xxx" example.com/form.cgi`
 
-- 使用 POST 同时使用 curl 为表单进行编码   
+- 使用 POST 同时使用 curl 为表单进行编码
+
 > `curl -X POST--data-urlencode "date=April 1" example.com/form.cgi`
 
-### 文件上传
+## 文件上传
 
 html 文件内容：
+
 ```html
 <form method="POST" enctype='multipart/form-data' action="upload.cgi">
     <input type=file name=upload>
@@ -39,25 +51,29 @@ html 文件内容：
 ```
 
 使用 curl 上传文件如下：
+
 > `curl --form upload=@localfilename --form press=OK [URL]`
 
-###  增加 Referer 字段，索引从何处跳转而来
+## 增加 Referer 字段，索引从何处跳转而来
 
 > `curl --referer http://www.example.com http://www.example.com`
 
-### 使用 User Agent 字段
+## 使用 User Agent 字段
 
 Ipthone 4 User Agent
-```
+
+```bash
 Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7
 ```
+
 curl 模拟如下：
 > `curl --user-agent "[User Agent]" [URL]`
 
-### cookie 使用 --cookie 参数，让 curl 发送 cookie。
+## cookie 使用 --cookie 参数，让 curl 发送 cookie。
 
 > `curl --cookie "name=xxx" www.example.com`
- cookie 的具体的值一般从 http response 中的 Set-Cookie 字段中获取
+
+cookie 的具体的值一般从 http response 中的 Set-Cookie 字段中获取
 
 `-c cookie-file` 可以保存服务器返回的 cookie 到文件。
 `-b cookie-fike` 可以使用这个文件作为 cookie 信息，进行后续的请求。
@@ -65,17 +81,17 @@ curl 模拟如下：
 > `curl -c cookies http://example.com`
 > `curl -b cookies http://example.com`
 
-### 增加头信息 使用 --header 参数
+## 增加头信息 使用 --header 参数
 
 > `curl --header "Content-Type:application/json" http://example.com`
 
-### http 认证
+## http 认证
 
 > `curl --user name:password example.com`
 
 ## 完整的 curl help 文档如下
 
-```
+```bash
 Usage: curl [options...] <url>
 Options: (H) means HTTP/HTTPS only, (F) means FTP only
      --anyauth       Pick "any" authentication method (H)

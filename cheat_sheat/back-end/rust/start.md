@@ -1,34 +1,33 @@
+# for start
 
-# scope
+## scope
 
 + rust 相关的工具：包管理、编译、运行、代码检查、ci、测试、rust 版本管理工具
 + 基础库总结
 + 主要使用的外部库总结
 + rust 编程语言的基本概念
 
-
-# tools
+## tools
 
 + [`cargo`](http://doc.crates.io/manifest.html)
 + `cargo-check`
 + `multirust`
 + `cargo test` `#[test]`
-  - `assert!(...)`
-  - `assert_eq!(...)`
-  - `panic!(...)`
+  + `assert!(...)`
+  + `assert_eq!(...)`
+  + `panic!(...)`
 
-# concept
+## concept
 
 + ownership
 + borrowing
 + lifetimes
 
-
-
 ## cargo
 
 ### 目录结构
-```
+
+```yml
 .
 ├── Cargo.lock
 ├── Cargo.toml
@@ -60,7 +59,7 @@
 + 在构建时引入 clippy `cargo build --all --features "clippy"`
 + 在 cargo.toml 中实现新特征使用
 
-```
+```bash
 [packege]
 name = "myfacebumblr"
 
@@ -77,54 +76,50 @@ h9rbs-js = { optinal = "true" }
 
 + 使用构建脚本
 
-```
+```bash
 [package]
 build = "build.rs"
 ```
-
 
 ## rustup 实现 rust 版本管理
 
 rust 存在三个版本，stable、beta 和 nightly 版本，rustup 就是用于管理这三个版本的工具。
 
 + 安装
-```
+
+```bash
 curl https://sh.rustup.rs -sSf | sh
 ```
 
 + 更新
-```
+
+```bash
 rustup update
 rustup update nightly
 ```
 
 可以通过环境变量指定下载的镜像：
 
-```
+```bash
 export RUSTUP_DIST_ROOT=https://mirrors.ustc.edu.cn/rust-static
 ```
 
 + 指定版本
 
-```
+```bash
 rustup default nightly  // 设定系统的默认版本
 rustup override beta    // 设置某个项目使用的 rust 的版本
 ```
 
 + 跨平台编译
-  - 添加工具链 `rustup target add arm-linux-androidabi`
-  - 列出工具链 `rustup target list`
-
-+ 实现： 底层调用 rust 版本的 multirust，安装的时候会下载 rustup、rustc、cargo、rustdoc、multirust 到 
-`$HOME/.cargo/bin`，然后版本相关的工具会放在 `$HOME/.multirust` 目录下，设置版本和工具后，rust 和 cargo 命令
-均会代理到 `$HOME/.multirust` 目录下真正的工具链，与 ruby 下的 rbenv 和 pyenv 类似。
-
+  + 添加工具链 `rustup target add arm-linux-androidabi`
+  + 列出工具链 `rustup target list`
++ 实现： 底层调用 rust 版本的 multirust，安装的时候会下载 rustup、rustc、cargo、rustdoc、multirust 到 `$HOME/.cargo/bin`，后版本相关的工具会放在 `$HOME/.multirust` 目录下，设置版本和工具后，rust 和 cargo 命令均会代理到 `$HOME/.multirust` 目录下真正的工具链，与 ruby 下的 rbenv 和 pyenv 类似。
 
 ## 读写锁
 
-```
+```rust
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
-
 ```
 
 ## 常见的宏总结
@@ -155,18 +150,18 @@ fn midterm2() {
 ## rust 中的宏
 
 ### C 的宏的局限
+
 + 无法识别 variables, types, operators, numbers 等真实的意义。
 + 无法实现递归
 + `#include <stdio.h>` 导致文件变大，编译变慢
 
 ### rust 中的语法扩展
+
 + [attributes](https://doc.rust-lang.org/book/attributes.html) [attributes list](https://doc.rust-lang.org/reference/attributes.html)
 + macro `foo! args`、`foo!(...)`、`foo![...]`、`foo!{...}`
 + macro_rules `foo! arg arg` `macro_rules! name { definition }`
 
-
-Problems
-----
+## Problems
 
 + [format need a string literal](https://stackoverflow.com/questions/27734708/println-error-format-argument-must-be-a-string-literal)
 + [when use lazy_static?]()

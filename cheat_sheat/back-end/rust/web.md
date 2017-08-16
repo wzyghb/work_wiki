@@ -1,3 +1,4 @@
+# Web Component
 
 ## 1 [diesel](https://github.com/diesel-rs/diesel)
 
@@ -5,8 +6,8 @@
 Diesel 由两部分组成，一部分是在 cargo 中指定，需要安装的依赖包，另一部分则是一些 cli 工具。
 
 ### 1. 依赖包如下：
-```toml
 
+```toml
 [dependencies]
 diesel = { version = "0.11.0", features = ["postgres"] }
 diesel_codegen = { version = "0.11.0", features = ["postgres"] }
@@ -21,32 +22,33 @@ libsqlite3-sys = { version = "=0.8.0", features = ["bundled"] }
 ```
 
 ### 2. 安装 cli 工具：
-```
+
+```bash
 cargo install diesel_cli
 ```
 
 ### 3. 通过设定环境变量指定 postgres 数据库的位置:
 
-```
+```bash
 echo DATABASE_URL=postgres://username:password@localhost/diesel_demo > .env
 ```
 
 ### 4. cli 初始化数据库
 
-```
+```bash
 diesel setup
 ```
 
 如果没有数据库，则创建，并创建一个空的 migrations 文件来管理我们的 schema。
 创建一个具体的 migration 如下：
 
-```
+```bash
 diesel migration generate create_posts
 ```
 
 这会创建两个文件如下：
 
-```
+```bash
 Creating migrations/20160815133237_create_posts/up.sql
 Creating migrations/20160815133237_create_posts/down.sql
 ```
@@ -120,7 +122,8 @@ let conn = pool.get().unwrap();
 ## 2 [ws-rs](https://github.com/housleyjk/ws-rs)
 
 ### 使用 ws 的开发版本
-```
+
+```yml
 [dependencies]
 ws = { version = "*", git = "https://github.com/housleyjk/ws-rs"}
 ```
@@ -128,6 +131,7 @@ ws = { version = "*", git = "https://github.com/housleyjk/ws-rs"}
 ### simple use
 
 + Server
+
 ```rust
 extern crate ws;
 
@@ -139,10 +143,11 @@ fn main() {
          out.send(msg)
       }
   }).unwrap()
-} 
+}
 ```
 
 + client
+
 ```rust
 extern crate ws;
 
@@ -157,19 +162,15 @@ fn main() {
           out.close(CloseCode::Normal)
       }
   }).unwrap()
-} 
+}
 ```
+
 上面会封装为一个 mio 的 EventLoop，创建并在当前线程中运行一个 WebSocket。这些都是阻塞的函数，只有
 启动的 websocket 断开后才会返回。
 
-
 ## 3 [iron](http://ironframework.io/doc/iron/)
-+ [router](https://github.com/iron/router)
-+ [Chain]()
-+ [Key]()
-+ [handlebars_iron]()  模板文件
-+ [persistent](http://ironframework.io/doc/persistent/) Middleware 在 request 之间共享数据。
 
++ [router](https://github.com/SergioBenitez/Rocket)
 
 ## 4 [tokio](https://tokio.rs/)
 
@@ -180,24 +181,26 @@ fn main() {
 ### 1 [future](https://tokio.rs/docs/getting-started/futures/)
 
 future 的使用场景：
+
 1. 数据库查询
-2. 一个 rpc 的远程调用
-3. 超时
-4. 一个长时间运行的 CPU 密集任务
-5. 从 socket 读取一些字节数据
+1. 一个 rpc 的远程调用
+1. 超时
+1. 一个长时间运行的 CPU 密集任务
+1. 从 socket 读取一些字节数据
 
 #### 1 简单的例子
-#### 2 combine
-+ `then`: 
-+ `select`: 组合两个相同类型的 futures，并根据完成时间进行 race
 
-#### 3 
+#### 2 combine
+
++ `then`:
++ `select`: 组合两个相同类型的 futures，并根据完成时间进行 race
 
 > 要进一步补充相关内容
 
 ## 5 [error-chain]
 
 更好地利用 rust 的错误处理特征，定义自己的错误，并将其他错误转换过来。参考资料：
+
 + [starting](http://brson.github.io/2016/11/30/starting-with-error-chain)
 + [doc](https://docs.rs/error-chain/0.10.0/error_chain/)
 
@@ -222,15 +225,15 @@ future 的使用场景：
 和类似的库 [error-type](https://github.com/DanielKeep/rust-error-type) 和 [quick-error](http://tailhook.github.io/quick-error/quick_error/index.html) 使用了类似的机理，`error-chain` 也使用了 Cargo 提供的方法。error_chain! 宏定义了完成一个特殊的错误处理策略所需的模板。
 
 特点
-1. 没有定义 Error enum，而是定义了 `ErrorKind(fn description, fn display)`，一个透明、boxed、可选的 `std::error::Error + Send + 'static` 对象（其中定义了 `cause`，并在
-`error_chain` 中定义了 links，以及一个 Backtrace。
-2. 定义了 `ResultExt`，其 `chain_err` 方法可以将 `std::error::Error + Send + 'static` 类型进行 boxed 并保存到 error chain 中。（作为新 concrete error 的 inside)
-3. 他提供了自动的 `From` 方法将在 `error_chain!` 中定义的其他错误类型保留 type 信息，将他们灵活地组合起来。
 
+1. 没有定义 Error enum，而是定义了 `ErrorKind(fn description, fn display)`，一个透明、boxed、可选的 `std::error::Error + Send + 'static` 对象（其中定义了 `cause`，并在 `error_chain` 中定义了 links，以及一个 Backtrace。
+1. 定义了 `ResultExt`，其 `chain_err` 方法可以将 `std::error::Error + Send + 'static` 类型进行 boxed 并保存到 error chain 中。（作为新 concrete error 的 inside)
+1. 他提供了自动的 `From` 方法将在 `error_chain!` 中定义的其他错误类型保留 type 信息，将他们灵活地组合起来。
 
 `starting` 中给出了一个模板。
+
 1. 在 Cargo.toml 中添加 `error-chain = "0.10.0"`
-2. 实例代码
+1. 实例代码
 
 ```rust
 mod other_error {
@@ -291,15 +294,16 @@ error_chain! {
     }
 }
 ```
+
 ## 6 protobuf
 
-```
+```bash
 cargo install protobuf
 ```
 
 ## 7 hyper
+
 + [Guide Page](https://hyper.rs/guides/)
-+ [document]()
 
 `Body` 实现了 `Stream` trait，当收到数据时返回一系列的 `Chunk`， `Chunk` 只是一些 bytes 的表示。
 
@@ -351,7 +355,7 @@ pub fn post_req(post_data: &PostData) -> Result<Request> {
     req.set_body(post_data.data.clone());
     Ok(req)
 }
-  
+
 pub fn get_client(handle: &Handle) -> hyper::Client<hyper_tls::HttpsConnector<HttpConnector>> {
     let client = hyper::Client::configure()
         .connector((hyper_tls::HttpsConnector::new(4, handle)).unwrap())
@@ -424,9 +428,9 @@ pub fn fetch_async(req: Request,
 > 要进一步补充相关内容
 
 ## 8 log
+
 + [log facade document](https://doc.rust-lang.org/log/log/index.html)
 + [env_logger](https://docs.rs/env_logger/*/env_logger/)
-
 
 ## 9 lazy_static 和配置文件的实现
 
@@ -473,6 +477,7 @@ lazy_static! {
 `RW` trait 增加了 mutex poisoning 时的处理。
 
 使用
+
 ```rust
 use xxx::{CONFIG, RW};
 
@@ -484,6 +489,7 @@ let access_token = CONFIG
 ```
 
 # reference
+
 + [rustwebapp](https://github.com/superlogical/rustwebapp)
 + [web docker](https://github.com/clementmiao/website-rocket)
 + [thanks](https://github.com/rust-lang-nursery/thanks)

@@ -1,7 +1,8 @@
+# Scala
 
 ## 源代码目录
 
-```
+```yml
 \<project_name>
   \src\main\scala\
            \java\
@@ -47,7 +48,7 @@ lazy val root = (project in file("."))
 + `!` 历史命令相关 `!!` `!:` `!:n` `!n` `!-n` `!<str>` `!?<str>`
 
 ## 构建语句
- 
+
 sbt 以一个 map 来描述构建过程，如上面的例子中，如果在 sbt 命令行中敲入 `name`, 则会输出 `xxxx`。
 而 `name := "hello"` 实际上定义了一个 `Setting[String]` 类型的配置项。 sbt 中的 keys 可以有以下几种类型：
 
@@ -82,15 +83,14 @@ name := "hello"
 + 任务维度
 
 ### sbt 中的配置维度
+
 + `Compile` 定义编译项目配置 `src\main\scala\`
 + `Test` 定义测试项目的配置  `src\test\scala\`
 + `Runtime` 定义运行一个工程时的配置
 
 在构建工程中定义多个项目，每个项目有自己唯一的配置，这时 key 的作用域是一个具有项目维度的作用域。
 
-
 ## 附加说明
 
 + `build.properties` 中附加强制使用的 sbt 版本：`sbt.version = 0.13.5`
 + 构建结果会保存到的 `target\` 的文件中。
-+ 

@@ -1,3 +1,4 @@
+# redis
 
 ## 1. redis 的组成
 
@@ -19,9 +20,9 @@
 
 ### 2. 检查 redis 是否在工作
 
-```
+```bash
 $ redis-cli ping
-$ redis-cli                                                                
+$ redis-cli
 redis 127.0.0.1:6379> ping
 PONG
 redis 127.0.0.1:6379> set mykey somevalue
@@ -29,12 +30,13 @@ OK
 redis 127.0.0.1:6379> get mykey
 "somevalue"
 ```
+
 ### 3. 安全的 redis
 
 1. 确保 redis 的端口是在防火墙之后的（default: 6379, additionally: 16379, Sentinal: 26379),不能从外部进行访问。
-2. 使用 redis 配置文件确保 redis 只会监听来自小的网络接口的信息。
-3. 在配置文件中加入 requirepass 选项，以获取更多的安全层，需要使用 AUTH 命令进行授权
-4. 使用 spiped 或者其他的 SSL 通道软件对 redis-server 和 redis-cli 之间的传输进行加密。
+1. 使用 redis 配置文件确保 redis 只会监听来自小的网络接口的信息。
+1. 在配置文件中加入 requirepass 选项，以获取更多的安全层，需要使用 AUTH 命令进行授权
+1. 使用 spiped 或者其他的 SSL 通道软件对 redis-server 和 redis-cli 之间的传输进行加密。
 
 ### 4. 各种语言的客户端
 
@@ -43,17 +45,21 @@ redis 127.0.0.1:6379> get mykey
 ## 3 [持久化](http://redisdoc.com/topic/persistence.html)
 
 redis 会默认地将数据进行持久化，可以调用 SAVE 命令来手动生成一个数据集快照，在关闭时使用：
-```
+
+```bash
 redis-cli shutdown
 ```
-+ `RDB`: 
+
++ `RDB`
 + `AOF`: Append-Only-File
 
 ### 1 总述
 
 + RDB：在一个特定的时间间隔后持久化一个镜像。
 + AOF 在每个操作后进行 logs，在 server 重启时将会进行 replay，重新构建原始的数据集。命令都是以 redis 协议相同的方式进行记录的。
+
 当日志量过大后，redis 会将以前的日志进行重写。所有被写入AOF的命令都是以redis的协议格式来保存的。
+
 + 可以设置 redis 使其完全不进行 persistence。这时候数据的生命周期和 server 是相同的。
 + 可以同时使用 AOF 和 RDB 来进行持久化，重启后，redis 会从 AOF 重新构建数据。
 
@@ -98,10 +104,8 @@ redis 默认地将数据快照保存在 disk 上，二进制文件名称为：du
 过程如下：
 
 1. fork 是获得子进程。
-2. 子进程您估计护具谢若一个临时的 RDB 文件中。
-3. 完成新的 rdb 文件的写入后，会自动删除老文件。
-这种方法使得 redis 可以享受到 copy-on-write 的语义。
-
+1. 子进程您估计护具谢若一个临时的 RDB 文件中。
+1. 完成新的 rdb 文件的写入后，会自动删除老文件。这种方法使得 redis 可以享受到 copy-on-write 的语义。
 
 ### 8 AOF
 
@@ -127,36 +131,40 @@ RDB 永远不会在创建后改变。
 ### 订阅某个频道
 
 #### 主要命令
+
 + SUBSCRIBE: 订阅某个频道
 + UNSUBSCRIBE: 取消订阅某个频道
 + PUBLISH: 向某个频道发送消息
 
-#### 返回消息的格式
+#### 返回格式
 
-1) "message"/"subscribe"/"ubsubscribe"  表示消息的类型
-2) 消息的来源频道
-3) 消息的内容
+1. "message"/"subscribe"/"ubsubscribe"  表示消息的类型
+1. 消息的来源频道
+1. 消息的内容
 
 ### 使用模式匹配来实现多过个频道的匹配订阅
 
 #### 主要的命令
+
 + PSUBSCRIBE: 订阅某个模式，可以包括多个 glob 风格的通配符，比如 *\?\[...] 等。
-+ PUNSUBSCRIBE: 
++ PUNSUBSCRIBE
 
 #### 返回消息的格式
-1) "pmessage"
-2) 订阅命令中的模式
-3) PUBLISH 的实际 channel 的名字
-4) 消息内容
+
+1. "pmessage"
+1. 订阅命令中的模式
+1. PUBLISH 的实际 channel 的名字
+1. 消息内容
 
 ## 5 事务
 
 redis 事务的基础：MULTI、EXEC、DISCARD、WATCH
 事务可以一次执行多个命令，并且带有以下的保证：
+
 + 单独的隔离操作，所有的命令都会序列化、按顺序执行，执行过程中不会被其他客户端送来的命令所打断。
 + 原子操作，或者全部执行，或者全部不执行。exec 命令负责触发并执行事务中所有的命令。
-    + 如果客户端使用 MULTI 开启一个事务之后，因为各种原因没有执行 EXEC，那么事务中所有的命令都不会被执行。
-    + 如果客户端成功在开启事务之后执行 EXEC，那么所有的命令都会被执行
+  + 如果客户端使用 MULTI 开启一个事务之后，因为各种原因没有执行 EXEC，那么事务中所有的命令都不会被执行。
+  + 如果客户端成功在开启事务之后执行 EXEC，那么所有的命令都会被执行
 
 AOF 时如果进程被管理员杀死、断电等不可抗力，那么只会有部分事务被执行。这种情况下，redis 会在重启时汇报一个错误并退出。
 redis-check-aof 程序可以修复这个问题，移除 AOF 文件中不完整的事务信息，确保服务器可以顺利启动。
@@ -178,12 +186,14 @@ EXEC
 
 注意：事务中有某条/某些命令执行失败了， 事务队列中的其他命令仍然会继续执行 —— Redis 不会停止执行事务中的命令。
 redis 也不支持回滚操作，优点是：
+
 + redis 命令仅会因语法的错误而失败，这种错误不应该出现在生产环境下。
 + 保持 redis 的快速简单。
 
 ### 3 redis 的脚本也可以实现类似的事务功能
 
 ## 6 脚本
+
 Redis 内置 Lua 解释器， 可以使用 EVAL 命令对 Lua 脚本进行求值。
 
 + EVAL

@@ -1,6 +1,12 @@
 # vscode 备忘录
 
-vscode 快捷键说明。
+## 安装和配置
+
+### 常规
+
++ mac 加入到命令行下： [说明](https://code.visualstudio.com/docs/setup/mac)
+
+## vscode 快捷键说明。
 
 [vscode key map](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf)
 
@@ -10,8 +16,11 @@ vscode 快捷键说明。
 + 会分割窗口并切换
 + 会关闭窗口
 + 会打开命令行
++ 会浏览代码，前进后退等
++ 会 debug python
++ 会 debug rust
 
-## 基本命令
+### 基本命令
 
 | 命令 | 说明 |
 | :--- | :--- |
@@ -30,8 +39,11 @@ vscode 快捷键说明。
 | `cmd` `b` | 显示 / 不显示侧边栏 |
 | `cmd` `shift` `d` | ~~打开 debug~~ |
 | `cmd` `| 打开自带的 terminal |
+| `F12` | 跳转到定义处 |
+| `ctrl` `_` | 位置后退 |
+| `ctrl` `shift` `_` | 位置前进 |
 
-## CMD + p 命令模式
+### CMD + p 命令模式
 
 + 直接输入文件名打开文件
 + `:` 跳转到指定的行
@@ -56,3 +68,28 @@ vscode 快捷键说明。
 | 查看项目的 commit 历史 | git.viewHistory |
 | 查看文件的历史信息 | git.viewFileHistory |
 | 查看某几行的历史 | git.viewLineHistory |
+
+### rusty code
+
++ 在插件中安装 rusty code 插件
++ `cargo install racer` [racer repo](https://github.com/racer-rust/racer)
++ `cargo install rustfmt-nightly` [rustfmt repo](https://github.com/rust-lang-nursery/rustfmt)
++ 安装源码环境
+    ```bash
+    git clone https://github.com/rust-lang/rust.git
+    cd rust
+    ./x.py build && sudo ./x.py install
+    ```
+
+### python
+
++ 安装 python 插件
++ 安装 `ctags` 执行 `brew install ctags`
++ [Select workplace interpret](https://github.com/DonJayamanne/pythonVSCode/wiki/Miscellaneous#select-an-interpreter)
++ [python 插件文档](https://github.com/DonJayamanne/pythonVSCode/wiki)
++ 在 .vscode 下的 settings.json 中设定指定的解释器
+    `"python.pythonPath": "/Users/ly/Code/venv/bin/python"`
+
+### docker
+
+### vscode-database

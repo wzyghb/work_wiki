@@ -19,7 +19,6 @@
 + [Murmur3Partitioner MurmurHash](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archPartitionerM3P.html)
 + [LogStructuredMergeTree](https://en.wikipedia.org/wiki/Log-structured_merge-tree)
 
-
 ## 基本概念
 
 ### 各种key
@@ -228,8 +227,6 @@ Merge SSTable is performant, because rows are sorted by partition key within eac
 
 #### Update
 
-
-
 ## Problems
 
 ### 0 time in cassandra
@@ -253,8 +250,8 @@ Merge SSTable is performant, because rows are sorted by partition key within eac
 
 ```sql
 BEGIN UNLOGGED BATCH;
-INSERT INTO weather_readings (date, timestamp, temp) values (20140822,'2014-08-22T11:00:00.00+0000', 98.2); 
-INSERT INTO weather_readings (date, timestamp, temp) values (20140822,'2014-08-22T11:00:15.00+0000', 99.2); 
+INSERT INTO weather_readings (date, timestamp, temp) values (20140822,'2014-08-22T11:00:00.00+0000', 98.2);
+INSERT INTO weather_readings (date, timestamp, temp) values (20140822,'2014-08-22T11:00:15.00+0000', 99.2);
 APPLY BATCH;
 ```
 
@@ -402,7 +399,6 @@ future.add_callbacks(handle_success, handle_error)      # 在 Future 上注册�
 
 + 在 callback 函数中抛出的异常会先 logged，然后会被忽略。
 + 你的 callback 将会在 event loop 线程中执行，如果这个函数执行时间过长，将会阻碍其他的请求响应。
-
 
 ## CQL语句
 

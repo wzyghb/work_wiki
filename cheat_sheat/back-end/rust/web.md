@@ -119,6 +119,11 @@ embedded_migrations::run(&*pool.get().unwrap()).unwrap();
 let conn = pool.get().unwrap();
 ```
 
+### 使用中遇到的问题
+
+1. 编译有数据的项目时需要导出 `DATABASE_URL` 环境变量
+1. 没有 `POSTGRES_USER` 和 `POSTGRES_PASSWORD` 会在运行时失败
+
 ## 2 [ws-rs](https://github.com/housleyjk/ws-rs)
 
 ### 使用 ws 的开发版本
@@ -169,6 +174,139 @@ fn main() {
 启动的 websocket 断开后才会返回。
 
 ## 3 [rocket](https://github.com/SergioBenitez/rocket/)
+
+Rocket provides primitives to build web servers and applications with rust.
+
+### life cycle of a request
+
+1. Routing (incoming HTTP request into native structures)
+1. Validation (valide type and guards and forwards the request to error handler)
+1. Processing (main business logic of your appliction)
+1. Response (generate HTTP Response and sends it to the client)
+
+### Routing
+
++ static paths
++ dynamic paths
++ path segments
++ forms
++ query string
++ request format specifiers
++ body data
+
+rocket 使用了 attributes，這在 python 中称为 decorators
+
+route handle 定义例子如下：
+
+```rust
+#[get("/world")]              // <- route attribute
+fn world() -> &'static str {  // <- request handler
+    "Hello, world!"
+}
+```
+
+### Mounting (个人认为类似于 flask 的 blueprint，将 route 挂在到一个子目录下)
+
+`rocket::ignite()` 创建了一个 rocket 实例。
+
+### Namespace 的问题
+
+```rust
+mod other {
+    #[get("/world")]
+    pub fn world() -> &'static str {
+        "Hello, world!"
+    }
+}
+
+use other::world;
+
+fn main() {
+  // error[E0425]: cannot find value `static_rocket_route_info_for_world` in this scope
+  // error: rocket::ignite().mount("/hello", routes![world]);
+  let app = rocket::ignite().mount("/hello", routes![other::world]);
+  app.launch();     // starting the server and waiting for request incomming
+}
+```
+
+### Request
+
+rocket 可以自动地验证:
+
++ The type of a dynamic path segment.
++ The type of many dynamic path segments.
++ The type of incoming data.
++ The types of query strings, forms, and form values.
++ The expected incoming or outgoing format of a request.
++ Any arbitrary, user-defined security or validation policies.
+
+#### Method
+
+```rust
+#[get("/index")]
+fn xxx() -> T { ... }
+
+#[post("/")]
+#[put("/")]
+#[delete("/")]
+#[head("/")]
+#[patch("/")]
+#[options("/")]
+```
+这些属性定义在 rocket_codegen 中。
+
++ `HEAD` Requests 是 `GET` 的特殊化
++ 浏览器仅能够发送 `GET` 和 `POST` 请求，因而 rocket 会对请求做进一步的的解析
+
+#### Dynamic Segments
+
+```rust
+#[get("/hello/<name>")]
+fn hello(name: &RawStr) -> String {
+    format!("Hello, {}!", name.as_str())
+}
+```
+
+dynamic segment 可以是任意实现了 [`FromParam` trait](https://api.rocket.rs/rocket/request/trait.FromParam.html) 的类型。
+
+#### Routing rank
+
+> [rocket route rules](https://rocket.rs/guide/requests/#forwarding)
+
+1. default rank: -4 ~ -1
+1. can be manually set to 1 ~ +**
+1. [default rank rules](https://rocket.rs/guide/requests/#default-ranking)
+
+#### Multiple Segments
+
++ 使用 `<param..>`
++ [`FromSegment` trait](https://api.rocket.rs/rocket/request/trait.FromSegments.html)
++ `PathBuf` 实现了 `FromSegment` 而且避免了 path traversal attacks
+
+一个静态文件服务器的实现如下所示：
+
+```rust
+#[get("/<file..>")]
+fn files(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join(file)).ok()
+}
+```
+
+#### Format
+
+该概念用于匹配 HTTP 头部的 `Content-Type: application/json`
+
+exapmle code:
+
+```rust
+#[post("/user", format = "application/json", data = "<user>")]
+fn new_user(user: Json<User>) -> T { ... }
+
+#[get("/user/<id>", format = "application/json")]
+fn user(id: usize) -> Json<User> { ... }
+```
+
+#### Request Guards
 
 ## 4 [tokio](https://tokio.rs/)
 

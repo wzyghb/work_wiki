@@ -80,6 +80,7 @@
     cd rust
     ./x.py build && sudo ./x.py install
     ```
++ 为了 使 racer 正常运行需要安装 rust 源代码： `rustup component add rust-src`
 
 ### python
 

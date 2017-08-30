@@ -667,6 +667,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
 }
 
 // For the convenience of using an &DbConn as an &SqliteConnection.
+// Deref 有什么机理
 impl Deref for DbConn {
     type Target = SqliteConnection;
 
@@ -724,6 +725,11 @@ pub trait Fairing: Send + Sync + 'static {
     fn on_launch(&self, rocket: &Rocket) { ... }
     fn on_request(&self, request: &mut Request, data: &Data) { ... }
     fn on_response(&self, request: &Request, response: &mut Response) { ... }
+}
+
+pub struct Info {
+    pub name: &'static str,
+    pub kind: Kind,
 }
 ```
 
@@ -789,6 +795,147 @@ impl Fairing for Counter {
 
 简化 Fairing 的实现，可以通过函数或者闭包直接实现一个 Fairing。
 
+### Testing
+
+rocket 提供了 perform unit 和 integration tests。
+
+#### 
+
+```rust
+use rocket::local::{Client, LocalRequest, LocalResponse};
+use rocket::http::{ContentType, Cookie};
+
+// Local Dispatching
+let rocket = rocket::ignite();
+let client = Client::new(rocket).expect("valid rocket instance");
+let req = client.post("/")
+    .header(ContentType::JSON)
+    .cookie(Cookie::new("name", "value"))
+    .body(#"{ "value": 42 }"#);
+let resp = req.dispatch();
+
+// Validating Response
+assert_eq!(response.status(), Status::Ok);
+assert_eq!(response.content_type(), Some(ContentType::HTML));
+let mut custom_headers = response.headers().iter();
+assert_eq!(custom_headers.next(), Some(Header::new("X-Custom", "1")));
+assert_eq!(custom_headers.next(), Some(Header::new("X-Custom", "2")));
+assert_eq!(response.body_string(), Some("Expected Body.".into()));
+```
+
+exampl：
+
+```rust
+#[get("/")]
+fn hello() -> &'static str {
+    "Hello, world!"
+}
+
+fn rocket() -> Rocket {
+    rocket::ignite().mount("/", routes![hello])
+}
+
+fn main() {
+    rocket().launch();
+}
+
+#[cfg(test)]
+mod test {
+    use super::rocket;
+    use rocket::local::Client;
+    use rocket::http::Status;
+    use super::*;
+
+    #[test]
+    fn hello_world() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let mut response = client.get("/").dispatch();
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(response.body_string(), Some("Hello, world!".into()));
+    }
+}
+// or #[cfg(test)] mod tests;
+
+```
+
+#### Codegen Debug
+
+主要用于 Rocket 的代码生成抛出错误时的分析，尤其是当你得到一个奇怪的错误时。
+
+```bash
+ROCKET_CODEGEN_DEBUG=1 cargo build
+```
+
+### Configuration
+
+rocket 提供了通过环境变量、configuring file 进行配置的方法。并且将配置分开为：
+
+1. development  dev
+1. staging      stage
+1. production   prod
+
+rocket 可以通过环境变量 `ROCKET_ENV` 来指定：
+
+```rust
+ROCKET_ENV=stage cargo run  # staging is also ok
+```
+
+rocket 从当前的工作目录加载 `Rocket.toml` 如果不存在，他会检查上一级的目录，直到 root 为止。
+
+example:
+
+```toml
+[development]
+address = "localhost"
+port = 8000
+workers = [number of cpus * 2]
+log = "normal"
+secret_key = [randomly generated at launch]
+limits = { forms = 32768 }
+
+[staging]
+address = "0.0.0.0"
+port = 80
+workers = [number of cpus * 2]
+log = "normal"
+secret_key = [randomly generated at launch]
+limits = { forms = 32768 }
+
+[production]
+address = "0.0.0.0"
+port = 80
+workers = [number of cpus * 2]
+log = "critical"
+secret_key = [randomly generated at launch]
+limits = { forms = 32768 }
+
+# global 会覆盖所有环境已有的配置
+[global]
+address = "1.2.3.4"
+
+# rocket 可以接受的指定类型的数据大小
+[global.limits]
+forms = 131072
+json = 65535
+# 可以通过 Request::limits() 获得
+
+[development]
+template_dir = "dev_templates/"
+
+[production]
+template_dir = "prod_templates/"
+```
+
++ worker 应当是一个整数
++ secret_key 应该是一个  256-bit base64 encoded string
+
+secret_key 的生成方式：
+
+```bash
+openssl rand -base64 32
+```
+
+rocket 究竟有多少配置呢？
 
 ## 4 [tokio](https://tokio.rs/)
 

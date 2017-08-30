@@ -308,6 +308,488 @@ fn user(id: usize) -> Json<User> { ... }
 
 #### Request Guards
 
+作用：根据请求的数据进行验证，避免 handler 被错误地调用。
+所有实现了 [`FromRequest`](https://api.rocket.rs/rocket/request/trait.FromRequest.html) trait 的类型都是一个 request guard。
+
+```rust
+#[get("/<param>")]
+fn index(param: isize, a: A, b: B, c: C) -> ... { ... }
+```
+
++ param 是 route 的属性，不是 request guard
++ A, B, C 会以顺序进行验证和匹配，一旦某个失败，剩余的将不会再去尝试。
+
+example: 一个简单的认证系统实现
+
+```rust
+#[get("/admin")]
+fn admin_panel(admin: AdminUser) -> &'static str {
+    "Hello, administrator. This is the admin panel!"
+}
+
+#[get("/admin", rank = 2)]
+fn admin_panel_user(user: User) -> &'static str {
+    "Sorry, you must be an administrator to access this page."
+}
+
+#[get("/admin", rank = 3)]
+fn admin_panel_redirect() -> Redirect {
+    Redirect::to("/login")
+}
+```
+
+#### [Cookies](https://api.rocket.rs/rocket/http/enum.Cookies.html)
+
+example:
+
+```rust
+use rocket::http::Cookies;
+
+#[get("/")]
+fn index(cookies: Cookies) -> Option<String> {
+    cookies.get("message")
+        .map(|value| format!("Message: {}", value))
+}
+
+/// Remove the `user_id` cookie.
+#[post("/logout")]
+fn logout(mut cookies: Cookies) -> Flash<Redirect> {
+    cookies.remove_private(Cookie::named("user_id"));
+    // 注意此处 Flash 的应用
+    Flash::success(Redirect::to("/"), "Successfully logged out.")
+}
+```
+
+##### Private Cookies
+
+> `Cookies::add()` 可以被 Client 看到 cookie 的内容，因而需要 private cookies，其使用 authenticated encryption 算法来进行加密，加密算法保证了 保密、真实和完整，不能被 Client 篡改、检查和伪造。rocket 提供了 `get_private`, `add_private` 和 `remove_private`。
+
+example：
+
+```rust
+/// Retrieve the user's ID, if any.
+#[get("/user_id")]
+fn user_id(cookies: Cookies) -> Option<String> {
+    cookies.get_private("user_id")
+        .map(|cookie| format!("User ID: {}", cookie.value()))
+}
+
+/// Remove the `user_id` cookie.
+#[post("/logout")]
+fn logout(mut cookies: Cookies) -> Flash<Redirect> {
+    cookies.remove_private(Cookie::named("user_id"));
+    Flash::success(Redirect::to("/"), "Successfully logged out.")
+}
+```
+
+##### Secret Key
+
+配置中增加 secret_key 配置项，用于 rocket 生成加密算法。
+
+##### [One at  a time](https://rocket.rs/guide/requests/#one-at-a-time)
+
+#### Body Data
+
+example
+
+```rust
+#[post("/", data = "<input>")]
+fn new(input: T) -> String { ... }
+```
+
+> restrict: `T`: [`FromData`](https://api.rocket.rs/rocket/data/trait.FromData.html) Data Guard
+
+#### Forms
+
+example:
+
+```rust
+#[derive(FromForm)]
+struct Task {
+    complete: bool,
+    description: String,
+}
+
+#[post("/todo", data = "<task>")]
+fn new(task: Form<Task>) -> String { ... }
+```
+
++ Lenient Parsing
++ FieldRenaming
++ FieldValidation
+
+#### Json
+
+example:
+
+```rust
+#[derive(Deserialize)]
+struct Task {
+    description: String,
+    complete: bool
+}
+
+#[post("/todo", data = "<task>")]
+fn new(task: Json<Task>) -> String { ... }
+```
+
+#### Streaming
+
+#### [Query Strings](https://rocket.rs/guide/requests/#query-strings)
+
+#### [Error Catches](https://rocket.rs/guide/requests/#error-catchers)
+
+rocket 中是按照错误码来注册错误处理函数的。
+
+example:
+
+```rust
+#[error(404)]
+fn not_found(req: &Request) -> String { ... }
+
+rocket::ignite().catch(errors![not_found])
+```
+
+### Responses
+
+任意实现了 [`Responder` trait](https://api.rocket.rs/rocket/response/trait.Responder.html) 
+的类型均可以作为 response 返回。
+
+> HTTP Response 必须由 HTTP Status、headers、body 组成。body 可以是 fixed-sized 或者 streaming。Responders 会根据 `Request` 动态地适应，并返回 `Responder`;
+
++ `use rocket::response::status` `status::Accepted<String>`
++ `use rocket::response::content` `content::Json<&'static str>`
++ `struct WrappingResponder<R>(R)`
+
+#### example impl of String
+
+```rust
+impl Responder<'static> for String {
+    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+        Response::build()
+            .header(ContentType::Plain)
+            .sized_body(Cursor::new(self))
+            .ok()
+    }
+}
+```
+
+上面这个实现可以在 `handler` 中直接返回 `&str` or `String` type。
+
+```rust
+#[get("/string")]
+fn handler() -> &'static str {
+    "Hello there! I'm a string!"
+}
+```
+
++ `Option<T>` 是一个 wrapping responder，一个 `Option<T>` 仅可当 T 实现了 `Responder` 时可以被返回。当内容可能不存在时，可以返回一个 `Option` 对象.
+    ```rust
+    // 静态文件服务，不存在时返回 404，存在时返回文件并 200
+    #[get("/static/<file..>")]
+    fn files(file: PathBuf) -> Option<NamedFile> {
+        NamedFile::open(Path::new("static/").join(file)).ok()
+    }
+    ```
++ `Result` 其最终的效果取决于 `E` 是否实现了 `Responder`, 这意味着 `Responder` 可以在运行时动态地进行选择，如果 `E` 没有实现 `Responder`, 这时候，error 只是简单地打印到 console 中，并返回一个 500 给服务端。
+
+#### Rocket Responders
+
+已经实现的 responders:
+
++ `Content`
++ `NamedFile`
++ `Redirect`
++ `Stream`
++ `status`
++ `Flash`
+
+#### Streaming
+
+为何需要 streaming？因为你将一个大文件传送给 Client 时，避免占用过大的内存空间。Rocket 提供了 Stream 类型来完成这些操作，可以直接使用 `Read` 类型。
+
+```rust
+#[get("/stream")]
+fn stream() -> io::Result<Stream<UnixStream>> {
+    UnixStream::connect("/path/to/my/socket").map(|s| Stream::from(s))
+}
+```
+
+#### Json
+
+rocket 在 `rocket_contrib` 库中提供了简便的返回 Json 数据的方法。只需返回 `Json<T>`, 其中 `T` 是一种可以序列化为 Json 的结构。类型 `T` 必须实现 `serde` 中的 `Serialize` Trait。
+
+example:
+
+```rust
+use rocket_contrib::Json;
+
+#[derive(Serialize)]
+struct Task { ... }
+
+#[get("/todo")]
+fn todo() -> Json<Task> { ... }
+```
+
+#### Template
+
+rocket 自身包含了模板框架，可以通过 `rocket_contrib` 中的。
+
+example：
+
+```rust
+#[get("/")]
+fn index() -> Template {
+    let context = /* object-like value */;
+    Template::render("index", &context)
+}
+```
+
+1. `render`
+1. `Serialize`
+1. `template_dir` directory
+1. Template 的 engine 的具体使用取决于模板文件的后缀，如 `hbs` -> Handlebars, `.tera` -> Tera
+1. 需要将 `Fairing` 注册到 rocket 实例上去。
+1. [Template API](https://api.rocket.rs/rocket_contrib/struct.Template.html)
+1. [Fairing](https://rocket.rs/guide/fairings/) rocket 提供的结构性中间件
+
+example：
+
+```rust
+fn main() {
+    rocket::ignite()
+      .mount("/", routes![...])
+      .attach(Template::fairing());
+}
+```
+
+### State
+
+有哪些 State：网站的访问次数，任务队列和多个数据库存储状态。
+
+rocket 会为每一种类型管理最多一种状态。基本实现步骤：
+
+1. 在 `rocket` 实例上调用 manage，将你的 application 相关的初始状态传入。
+1. 会在每个 request handler 中增加一个 [`State<T>`](https://api.rocket.rs/rocket/struct.State.html) 类型。 
+
+example
+
+```rust
+/// 可以通过 manage 方法加入多个状态变量
+rocket::ignite()
+    .manage(HitCount { count: AtomicUsize::new(0) })
+    .manage(Config::from(user_input));
+
+/// 状态可以通过一个 `Request guard` 来获取
+#[get("/count")]
+fn count(hit_count: State<HitCount>) -> String {
+    let current_count = hit_count.count.load(Ordering::Relaxed);
+    format!("Number of visits: {}", current_count)
+}
+
+/// 可以使用 Within Guard 来获取如下
+fn from_request(req: &'a Request<'r>) -> request::Outcome<T, ()> {
+    let hit_count_state = req.guard::<State<HitCount>>()?;
+    let current_count = hit_count_state.count.load(Ordering::Relaxed);
+    // ...
+}
+```
+
+当 `State<T>` 中的 T 没有对应 manage 时，rocket 不会在运行时才返回 500，而是提供了一个 unmanaged_state lint，在编译时进行检查，并抛出一个异常。目前这个 lint 还不够好，可能需要使用 `#![allow(unmanaged_state)]` 来处理。
+
+#### Database
+
+目前 rocket 中没有数据库管理策略。可以使用 `r2d2` 和 `diesel`，并将其作为 State 的一部分。
+
+```toml
+[dependencies]
+rocket = "0.3.2"
+diesel = { version = "*", features = ["sqlite"] }
+diesel_codegen = { version = "*", features = ["sqlite"] }
+r2d2-diesel = "*"
+r2d2 = "*"
+```
+
+```rust
+// --- use main.rs ---
+extern crate rocket;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate diesel_codegen;
+extern crate r2d2_diesel;
+extern crate r2d2;
+
+use diesel::sqlite::SqliteConnection;
+use r2d2_diesel::ConnectionManager;
+
+// An alias to the type for a pool of Diesel SQLite connections.
+type Pool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+
+// The URL to the database, set via the `DATABASE_URL` environment variable.
+static DATABASE_URL: &'static str = env!("DATABASE_URL");
+
+/// Initializes a database pool.
+fn init_pool() -> Pool {
+    let config = r2d2::Config::default();
+    let manager = ConnectionManager::<SqliteConnection>::new(DATABASE_URL);
+    r2d2::Pool::new(config, manager).expect("db pool")
+}
+
+fn main() {
+    rocket::ignite()
+        .manage(init_pool())
+        .launch();
+}
+
+// --- define db.rs ---
+use std::ops::Deref;
+use rocket::http::Status;
+use rocket::request::{self, FromRequest};
+use rocket::{Request, State, Outcome};
+
+// Connection request guard type: a wrapper around an r2d2 pooled connection.
+// 注意此处的实现实际上是包装了一层, 理解实现 FromRequest 实现的机理
+pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<SqliteConnection>>);
+
+/// Attempts to retrieve a single connection from the managed database pool. If
+/// no pool is currently managed, fails with an `InternalServerError` status. If
+/// no connections are available, fails with a `ServiceUnavailable` status.
+impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<DbConn, ()> {
+        // 所有的 guard 实际上都在 request.guard 上
+        let pool = request.guard::<State<Pool>>()?;
+        match pool.get() {
+            Ok(conn) => Outcome::Success(DbConn(conn)),
+            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ()))
+        }
+    }
+}
+
+// For the convenience of using an &DbConn as an &SqliteConnection.
+impl Deref for DbConn {
+    type Target = SqliteConnection;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[get("/tasks")]
+fn get_tasks(conn: DbConn) -> QueryResult<Json<Vec<Task>>> {
+    all_tasks.order(tasks::id.desc())
+        .load::<Task>(&*conn)
+        .map(|tasks| Json(tasks))
+}
+```
+
+思考是使用全局变量比较好还是使用 State 注入的方式比较好？
+
+### [Fairing](https://rocket.rs/guide/fairings/) 整流罩
+
+Fairing 是 rocket 中的一种结构化中间件。使用 Fairing，是的 application 可以 hook 到一个 request 的生命周期中去，记录或者重写 incomming requests 或者 outgoing response 的部分内容。
+
+任意实现了 [`Fairing` trait](https://api.rocket.rs/rocket/fairing/trait.Fairing.html) 的类型都是 Fairing。
+
++ 如果网站不需要全站登录，那么不要使用 Fairing
++ 尽可能地使用 request guard 而非 Fairing
++ Fairing 可以用于全站访问统计
++ Fairing 可以用于全站的安全设置
++ Fairing 可以用于全站访问延迟统计
+
++ Fairings cannot terminate or respond to an incoming request directly.
++ Fairings cannot inject arbitrary, non-request data into a request.
++ Fairings can prevent an application from launching.
++ Fairings can inspect and modify the application’s configuration
+
+example 
+
+```rust
+// 将 fairing 连接到 rocket
+rocket::ignite()
+    .attach(req_fairing)
+    .attach(res_fairing)
+    .launch();
+```
+
++ Fairings are executed in the order in which they are attached
+
+#### Callbacks
+
+```rust
+pub trait Fairing: Send + Sync + 'static {
+    fn info(&self) -> Info;
+
+    fn on_attach(&self, rocket: Rocket) -> Result<Rocket, Rocket> { ... }
+    fn on_launch(&self, rocket: &Rocket) { ... }
+    fn on_request(&self, request: &mut Request, data: &Data) { ... }
+    fn on_response(&self, request: &Request, response: &mut Response) { ... }
+}
+```
+
++ Attach 连接时调用，可以任意地修改 Rocket instance，并且停止 launch 过程。通常用于解析和验证配置的值，遇到错误配置时停止，并将解析的值插入到 managed state 中用于稍后 retieval。
++ Launch Launch callback 主要用于启动相关的服务
++ Request 收到一个 request 时调用，可以修改 request，并且可以查看 body（不能修改），他不能停止或者直接 respond 给 client （这种需求最好使用 request guards 或者 response callback 来实现
++ Response 在即将给 Client 返回 response 时调用，可以修改部分或者全部 response，可以用于重写部分请求的 404 response，
++ rocket 还会使用 info 返回的 Info 结构体来赋予 fairing 的名字，和判断 fairing 注册的位置。
++ 每个 callback 已经有了默认的实现，因而你只需要选择性地自己实现所需的 callback。默认实现什么都不会干。
++ 实现了 Fairing 的类型必须是 `Send + Sync + 'static` 的即可以在线程间传递、线程安全以及只含有静态引用。
+
+example： 记录网站 `Get` 和 `Post` 请求的次数
+
+```rust
+struct Counter {
+    get: AtomicUsize,
+    post: AtomicUsize,
+    // 使用了线程安全的变量
+}
+
+impl Fairing for Counter {
+    // This is a request and response fairing named "GET/POST Counter".
+    fn info(&self) -> Info {
+        Info {
+            name: "GET/POST Counter",
+            kind: Kind::Request | Kind::Response
+        }
+    }
+
+    // Increment the counter for `GET` and `POST` requests.
+    fn on_request(&self, request: &mut Request, _: &Data) {
+        match request.method() {
+            Method::Get => self.get.fetch_add(1, Ordering::Relaxed),
+            Method::Post => self.post.fetch_add(1, Ordering::Relaxed),
+            _ => return
+        }
+    }
+
+    fn on_response(&self, request: &Request, response: &mut Response) {
+        // Don't change a successful user's response, ever.
+        if response.status() != Status::NotFound {
+            // 这个 Fairing callback 只处理 NotFound 的请求
+            return
+        }
+
+        // Rewrite the response to return the current counts.
+        // 将路由也之间实现在 Fairing 中
+        if request.method() == Method::Get && request.uri().path() == "/counts" {
+            // 自己读取数据构建了一个 Response 给 client
+            let get_count = self.get.load(Ordering::Relaxed);
+            let post_count = self.post.load(Ordering::Relaxed);
+            let body = format!("Get: {}\nPost: {}", get_count, post_count);
+
+            response.set_status(Status::Ok);
+            response.set_header(ContentType::Plain);
+            response.set_sized_body(Cursor::new(body));
+        }
+    }
+}
+```
+
+#### [Ad-Hoc](https://api.rocket.rs/rocket/fairing/enum.AdHoc.html) Fairing
+
+简化 Fairing 的实现，可以通过函数或者闭包直接实现一个 Fairing。
+
+
 ## 4 [tokio](https://tokio.rs/)
 
 + `tokio-proto` 构建 servers 和 clients 的简单接口
@@ -623,11 +1105,3 @@ let access_token = CONFIG
             .clone()
             .unwrap_or("".to_owned());  // access 是一个Option 对象，因而需要进行如此的处理
 ```
-
-# reference
-
-+ [rustwebapp](https://github.com/superlogical/rustwebapp)
-+ [web docker](https://github.com/clementmiao/website-rocket)
-+ [thanks](https://github.com/rust-lang-nursery/thanks)
-+ [rustironreact](https://github.com/cmsd2/rust-iron-react-webpack)
-

@@ -164,4 +164,17 @@ fn midterm2() {
 ## Problems
 
 + [format need a string literal](https://stackoverflow.com/questions/27734708/println-error-format-argument-must-be-a-string-literal)
-+ [when use lazy_static?]()
+
+## next to learn
+
++ rocket
++ diesel
++ tokio
++ futures
++ [data structure](https://github.com/EbTech/rust-algorithms)
++ cross compile
++ [nomicon book](https://doc.rust-lang.org/nomicon/)
++ [macro book](https://danielkeep.github.io/tlborm/book/)
++ [reqwest 代码](https://github.com/seanmonstar/reqwest)
++ [r2d2 代码](https://github.com/sfackler/r2d2)
++ [rocket 代码](https://github.com/SergioBenitez/Rocket)

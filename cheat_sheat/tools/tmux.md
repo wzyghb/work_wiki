@@ -79,12 +79,17 @@ tmux 的前置操作是： `CTRL`+`b`, 下文以 prefix 代替
 | vim 模式移动光标所在的 pane | `prefix` `h/j/k/l` |
 |
 
-### vi-choice
-
-### vi-edit
-
-### vi-copy
+### vi-choice edit copy
 
 | 操作 | 快捷键 |
 | :--- | :--- |
-| `prefix` `enter` | 进入 copy 模式 |
+| `prefix` `[` | 进入 copy 模式 |
+| `prefix` `p` or `]` | 粘贴复制的内容 |
+
+example:
+
+1. `prefix` + `[` 进入复制模式
+1. 参考上表移动鼠标到要复制的区域，移动鼠标时可用 `vim` 的搜索功能 `/`, `?`
+1. 按 `space` 或者 `v` 进入复制模式
+1. 选择完成后安enter键退出 (此时内容以及复制到了剪贴板)，按 `y` 也可以有类似的操作
+1. `prefix` + `]` 粘贴

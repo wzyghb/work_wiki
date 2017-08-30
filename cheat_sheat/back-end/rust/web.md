@@ -1049,6 +1049,7 @@ pub fn fetch_async(req: Request,
 
 + [log facade document](https://doc.rust-lang.org/log/log/index.html)
 + [env_logger](https://docs.rs/env_logger/*/env_logger/)
++ [log4r]()
 
 ## 9 lazy_static 和配置文件的实现
 

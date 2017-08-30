@@ -47,15 +47,21 @@
 
 ## `$<x>` 说明
 
-+ `$$` Shell本身的PID（ProcessID） 
-+ `$!` Shell最后运行的后台Process的PID 
-+ `$?` 最后运行的命令的结束代码（返回值） 
-+ `$-` 使用Set命令设定的Flag一览 
-+ `$*` 所有参数列表。如"$*"用「"」括起来的情况、以"$1 $2 … $n"的形式输出所有参数。 
-+ `$@` 所有参数列表。如"$@"用「"」括起来的情况、以"$1" "$2" … "$n" 的形式输出所有参数。 
-+ `$#` 添加到Shell的参数个数 
-+ `$0` Shell本身的文件名 
-+ `$1`～`$n` 添加到Shell的各参数值。$1是第1参数、$2是第2参数…。  
++ `$$` Shell本身的PID（ProcessID）
++ `$!` Shell最后运行的后台Process的PID
++ `$?` 最后运行的命令的结束代码（返回值）
++ `$-` 使用Set命令设定的Flag一览
++ `$*` 所有参数列表。如"$*"用「"」括起来的情况、以"$1 $2 … $n"的形式输出所有参数。
++ `$@` 所有参数列表。如"$@"用「"」括起来的情况、以"$1" "$2" … "$n" 的形式输出所有参数。
++ `$#` 添加到Shell的参数个数
++ `$0` Shell本身的文件名
++ `$1`～`$n` 添加到Shell的各参数值。$1是第1参数、$2是第2参数…。
+
+example: 启动命令，并保存 pid 到指定文件
+
+```bash
+nohup ./output/start.sh ./output/ > gateway_test.log 2>&1 & echo $! > gateway_test.pid
+```
 
 ## `runit` 套件
 
@@ -70,6 +76,7 @@
 
 + `apt-get install runit`
 + `ps -ef | grep runsvdir`
+
 > `root         1     0  0 03:14 ?        00:00:00 /usr/bin/runsvdir -P /etc/service` 表示已经安装
 
 ### runsvdir
@@ -87,3 +94,20 @@
 
 + 设置 ssh 密钥和公钥，实现自动登陆
 + 命令为 `sshfs -o sshfs_sync <user_name>@<dev_server_ip>:<dev_server_path> <local_path>`
+
+## SSH
+
++ SSH 一种网络协议，用于计算机之间的加密登陆。可以安全的登陆另一计算机确保不会被中途截获。
++ SSH 在 linux 中自带，windows 需要使用 PuTTy 客户端。
+
+### 指令
+
++ `ssh user@host`
++ `ssh host`
++ `ssh -p 2222 user@host`
+
+### 原理以及安全性
+
+步骤：
+
+1. 远程主机收到用户登陆请求，并且将自己的公钥发送给用户

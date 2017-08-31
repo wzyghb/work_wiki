@@ -212,3 +212,11 @@ Redis 内置 Lua 解释器， 可以使用 EVAL 命令对 Lua 脚本进行求值
 + SELECT
 
 ## 8 Server 服务器
+
+## redis 作为缓存服务器使用
+
++ key 缓存
++ set 缓存
++ zset 缓存
++ hash map 缓存
++ list 存储队列

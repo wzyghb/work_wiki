@@ -8,19 +8,19 @@ Celery是一个分布式任务队列工具，是一个异步的任务队列基�
 - Task，任务，在Celery中，每个Python function就是一个task，只要在function前面修饰”@task()“，Celery就知道这是一个task，需要异步调用task的时候，task.delay()就可以了，当然有更复杂的调用函数，task.apply_async()，这里面可以指定啥时候调用什么的，这里的调用就是将task加入到queue中，而queue是保存在指定的Broker中的。
 - Worker，Celery将你要异步处理的task加入到一个queue中，然后空闲的Worker就会将queue中的task给取走交给服务器。
 
-## 2. 任务调用  
+## 2. 任务调用
 
-任务(task)调用有三个API: 
+任务(task)调用有三个API:
 
 ```python
 # 给任务发送消息
 apply_async(args[,kwargs[, ...]])
-    
+
 # 给任务发送消息的简单版，但是不支持execution options(apply_async有三个部分的参数，
 # 第一部分就是task里面的python function的参数，比如add(x,y)的x,y，第二个参数叫作keyword arguments，
 # 就是设定一些环境变量，第三个参数就是execution options，也就是这个task本身的执行选项，时间啊之类)
 delay(*args, **kwargs)
-    
+
 # 类似直接调用的意思，即不是让worker来执行任务，而是当前的进程来执行。
 calling(__call__)
 ```
@@ -39,8 +39,8 @@ add.apply_async((2, 2), link=add.s(16))
 
 ### ETA and countdown
 
-eta必须是一个datatime对象。你可以设定一个eta，可以让你的任务在这个eta开始。  
-countdown是一个整型，它是eta的简版，以秒为单位。  
+eta必须是一个datatime对象。你可以设定一个eta，可以让你的任务在这个eta开始。
+countdown是一个整型，它是eta的简版，以秒为单位。
 这两个都保证任务会在这个时间后执行，但是这个时间无法非常确定，因为各方面的原因（网络延时，任务队列太繁忙）。
 
 ### **Expiration** ----
@@ -68,14 +68,14 @@ add.apply_async((2, 2), compression='zlib')
 
 ## 3. Canvas:Designing Workflows
 
-有时候，你需要把一个调用函数的某些信息传递到一个进程或者做为参数传递到另外一个函数的时候，Celery用一种叫subtasks完成这种任务。如： 
+有时候，你需要把一个调用函数的某些信息传递到一个进程或者做为参数传递到另外一个函数的时候，Celery用一种叫subtasks完成这种任务。如：
 
 ```python
 add.subtask((2,2), countdown=10)
 tasks.add(2,2)
 ```
 
-简写方式： 
+简写方式：
 
 ```python
 add.s(2,2)
@@ -91,7 +91,7 @@ res = s1.delay()
 res.get()
 ```
 
-add任务接受两个参数，这个subtasks指定了两个参数，它就完成了一个complete signature。  
+add任务接受两个参数，这个subtasks指定了两个参数，它就完成了一个complete signature。
 
 但是这样：
 
@@ -132,6 +132,7 @@ g = group(add.s(i) for i in xrange(10))
 g(10).get()
 [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 ```
+
 add.s(i)这个就是partial，只有一个参数，所以在g(10)中传递10这个参数之后，每个add.s(i,10)，最终得到了一个完整的签名。
 
 #### Chains 链

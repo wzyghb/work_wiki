@@ -1,3 +1,4 @@
+# GraphQL 介绍
 
 graphql 是一种新的 api 表现形式，相比于 restful api，官网首页给出了一些观点表示如下：
 
@@ -14,12 +15,13 @@ graphql 是一种新的 api 表现形式，相比于 restful api，官网首页�
 + 有 GraphiQL 这样更加强大的开发工具
 + API 的演化不再需要使用 versions
 
-
 ## 参考资料
+
 + [官网主页](http://graphql.org/)
 + [github 教程](https://github.com/facebook/graphql)
 
 ## graphql api 的学习主要包括
+
 + 类型系统：GraphQL schema language 描述所需要的数据。
 + 查询语句：GraphQL query language 
 + GraphQL 服务是如何工作的
@@ -34,14 +36,13 @@ GraphQL 主要关键字：
 | type | 类型 |
 | input | 输入 |
 
-
 ## 查询和更改
 
 ### Fields
 
 GraphQL 可以查询对象特定的域，例子如下：
 
-```
+```json
 {
   hero {
     name
@@ -63,11 +64,11 @@ GraphQL 可以查询对象特定的域，例子如下：
 
 注意，查询结果具有和查询语句类似的 shape。
 
-### Arguments 
+### Arguments
 
 graphql 可以给 field 传入参数：
 
-```
+```json
 {
   human(id: "1000") {
     name
@@ -91,7 +92,7 @@ graphql 可以给 field 传入参数：
 
 甚至可以传入单位：
 
-```
+```json
 {
   human(id: "1000") {
     name
@@ -120,7 +121,7 @@ graphql 的 schemas 和 type 定义参见后文。
 注意到上面带参数的查询中，返回结果中对象匹配了查询 field 的名字作为键，因而若使用多个查询参数同时从查询，那么会产生 key 的冲突。
 为了解决这种情况，因而有 Aliases 定义如下：
 
-```
+```json
 {
   empireHero: hero(episode: EMPIRE) {
     name
@@ -152,7 +153,7 @@ graphql 的 schemas 和 type 定义参见后文。
 
 例子定义如下：
 
-```
+```json
 {
   leftComparison: hero(episode: EMPIRE) {
     ...comparisonFields
@@ -226,11 +227,12 @@ fragment comparisonFields on Character {
 使用 Variable 变量需要做三件事：
 
 1. 使用 $variableName 替代查询语句中的静态名字。
-2. 声明 $variableName 为查询可以接受的变量。
-3. 单独地传递 variableName: value，一般是通过 json 完成。
+1. 声明 $variableName 为查询可以接受的变量。
+1. 单独地传递 variableName: value，一般是通过 json 完成。
 
 查询定义：
-```
+
+```bash
 query HeroNameAndFriends($episode: Episode) {
   hero(episode: $episode) {
     name
@@ -294,7 +296,8 @@ Directives 命令可以绑定到 field 或者 fragment 上，决定服务端是�
 例子表示如下：
 
 查询构建：
-```
+
+```json
 query Hero($episode: Episode, $withFriends: Boolean!) {
   hero(episode: $episode) {
     name
@@ -306,6 +309,7 @@ query Hero($episode: Episode, $withFriends: Boolean!) {
 ```
 
 查询变量：
+
 ```json
 {
   "episode": "JEDI",
@@ -320,7 +324,8 @@ query Hero($episode: Episode, $withFriends: Boolean!) {
 所有会导致写的操作都应该以 mutation 明确地表示出来。更新 object 后，应该将 object 的新状态传递回来。
 
 查询的例子：
-```
+
+```bash
 mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
   createReview(episode: $ep, review: $review) {
     stars
@@ -330,6 +335,7 @@ mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
 ```
 
 用 json 传入参数：
+
 ```json
 {
   "ep": "JEDI",
@@ -341,6 +347,7 @@ mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
 ```
 
 返回结果如下：
+
 ```json
 {
   "data": {
@@ -369,7 +376,8 @@ query 查询一个 feild 是并行的，而 mutation field 则是序列的，一
 fragments 来访问数据潜在的固有类型。使用的例子如下：
 
 查询语句：
-```
+
+```json
 query HeroForEpisode($ep: Episode!) {
   hero(episode: $ep) {
     name
@@ -384,6 +392,7 @@ query HeroForEpisode($ep: Episode!) {
 ```
 
 传入参数的 json：
+
 ```json
 {
   "ep": "EMPIRE"
@@ -391,6 +400,7 @@ query HeroForEpisode($ep: Episode!) {
 ```
 
 返回结果：
+
 ```json
 {
   "data": {
@@ -403,6 +413,7 @@ query HeroForEpisode($ep: Episode!) {
 ```
 
 如果传入的参数是：
+
 ```json
 {
   "ep": "JEDI"
@@ -410,6 +421,7 @@ query HeroForEpisode($ep: Episode!) {
 ```
 
 那么返回的结果是：
+
 ```json
 {
   "data": {
@@ -431,7 +443,7 @@ Human 对象和 Droid 都继承了 Charater 对象，共有 field 为 name，Hum
 
 例子，请求如下：
 
-```
+```json
 {
   search(text: "an") {
     __typename
@@ -449,6 +461,7 @@ Human 对象和 Droid 都继承了 Charater 对象，共有 field 为 name，Hum
 ```
 
 返回结果如下：
+
 ```json
 {
   "data": {
@@ -499,7 +512,8 @@ type Character {
 ### Query 和 Mutation types
 
 在 Schema 中的定义：
-```
+
+```json
 schema {
   query: Query
   mutation: Mutation
@@ -517,7 +531,7 @@ scalar type 的查询的叶节点。GraphQL 定义了下面几种 Scalar type：
 + String: UTF-8 字符序列
 + Boolean: true or false
 + ID: 代表唯一标识，和 String 一样，但是是 not human readable 的。
-+ Date: 
++ Date
 
 ### Enumeration
 
@@ -525,7 +539,8 @@ scalar type 的查询的叶节点。GraphQL 定义了下面几种 Scalar type：
 + type system 会知道这个 field 的取值是有限的。
 
 例子：
-```
+
+```json
 enum Episode {
   NEWHOPE
   EMPIRE
@@ -537,7 +552,7 @@ enum Episode {
 
 非空的几种组合形式：
 
-```
+```json
 myField: [String!]
 myField: [String]!
 ```
@@ -545,7 +560,8 @@ myField: [String]!
 ### Interfaces
 
 定义：
-```
+
+```json
 interface Character {
   id: ID!
   name: String!
@@ -555,7 +571,8 @@ interface Character {
 ```
 
 使用：
-```
+
+```json
 type Human implements Character {
   id: ID!
   name: String!
@@ -579,6 +596,7 @@ type Droid implements Character {
 ### Union types
 
 例子：
+
 ```
 union SearchResult = Human | Droid | Starship
 ```
@@ -586,7 +604,7 @@ union SearchResult = Human | Droid | Starship
 注意 Union type 的 member 必须是固有对象类型，不能通过 interface 或者其他 unions 来构建新的 union。
 查询 union 类型时，需要使用 conditional fragment 来构建查询：
 
-```
+```json
 {
   search(text: "an") {
     ... on Human {
@@ -607,7 +625,7 @@ union SearchResult = Human | Droid | Starship
 
 查询结果：
 
-```
+```json
 {
   "data": {
     "search": [
@@ -634,7 +652,8 @@ union SearchResult = Human | Droid | Starship
 mutation 时尤其重要，可以将完整的对象传递来进行创建。在 GraphQL Schema 语言中，输入类型和正常的对象类型非常类似，只是使用了关键字 input。
 
 例子表示如下：
-```
+
+```json
 input ReviewInput {
   stars: Int!
   commentary: String
@@ -643,7 +662,7 @@ input ReviewInput {
 
 在 Mutation 中使用的例子：
 
-```
+```json
 mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
   createReview(episode: $ep, review: $review) {
     stars
@@ -651,8 +670,10 @@ mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
   }
 }
 ```
+
 参数输入 json：
-```
+
+```json
 {
   "ep": "JEDI",
   "review": {
@@ -663,7 +684,8 @@ mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
 ```
 
 返回的结果表示如下：
-```
+
+```json
 {
   "data": {
     "createReview": {
@@ -684,7 +706,7 @@ mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
 
 使用有名称的 fragment 查询 union object 的 field 字段的例子：
 
-```
+```json
 {
   hero {
     name
@@ -698,6 +720,7 @@ fragment DroidFields on Droid {
 ```
 
 查询结果：
+
 ```json
 {
   "data": {
@@ -715,7 +738,7 @@ GraphQL 的执行需要与之配套的类型系统，下面是一个执行的例
 
 类型系统定义：
 
-```
+```json
 type Query {
   human(id: ID!): Human
 }
@@ -739,7 +762,7 @@ type Starship {
 
 定义一个查询语句如下：
 
-```
+```json
 {
   human(id: 1002) {
     name
@@ -787,7 +810,7 @@ GraphQL 服务器将所有可能的 entry point 表示为 GraphQL API，通常�
 
 在上面的查询中，human field 接受一个参数 id，因而对应的 resolver 函数会访问数据库，并构建一个 Human 对象返回。
 
-```
+```json
 Query: {
   human(obj, args, context) {
     return context.db.loadHumanByID(args.id).then(
@@ -798,6 +821,7 @@ Query: {
 ```
 
 resolver 函数接受三个参数：
+
 + **obj**：以前的对象，在root Query type 中通常不使用。
 + **args**：在 GraphQL 查询中传递给 field 的参数。
 + **context**：传递给每个 resolver 的值，包括当前登陆的用户，可以访问的数据库等。
@@ -805,6 +829,7 @@ resolver 函数接受三个参数：
 ### 异步 resolvers
 
 例子：
+
 ```javascript
 human(obj, args, context) {
   return context.db.loadHumanByID(args.id).then(
@@ -833,6 +858,7 @@ GraphQL Server 由 type system 驱动，在这种情况下，解析名字非常�
 ### List resolvers
 
 例子：
+
 ```javascript
 Human: {
   starships(obj, args, context) {
@@ -853,7 +879,7 @@ Human: {
 最终将 json 结果返回请求者。
 例子：
 
-```
+```json
 {
   human(id: 1002) {
     name
@@ -867,7 +893,7 @@ Human: {
 
 返回的结果：
 
-```
+```json
 {
   "data": {
     "human": {

@@ -15,6 +15,7 @@
 | du |  |  |
 | ipset |  |  |
 | iptables |  |  |
+| lsof | `-i:<port>` | 查看占用该端口的进程 pid |
 
 ## 查看系统的版本
 

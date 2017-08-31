@@ -1,12 +1,17 @@
+# gunicorn 使用
+
 每个 gunicorn worker 大概会占用 200M 的内存空间。
+gunicorn 的基本配置
 
 ## Server Model
 
 pre-fork worker model:
+
 + Central master process: 不处理单独的 client 请求
 + worker processes: 处理所有的 request 和 response
 
 ## Master
+
 + TTIN / TTOU 增加或者减少 worker 数量
 + CHLD worker 停止了，master 会对其进行重启
 

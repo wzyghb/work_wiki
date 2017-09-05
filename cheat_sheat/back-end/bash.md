@@ -24,6 +24,12 @@
 + `lsb_release -a`
 + `cat /etc/issue`
 
+## shell 的设置
+
+通常使用 `set` 命令来设置shell。 [set](http://www.cnblogs.com/liduanjun/p/3536996.html)
+
++ `-e` 如果一个命令返回非 0 退状态值，就失败
+
 ## 让进程在后台可靠运行
 
 用户注销 (logout) 和网络断开时，终端会收到 HUP （hangup) 信号，从而关闭所有子进程，所以有两种办法：
@@ -91,15 +97,15 @@ nohup ./output/start.sh ./output/ > gateway_test.log 2>&1 & echo $! > gateway_te
 + 停止服务： `sv stop example`
 + 重启服务： `sv restart example`
 
-## 远程挂载
-
-+ 设置 ssh 密钥和公钥，实现自动登陆
-+ 命令为 `sshfs -o sshfs_sync <user_name>@<dev_server_ip>:<dev_server_path> <local_path>`
-
 ## SSH
 
 + SSH 一种网络协议，用于计算机之间的加密登陆。可以安全的登陆另一计算机确保不会被中途截获。
 + SSH 在 linux 中自带，windows 需要使用 PuTTy 客户端。
+
+### 远程挂载
+
++ 设置 ssh 密钥和公钥，实现自动登陆
++ 命令为 `sshfs -o sshfs_sync <user_name>@<dev_server_ip>:<dev_server_path> <local_path>`
 
 ### 指令
 

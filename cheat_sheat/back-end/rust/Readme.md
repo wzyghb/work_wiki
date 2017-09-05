@@ -10,6 +10,7 @@
 
 + [awesome-rust](https://github.com/kud1ing/awesome-rust)
 + [package-oom](http://www.arewewebyet.org/topics/)
++ [rls](https://github.com/rust-lang-nursery/rls#step-2-switch-to-nightly)
 
 ### Common
 
@@ -29,7 +30,7 @@
 + [clippy](https://github.com/Manishearth/rust-clippy) 代码风格检查工具
 + [csv](https://github.com/BurntSushi/xsv)
 + [toml](https://github.com/alexcrichton/toml-rs/)
-+ [dotenv]()
++ [dotenv](https://github.com/purpliminal/rust-dotenv)
 
 ### ML
 

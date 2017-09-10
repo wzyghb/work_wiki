@@ -16,6 +16,8 @@
 | ipset |  |  |
 | iptables |  |  |
 | lsof | `-i:<port>` | 查看占用该端口的进程 pid |
+| locale | `-a` | 查看容器的所有语言环境 |
+| dpkg-reconfigure locales |  | 图像化本地语言环境配置 |
 
 ## 查看系统的版本
 
@@ -117,4 +119,51 @@ nohup ./output/start.sh ./output/ > gateway_test.log 2>&1 & echo $! > gateway_te
 
 步骤：
 
-1. 远程主机收到用户登陆请求，并且将自己的公钥发送给用户
+1. 远程主机收到用户登陆请求，并且将自己的公钥发送给用户。
+1. 用户使用这个公钥，将登陆密码加密后发送回来。
+1. 远程主机使用自己的密钥，解密登陆密码，如果密码正确，就同意用户登陆
+
+> 中间人攻击如何突破 ssh 协议？
+
+第一登陆，会弹出如下对话：
+
+```sh
+　$ ssh user@host
+　　The authenticity of host 'host (12.18.429.21)' can't be established.
+　　RSA key fingerprint is 98:2e:d7:e0:de:9f:ac:67:28:c2:42:2d:37:16:58:4d.
+　　Are you sure you want to continue connecting (yes/no)? <1>
+
+  Warning: Permanently added 'host,12.18.429.21' (RSA) to the list of known hosts. <2>
+
+  Password: (enter password) <3>
+```
+
+1. 这个表示无法确认 host 主机的真实性，只知道他的 公钥指纹，是否继续连接。一般远程主机需要贴出自己的公钥指纹来让用户自行核对。
+1. 表示这个指纹被 host 主机所认可
+1. 要求输入密码
+1. 远程主机的公钥被接收后，会被保存到 `$HOME/.ssh/known_hosts` 之中，下次再连接这台主机时，系统就会认出他的公钥已经保存在本地了，会跳过警告部分，直接输入密码。
+
+> 公钥指纹： 公钥长度较长，采用 RSA 算法时，长度达到 1024 位，很难对比，对其进行 md5 运算，变成一个 128 位的指纹。
+
+ssh 的公钥登陆
+
+使用密码登陆，每次都需要输入密码，非常麻烦，所以 ssh 提供了 公钥登陆 机制，原理很简单，就是用户将自己的公钥存储到远程主机上，登录时远程主机会向用户发送一段随机的字符串，用户用自己的私钥加密后，再发回来。远程主机事先存储了公钥，其使用公钥进行解密，如果成功，说明用户是可信的，用户用户登陆 shell，否则。
+
+通常使用 `ssh-keygen` 生成用户的哦公私钥。如果担心私钥的安全，可以设置 `passphrase`。使用 `ssh-copy-id user@host` 将公钥传输到远程主机上。
+
+为了保证远程主机可以接受，需要检查 `/etc/ssh/sshd_config` 这个文件，检查下面几行：
+
+```yml
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+```
+
+取消以上各行的注释，然后使用以下命令重启 ssh 服务：
+
+```sh
+// ubuntu系统
+service ssh restart
+// debian系统
+/etc/init.d/ssh restart
+```

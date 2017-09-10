@@ -7,7 +7,8 @@
 | 命令 | 说明 | 补充 |
 | :--- | :--- | :--- |
 | wc | 统计文件行数 | -c -l -w |
-| grep |  |  |
+| grep | `-v` `-E` |  |
+| find |  |  |
 | zgrep |  |  |
 | xargs |  |  |
 | free |  |  |
@@ -18,6 +19,21 @@
 | lsof | `-i:<port>` | 查看占用该端口的进程 pid |
 | locale | `-a` | 查看容器的所有语言环境 |
 | dpkg-reconfigure locales |  | 图像化本地语言环境配置 |
+| sort | 排序 |  |
+| uniq | 排除相邻行的重复, 和 sort 结合使用 |  |
+
++ `grep`
+  + `-v` 排除
+  + `-E` 使用正则表达式
+  + `-c` 只显示行数
+  + `-i` 忽略大小写
++ [`awk`](https://coolshell.cn/articles/9070.html)
+
+example:
+
+```sh
+zgrep "collect event success" *.log.gz | grep -v "Group" | grep -E "iOS|iPhone" | grep "Lark" > test_ios
+```
 
 ## 查看系统的版本
 
@@ -68,13 +84,14 @@
 
 example: 启动命令，并保存 pid 到指定文件
 
-```bash
+```sh
 nohup ./output/start.sh ./output/ > gateway_test.log 2>&1 & echo $! > gateway_test.pid
 ```
 
 ## `runit` 套件
 
-[参考](http://smarden.org/runit/)
++ [参考](http://smarden.org/runit/)
++ [runit 快速入门](https://segmentfault.com/a/1190000006644578)
 
 `runit` 是一个用于服务监控的 UNIX 控件，提供了以下两种功能：
 
@@ -91,13 +108,52 @@ nohup ./output/start.sh ./output/ > gateway_test.log 2>&1 & echo $! > gateway_te
 ### runsvdir
 
 + 当 runsvdir 检查到 `/etc/service` 目录下包含一个新的目录时，`runsvdir` 会启动一个 `runsv` 进程来执行和监控 run 脚本。
-+ 当 `runsvdir` 在 `/etc/service/` 目录中发现新的配置时，它会继续查找子目录 log，如果找到了则启动 `runsv` 进程来执行和监控 log 目录下的 run 脚本。
++ 当 `runsvdir` 在 `/etc/service/` 目录中发现新的配置时，它会继续查找子目录 log，如果找到了则启动 `runsv` 进程来执行和监控 log 目录下的 run 脚本。 会在 `/etc/sercice/service_name/` 下创建一个 `supervise` 文件夹，保存各种状态。
+
+example:
+
+比如说要在同一 docker 中执行 web、service、celery 三种类型的服务，于是同时创建三种启动脚本如下：
+
+> **example: web.sh**
+
+```sh
+#!/usr/bin/env bash
+set -ex
+umask 022
+cd ${PROJECT_ROOT}
+eval $(python deploy/env.py)
+export ENV_VAR=`pwd`xxxx
+exec  gunicorn -c gunicorn_config.py app_package:app
+```
+
+其他脚本类似，此处忽略。
+
+然后将这个脚本挂载到 `/etc/service/web/run`、`/etc/service/service/run`、`/etc/service/celery/run`。注意是每个目录下都有一个 run 的脚本。
+
+然后在 docker 启动时运行以下脚本来执行上述服务的脚本：
+
+```sh
+#!/usr/bin/env bash
+
+# 找到所有该目录下的文件
+FILES=`find /etc/service/ -name run`
+
+# 给该目录下的文件增加执行权限
+if [ "${FILES}" ]; then
+  chmod a+x ${FILES}
+fi
+
+# 使用 runsvdir 命令执行脚本。
+exec /usr/bin/runsvdir -P /etc/service
+```
 
 ### 管理服务
 
-+ 检查状态： `sv status example`
-+ 停止服务： `sv stop example`
-+ 重启服务： `sv restart example`
++ 检查状态： `sv status ssh`
++ 停止服务： `sv stop service`
++ 重启服务： `sv restart ssh` 和 `service ssh restart` 等价
+
+> 注意服务的名称就是 `/etc/service/` 下的文件夹名称，每个文件夹下都有一个 run 可执行文件。
 
 ## SSH
 
@@ -166,4 +222,67 @@ AuthorizedKeysFile .ssh/authorized_keys
 service ssh restart
 // debian系统
 /etc/init.d/ssh restart
+```
+
+docker 中通常使用 sshd 命令来启动 ssh 服务， 参见 [sshd doc](http://man.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/sshd.8?query=sshd%26sec=8)
+
+example:
+
+1. 在 docker / 机器上安装相关的软件 `apt-get update && apt-get install -y runit openssh-server`
+1. 使用 `ssh-keygen` 生成用户公私钥
+1. 将公钥上传到 `docker` 虚拟机的 `/var/run/sshd/authorized_keys` 中。
+1. 配置 `/etc/ssh/sshd_config` 文件。
+1. 编写 sshd 命令启动脚本。
+1. 将这个脚本作为一个服务 (参见上面的 runit 套件使用说明) 挂载到 `/etc/service/sshd/run` 文件。
+1. 如果已经配置了，可以使用 `service ssh restart` 使配置生效
+1. 本地登陆 `ssh -i ~/path_to_private_key/id_rsa -p 22222 root@127.0.0.1` [ssh doc](https://www.freebsd.org/cgi/man.cgi?sshd(8))
+
+注意事项：
+
++ 本地的私钥必须要将权限设置为 400 或者 600，不能多也不能少，否则会报错误
+    ```text
+    Permissions 0777 for '/Users/username/.ssh/id_rsa' are too open.
+    It is recommended that your private key files are NOT accessible by others.
+    ```
++ 注意下面的配置中将 ssh 的端口设定为 22，所以在 docker 中要将该端口导出，上面的命令中导出为 22222
++ 配置过程中还出现了 `ssh_exchange_identification` 的错误，可以参照这个 [error explain](http://edoceo.com/notabene/ssh-exchange-identification)
+
+可参见 [`sshd_config` 文档](https://www.freebsd.org/cgi/man.cgi?sshd_config(5)) 实现如下的配置：
+
+```yml
+Port 22
+ChallengeResponseAuthentication no
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+Protocol 2
+PermitRootLogin yes
+PasswordAuthentication no
+MaxStartups 100:30:200
+AllowUsers root
+PrintMotd no
+PrintLastLog no
+PubkeyAuthentication yes
+AuthorizedKeysFile /var/run/sshd/authorized_keys
+UsePAM no
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Disabling use DNS in ssh since it tends to slow connecting
+UseDNS no
+```
+
+sshd service 的启动脚本可以是：
+
+```sh
+#!/usr/bin/env bash
+
+set -e
+umask 022
+
+if [ -f /var/run/sshd/id_rsa.pub ]; then
+ cp /var/run/sshd/id_rsa.pub /var/run/sshd/authorized_keys
+ chmod 400 /var/run/sshd/authorized_keys
+fi
+
+exec /usr/sbin/sshd -D -f /etc/ssh/sshd_config -e
 ```

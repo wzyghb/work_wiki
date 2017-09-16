@@ -39,7 +39,6 @@
 
 ### WEB
 
-+ [iron](https://github.com/iron/iron)
 + [rocket](https://github.com/SergioBenitez/rocket)
 + [tarpc](https://github.com/google/tarpc)
 + [tokio](https://tokio.rs/)
@@ -61,7 +60,3 @@
 + [redis-rs](https://github.com/mitsuhiko/redis-rs)
 + [cassandra-rs](https://github.com/tupshin/cassandra-rs)
 + [rs-es](https://github.com/benashford/rs-es)
-
-### 镜像
-
-+ [scorpil docker](https://hub.docker.com/r/scorpil/rust/)

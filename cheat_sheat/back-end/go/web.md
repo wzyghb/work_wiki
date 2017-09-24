@@ -58,6 +58,8 @@ import (
 ## tools
 
 + `gofmt -w .` 格式化当前代码 [gofmt](https://golang.org/cmd/gofmt/)
++ [go-torch](http://lihaoquan.me/2017/1/1/Profiling-and-Optimizing-Go-using-go-torch.html)
++ [go-wrk](https://github.com/adjust/go-wrk)
 
 ## problem
 

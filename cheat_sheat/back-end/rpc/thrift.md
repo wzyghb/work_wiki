@@ -1,3 +1,10 @@
+# thrift 使用
+
+## reference
+
++ [thrift 概述](http://elf8848.iteye.com/blog/1960131)
++ [thrift 设计](http://calvin1978.blogcn.com/articles/apache-thrift.html)
++ [thrift 原理](http://itindex.net/detail/46718-thrift-%E5%8E%9F%E7%90%86)
 
 ## 安装
 
@@ -9,14 +16,14 @@
 
 libenvent make 时会出现这个问题。
 
-```
+```bash
 brew install openssl
 brew link openssl --force
 ```
 
 #### 2. bison 问题解决
 
-```
+```bash
 brew install bison
 brew link bison --forece
 brew unlink bison (如果需要)
@@ -24,7 +31,7 @@ brew unlink bison (如果需要)
 
 ## thrift 数据类型
 
-#### 基本类型 Base Type
+### 基本类型 Base Type
 
 | type | description |
 | :--- | :--- |
@@ -76,7 +83,7 @@ binary: a sequence of unencoded bytes
 
 ### 1
 
-```
+```thrift
 /***        tutorial.thrift  ***/
 
 /**
@@ -234,7 +241,7 @@ service SharedService {
 
 ### 1 Thrift 的网络栈
 
-```
+```sh
  +-------------------------------------------+
   | Server                                    |
   | (single-threaded, event-driven etc)       |
@@ -251,6 +258,7 @@ service SharedService {
 ```
 
 ### 2 Transport
+
 提供了从网络读写的抽象。
 
 + TSocket: 使用 阻塞的 socket I/O 用于传输
@@ -261,7 +269,8 @@ service SharedService {
 + TBufferedTransport: 使用了缓存
 
 API：
-```
+
+```sh
 TTransport {
     open
     close
@@ -285,7 +294,7 @@ TServerTransport {
 
 #### 1 API，支持两个功能：双向的直接序列化消息；基本类型、结构体的编码
 
-```
+```sh
 writeMessageBegin(name, type, seq)
 writeMessageEnd()
 writeStructBgin(name)
@@ -332,18 +341,21 @@ string = readString()
 用于 reading 的是 `readFileBegin()`, `readStructEnd()`, 生产的代码依赖于这些调用以确保每个用一种协议编码的序列可以用对应的协议。
 
 #### 2 Structure（难 回看）
-Thrift 的结构设计用于支持 流式的协议。实现永远不需要进行 frame 或者在 encoding 之前计算所有数据的长度。在某些场景下这对性能非常重要。
+
+Thrift 的结构设计用于支持流式的协议。实现永远不需要进行 frame 或者在 encoding 之前计算所有数据的长度。在某些场景下这对性能非常重要。
 Struct 并没有将数据的长度预先编码，而是将域的序列编码，每个域都有一个类型特征和独立的域标识符，这些类型标识使得协议可以安全地解释和解码数据，无需对
 idl 进行访问。一个特殊的 STOP 类型标识结构体的结束，因为所有的基本类型可以直接读取，所有的结构体也可以直接读取，因而 Thrift 协议是自界定的，不需要帧或者编码
 协议的限制。
 当不需要 stream 或者 framing 更好时，可以简单的在传输层使用 TFramedTransport 即可实现。
 
 #### 3 实现
+
 直接将所有数据写入为二进制格式：整数类型直接转化为网络字节序，字符串也转化为和他们长度相同字节长度的序列，所有的消息的域的头部使用原始的整数序列化结构写入。
 字符串的名字会被忽略。
 我们决定避免一些极端的存储优化，比如将小的的整数转化为 ASCII或者 7 bit连续结构，这些方式会使得问题不再清楚简单。如果遇到性能问题，也可以比较容易地替换这些策略。
 
 Thrift 实现了下面的协议：
+
 + TBinaryProtocal：一个直接的二进制格式，将数字之之间编码为二进制，而不是转化为文本。
 + TCompactProtocal：非常高效，数据的压缩编码，详细见下文。
 + TDenseProtocal：和 TCompactProtocal 类似，但是会在传输时剥去元数据，而在接收处再加上这些元信息，TDenseProtocal 目前还处于测试阶段。
@@ -352,9 +364,11 @@ Thrift 实现了下面的协议：
 + TDebugProtocal：使用一种可以由人直接阅读的格式，用于在 debugging 时辅助。
 
 ### 4 Versioning
+
 当遇到版本和数据定义的变化时， Thrift 也具有鲁棒性。这使得服务可以实现阶段性的改变。系统必须可以支持历史数据从 log 文件中读取，以及 过期的新服务器的过期客户端请求。
 
 #### 1 文件标识 Field identifier
+
 每一个 Thrift struct 中的成员都有一个唯一的域标识符，组合域标识符和类型特征使得每个域的标识都是唯一的。Thrift 定义语言支持自动填充域标识符，但清楚地
 设定标识符在编程实践上更好。
 为了避免手工和自动地标识设定，当手动设置的标识符小于等于 -1 时域和标识符会被忽略。
@@ -362,7 +376,7 @@ Thrift 实现了下面的协议：
 不可识别的部分并且不会报错。
 函数参数中也是用域标识符，实际上，参数列表不但在后端使用了结构体来表示，而且在前端编译系统中使用了相同的代码。这使得函数参数的修改也是版本安全的。
 
-```
+```thrift
 service StringCache {
     void set(1:i32 key, 2:string value),
     string get(1:i32 key) throws (1:KeyNotFound knf),
@@ -370,12 +384,13 @@ service StringCache {
 }
 ```
 
-#### 2 Isset 
+#### 2 Isset
+
 当遇到 Unexpected 的域时，应该可以安全的忽略并舍弃这个域，当没有找到 expected 的 field 时，必须提醒开发者这个问题，这个实现是通过内部的 isset 结构体
 来定义对象的。（Isset 在 null-php，None-python，nil-Ruby 时发挥作用）。基本地，每个 Thrift 结构体内部的 isset 对象为结构体中的每个域都保留一个
 boolean 值，这个表示这个域是否在结构体中有所表示。当一个 reader 收到一个结构，他应当在这个域被设定之前检查这个值。例子：
 
-```
+```example
 class Example {
   public:
     Example() :
@@ -387,7 +402,7 @@ class Example {
     int64_t bigNumber;
     double decimals;
     std::string name;
-  
+
     struct __isset {
       __isset() :
         number(false),
@@ -406,25 +421,29 @@ class Example {
 #### 3 例子分析
 
 1. 增加域，old client，new server。旧客户端不会发送增加的域，因而新的服务器端会收到过期的请求。
-2. 删除域， 旧的 client， 新的 server。旧的 client 会发送删除的域，新的服务器会忽略这个值。
-3. 增加域，新的客户端，旧的服务器，新的客户端会发送一个域，旧的夫妻不能够识别，旧的服务器会忽略这个值然后像以前一样处理数据。
-4. 删除域，新的客户端，旧的服务器。这是最危险的情况，旧的服务器不一定有适合于丢失的域的默认的处理行为。在这种情况下，推荐先启动新的服务器，再启动新的客户端。
+1. 删除域， 旧的 client， 新的 server。旧的 client 会发送删除的域，新的服务器会忽略这个值。
+1. 增加域，新的客户端，旧的服务器，新的客户端会发送一个域，旧的夫妻不能够识别，旧的服务器会忽略这个值然后像以前一样处理数据。
+1. 删除域，新的客户端，旧的服务器。这是最危险的情况，旧的服务器不一定有适合于丢失的域的默认的处理行为。在这种情况下，推荐先启动新的服务器，再启动新的客户端。
 
 ### 5 RPC 实现
 
 #### 1 Processor（TProcessor）
+
 Processor 接收输入和输出协议的参数，从输入读取数据，通过由用户定义的 Handler 处理数据然后写入到 output 中。
-```
+
+```sh
 interface TProcessor {
     bool process(TProtocol in, TProtocol out) throws TException
 }
 ```
+
 化为输出输入两部分是一个比较基本的抽象。
 
 #### 2 代码生成
-```
+
+```sh
 Service.thrift
-  => 
+  =>
 Service.cpp
   interface ServiceIf
   class ServiceClient : virtual ServiceIf
@@ -454,7 +473,7 @@ class Response(object):
    - items
   """
 
-  __slots__ = [ 
+  __slots__ = [
     'items',
    ]
 
@@ -811,10 +830,12 @@ class retrieve_result(object):
 #### 3 Servers
 
 TServer 的抽象如下：
+
 + 使用 TServerTransport 来获得一个 TTransport
 + 使用 TTransportFactory 来可选地将原始的传输转换为一个更适合应用的传输（Transport，比如 TBufferedTransportFactory）
 + 使用 TProtocalFactory 创建一个输入一个输出协议
 + 调用 TProcessor 的 process() 方法
+
 各层之间完全解耦，服务器代码不需要知道任何 transport、encodings 和 application 的相关信息。Server 包括了连接操作的逻辑，线程。而 processor 主要处理
 RPC。而应用开发者仅需要定义 Thrift 文件并实现其中的接口即可。
 

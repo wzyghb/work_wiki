@@ -2,6 +2,10 @@
 
 [linux tools](http://linuxtools-rst.readthedocs.io/zh_CN/latest/index.html)
 
+## MAC bash 配置
+
+由于使用 zsh，所以要将启动的环境变量配置配置到 `~/.zshrc` 中，或者在 `.zshrc` 中加入语句`source ~/.bash_profile`
+
 ## table cheat
 
 | 命令 | 说明 | 补充 |
@@ -21,6 +25,11 @@
 | dpkg-reconfigure locales |  | 图像化本地语言环境配置 |
 | sort | 排序 |  |
 | uniq | 排除相邻行的重复, 和 sort 结合使用 |  |
+| date | 时间显示 |  |
+
++ `date`
+  + `date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"`
+  + `date -v1d -v3m -v0y -v-1d`
 
 + `grep`
   + `-v` 排除
@@ -28,6 +37,7 @@
   + `-c` 只显示行数
   + `-i` 忽略大小写
 + [`awk`](https://coolshell.cn/articles/9070.html)
++ [`if` 语句编写](http://zhaochj.blog.51cto.com/368705/1315581)
 
 example:
 

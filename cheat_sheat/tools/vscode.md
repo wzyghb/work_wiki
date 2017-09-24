@@ -42,6 +42,8 @@
 | `F12` | 跳转到定义处 |
 | `ctrl` `_` | 位置后退 |
 | `ctrl` `shift` `_` | 位置前进 |
+| `ctrl` `alt` `n` | 执行代码，用于 go 的 main 函数 |
+| `cmd` `k` + `cmd` `方向键` | 将 focus 移动到指定的相关区域 |
 
 ### CMD + p 命令模式
 
@@ -90,6 +92,20 @@
 + [python 插件文档](https://github.com/DonJayamanne/pythonVSCode/wiki)
 + 在 .vscode 下的 settings.json 中设定指定的解释器
     `"python.pythonPath": "/Users/ly/Code/venv/bin/python"`
+
+### [Go](https://github.com/Microsoft/vscode-go/wiki/Debugging-Go-code-using-VS-Code)
+
++ 首先在 vscode 中运行 `Go: Install/Update Tools` 安装 [delve](https://github.com/derekparker/delve)
++ 按 `F5` 打开 `launch.json` 配置 `mode`, `program`, `env`
++ [`govendor`](https://github.com/kardianos/govendor)
+  + `init`
+  + `fetch`
+  + `fmt`
+  + `install`
+  + `test`
+  + `list`
+  + `add`
++ `go get`
 
 ### docker
 

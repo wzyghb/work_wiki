@@ -3,6 +3,10 @@
 + [使用的配置](https://github.com/gpakosz/.tmux)
 + [中文文档](http://mindonmind.github.io/notes/linux/tmux.html)
 
+## 配置
+
+一般配合 zsh 使用，这时候要设置 `.zprofile`、`.zshrc`
+
 ## tmux 基本概念
 
 + Session: 一组窗口的集合，通常用于概括同一个任务。

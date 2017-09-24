@@ -1,5 +1,13 @@
 # mysql 相关的记录
 
+## 基本命令
+
++ `use <dbname>`
++ `show tables`
++ `explain <sql 语句>` 返回表格中的 `possible_keys` 会指明使用的索引
+
++ 脏读： 读到另一个数据库连接未 commit 的数据
++ 
 ## 类映射继承关系
 
 ### 1. `single table inheritance` 多个类型由一个表表示
@@ -101,7 +109,7 @@ class MyClass(Base):
 
 要尽可能地把字段定义为 NOT NULL。即使应用程序无须保存 NULL（没有值），也有许多表包含了可空列（Nullable Column）,这仅仅是因为它为默认选项。除非真的要保存 NULL，否则就把列定义为 NOT NULL。
 
-MySQL难以优化引用了可空列的查询，它会使索引、索引统计和值更加复杂。可空列需要更多的储存空间，还需要在MySQL内部进行特殊处理。当可空列被索引的时候，每条记录都需要一个额外的字节，还可能导致 MyISAM 中固定大小的索引(例如一个整数列上的索引)变成可变大小的索引。
+MySQL 难以优化引用了可空列的查询，它会使索引、索引统计和值更加复杂。可空列需要更多的储存空间，还需要在MySQL内部进行特殊处理。当可空列被索引的时候，每条记录都需要一个额外的字节，还可能导致 MyISAM 中固定大小的索引(例如一个整数列上的索引)变成可变大小的索引。
 
 即使要在表中储存「没有值」的字段，还是有可能不使用 NULL 的。考虑使用 0、特殊值或空字符串来代替它。
 
@@ -137,3 +145,22 @@ B 树的 d 一般很大，因而 h 一般非常小，这样就减少了磁盘读
 
 + 不建议使用过长的字段作为主键-> 会使辅助索引变得过大
 + 不要使用非单调的字段作为主键，因为 InnoDB 数据文件本身是一棵 B+Tree。非单调的主键会在插入新纪录时频繁分裂调整内部节点。
+
+## [Mysql 事务隔离级别](http://www.cnblogs.com/zhoujinyi/p/3437475.html)
+
++ InnoDB 的默认事务隔离级别是 REPEATABLE READ
+
+设置方法：
+
+1. `my.inf` 文件的 mysqld 中设置 `transaction-isolation = {READ-UNCOMMITTED | READ-COMMITTED | REPEATABLE-READ | SERIALIZABLE}`
+1. 使用 SET TRANSACTION 改变单个会话或者所有新进连接的隔离级别 `SET [SESSION | GLOBAL] TRANSACTION ISOLATION LEVEL {READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE}`
+
+查询方法：
+
+```sql
+SELECT @@global.tx_isolation;
+SELECT @@session.tx_isolation;
+SELECT @@tx_isolation;
+```
+
+

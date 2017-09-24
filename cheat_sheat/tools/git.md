@@ -149,9 +149,14 @@ git push origin issue1:master
 + `git stash drop stash@{0}`
 + `git stash pop`
 
-
 ## 2. git revert
+
 + `git revert <commit id>` 创建一个 commit，是指定 commit 的 revert。
 
 ## 3. git cherry-pick
+
 + `git cherry-pick <commit id>` 将对应的 commit 应用到当前分支。
+
+## 4. git rev-parse HEAD 
+
++ 输出当前的 commit_id, 可以用于定义 go 语言打包时的版本定义

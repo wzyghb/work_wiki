@@ -9,6 +9,8 @@
 
 ## go 语言官方包
 
++ [net]()
++ [net/rpc]()
 + [net/http]()
 + [html/template]()
 
@@ -19,11 +21,29 @@
 + [web](https://github.com/gin-gonic/gin)
 + [cassandra](https://github.com/gocql/gocql)
 + [thrift](https://github.com/samuel/go-thrift)
++ [protobuf](github.com/golang/protobuf/proto)
 + [log](https://github.com/sirupsen/logrus)
 + [sentry](github.com/evalphobia/logrus_sentry)
 + [graylog](gopkg.in/gemnasium/logrus-graylog-hook.v2)
 + [yaml](gopkg.in/yaml.v2)
 + [metrics](code.byted.org/gopkg/metrics)
-+ [monkey]()
++ [monkey](https://github.com/bouk/monkey)
 + [gracehttp](https://github.com/facebookgo/grace/gracehttp)
 + [ginkgo](https://github.com/onsi/ginkgo)
+
+### 服务限速
+
++ [token bucket vs leaky bucket](http://blog.gssxgss.me/not-a-simple-problem-rate-limiting/)
++ [go rate limit](https://github.com/uber-go/ratelimit) uber 的 leaky-bucket rate limit implementation
++ [go token rate limit](https://github.com/juju/ratelimit)
+
+### 内存缓存
+
++ [lru cache](https://github.com/hashicorp/golang-lru)
+
+## 指令
+
++ `go test`
++ `govendor fetch`
++ `govendor list` [`+unused`]
++ `govendor remove` [`+unused`]

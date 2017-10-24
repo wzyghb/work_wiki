@@ -61,7 +61,18 @@ import (
 + [go-torch](http://lihaoquan.me/2017/1/1/Profiling-and-Optimizing-Go-using-go-torch.html)
 + [go-wrk](https://github.com/adjust/go-wrk)
 
-## problem
+## Problem
 
 + heartbeat: 打点到 metrics
 + go 中也可以和 python 类似，在包中直接定义单例对象
+
+## Test
+
+### `ginkgo` and `gomega`
+
++ `ginkgo generate xxx`
+
++ `Describe`
++ `Context`
++ `Expect`
++ `It`

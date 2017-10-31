@@ -1,6 +1,7 @@
 # 常见的 linux 命令总结
 
-[linux tools](http://linuxtools-rst.readthedocs.io/zh_CN/latest/index.html)
++ [linux tools](http://linuxtools-rst.readthedocs.io/zh_CN/latest/index.html)
++ [Advance Bash-Scripting Guide](http://tldp.org/LDP/abs/html/)
 
 ## MAC bash 配置
 
@@ -26,6 +27,8 @@
 | sort | 排序 |  |
 | uniq | 排除相邻行的重复, 和 sort 结合使用 |  |
 | date | 时间显示 |  |
+| telnet | 端口测试 |  |
+| ifconfig |  |  |
 
 + `date`
   + `date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"`

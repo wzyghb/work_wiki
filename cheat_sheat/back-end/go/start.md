@@ -31,6 +31,15 @@
 + [gracehttp](https://github.com/facebookgo/grace/gracehttp)
 + [ginkgo](https://github.com/onsi/ginkgo)
 
+## go command 和 tools
+
++ `go test`
++ `govendor fetch`
++ `govendor list` [`+unused`]
++ `govendor remove` [`+unused`]
+
+## Others
+
 ### 服务限速
 
 + [token bucket vs leaky bucket](http://blog.gssxgss.me/not-a-simple-problem-rate-limiting/)
@@ -41,9 +50,6 @@
 
 + [lru cache](https://github.com/hashicorp/golang-lru)
 
-## 指令
+### other and other
 
-+ `go test`
-+ `govendor fetch`
-+ `govendor list` [`+unused`]
-+ `govendor remove` [`+unused`]
++ [fmt.Printf](https://gobyexample.com/string-formatting)

@@ -29,6 +29,13 @@
 | date | 时间显示 |  |
 | telnet | 端口测试 |  |
 | ifconfig |  |  |
+| awk |  |  |
+| sed |  |  |
+| cut |  |  |
+| paste |  |  |
+| uniq |  |  |
+| shuf |  |  |
+| xargs |  |  |
 
 + `date`
   + `date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"`
@@ -299,3 +306,7 @@ fi
 
 exec /usr/sbin/sshd -D -f /etc/ssh/sshd_config -e
 ```
+
+## make 
+
+[ref](http://www.ruanyifeng.com/blog/2015/02/make.html)

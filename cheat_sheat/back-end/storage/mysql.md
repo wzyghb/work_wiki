@@ -163,4 +163,27 @@ SELECT @@session.tx_isolation;
 SELECT @@tx_isolation;
 ```
 
+## mysql 不能存储 emoji 表情的问题
 
+mysql 默认采用 utf8 编码，虽然 utf8 字符集编码可以支持 1-4 个字符去编码，但是 mysql 中的实现只支持 1-3 个字符，1-3 个字符实现包含了控制符、拉丁文、中日韩等绝大多数国际字符，但不支持 emoji 和 “墅” 等不常见汉字的编码。
+
+更改方式：
+
+```sql
+ALTER TABLE group_chat modify name VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+查询更改结果：
+
+```sql
+SHOW FULL COLUMNS  FROM  users_profile;
+```
+
+数据库的连接也要支持 `utf8mb4` 格式。
+
+```sql
+mysql+pymysql://{user}:{password}@{host}:{port}/{db}?charset=utf8mb4
+```
+
++ [ref1: utf8mb4 使用](http://seanlook.com/2016/10/23/mysql-utf8mb4/)
++ [mysql 支持 emoji](https://segmentfault.com/a/1190000006851140)

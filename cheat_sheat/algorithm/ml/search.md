@@ -16,3 +16,9 @@
 # 分词器
 
 + [ref: sego](https://github.com/huichen/sego)
+
+1. 载入词典文本
+1. 将每个词划分为词元
+1. 构建 token {words， frequency， pos}
+1. 计算 dict 的 totalFrequency 和 maxTokenLength
+1. 计算

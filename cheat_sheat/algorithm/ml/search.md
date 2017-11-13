@@ -11,3 +11,8 @@
 1. 队列内调权
 1. rank
 1. 统一调权
+
+
+# 分词器
+
++ [ref: sego](https://github.com/huichen/sego)

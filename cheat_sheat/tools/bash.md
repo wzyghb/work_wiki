@@ -64,9 +64,16 @@ zgrep "collect event success" *.log.gz | grep -v "Group" | grep -E "iOS|iPhone" 
 
 ## shell 的设置
 
-通常使用 `set` 命令来设置shell。 [set](http://www.cnblogs.com/liduanjun/p/3536996.html)
+通常使用 `set` 命令来设置shell。 
+
++ [set](http://www.cnblogs.com/liduanjun/p/3536996.html)
++ [set 阮一峰](http://www.ruanyifeng.com/blog/2017/11/bash-set.html)
 
 + `-e` 如果一个命令返回非 0 退状态值，就失败
++ `-u` 遇到未绑定的变量则报错退出
++ `-x` 在运行结果之前，先输出执行的那一行命令
++ `-o pipefail` 因为 `-e` 命令不适合于管道，管道成功失败等价于最后一个命令的状态。
+
 
 ## 让进程在后台可靠运行
 

@@ -37,6 +37,7 @@
 + `govendor fetch`
 + `govendor list` [`+unused`]
 + `govendor remove` [`+unused`]
++ `govendor update`
 
 ## Others
 

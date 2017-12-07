@@ -66,12 +66,17 @@ import (
 + heartbeat: 打点到 metrics
 + go 中也可以和 python 类似，在包中直接定义单例对象
 
+### `new` vs `make`
+
++ `new` 分配内存空间，但是只进行零值初始化，并且将地址返回
+    - `sync.Mutex`： 初始为 unlocked mutext
++ `make` 只创建 slices、maps、channels。其会返回 type of T 而非 *T
+
 ## Test
 
 ### `ginkgo` and `gomega`
 
 + `ginkgo generate xxx`
-
 + `Describe`
 + `Context`
 + `Expect`

@@ -187,3 +187,36 @@ mysql+pymysql://{user}:{password}@{host}:{port}/{db}?charset=utf8mb4
 
 + [ref1: utf8mb4 使用](http://seanlook.com/2016/10/23/mysql-utf8mb4/)
 + [mysql 支持 emoji](https://segmentfault.com/a/1190000006851140)
+
+## mysql 中的锁 [he ..](http://hedengcheng.com/?p=771)
+
++ 快照读
+    ```select * from table where ?;```
+
++ 当前读
+
+```sql
+select * from table where ? lock in share mode; // 共享锁
+select * from table where ? for update; // x 锁 or 排它锁
+insert into table values (…);
+update table set ? where ?;
+delete from table where ?;
+```
+
+| 名称 | 问题 | 锁 |
+|:--- |:--- |:--- |
+| 未提交读 (Read Uncommitted) | 会出现脏读、幻读、不可重复读 | 不加锁 |
+| 提交读 (Read Committed) | 会出现幻读、不可重复读 | 锁定正在读取的行 |
+| 可重读读 (Repeatable Read) | 会出现不可重复读 | 锁定所有读取的行 |
+| 序列化 (Serializable) | 安全 | 锁表 |
+
+1. 幻读：修改和插入新的数据同时进行，发现有没有修改的数据 （，例如第一个事务对一个表中的数据进行了修改，这种修改涉及到表中的全部数据行。 同时，第二个事务也修改这个表中的数据，这种修改是向表中插入一行新数据。那么，以后就会发生操作第一个事务的用户发现表中还有没有修改的数据行，就好象 发生了幻觉一样。）
+1. 脏读：能够读到没有提交的脏数据
+1. 不可重复读（是指在一个事务内，多次读同一数据。在这个事务还没有结束时，另外一个事务也访问该同一数据。那么，在第一个事务中的两 次读数据之间，由于第二个事务的修改，那么第一个事务两次读到的的数据可能是不一样的。这样就发生了在一个事务内两次读到的数据是不一样的，因此称为是不 可重复读。）
+
++ MVCC (Multi-Version Concurrency Control) 多版本并发控制协议
++ Lock-Based Concurrency Control
+
++ Cluster Index 聚簇索引
++ 2PL Two Phase Locking： 将加锁和解锁分为两个完全不相交的阶段：加锁阶段只加锁不放锁。
++ GAP 锁：用于 RR 隔离级别，在一个事务多次读的时候，读数据加锁，保证其他的事务不会插入新的满足条件的记录并提交。

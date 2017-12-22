@@ -30,6 +30,7 @@
 + [monkey](https://github.com/bouk/monkey)
 + [gracehttp](https://github.com/facebookgo/grace/gracehttp)
 + [ginkgo](https://github.com/onsi/ginkgo)
++ [sarama](https://github.com/Shopify/sarama)
 
 ## go command 和 tools
 
@@ -38,6 +39,7 @@
 + `govendor list` [`+unused`]
 + `govendor remove` [`+unused`]
 + `govendor update`
++ `govendor add +external`
 
 ## Others
 
@@ -54,3 +56,7 @@
 ### other and other
 
 + [fmt.Printf](https://gobyexample.com/string-formatting)
+
+## 技巧
+
++ [接口型函数](http://www.flysnow.org/2016/12/30/golang-function-interface.html)

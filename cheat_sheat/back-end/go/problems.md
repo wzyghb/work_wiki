@@ -25,3 +25,9 @@
 + value method 可以同时接受 pointer 和 value 值
 + pointer method 只能够由一个 pointer 调用
 + pointer 方法可以修改 receiver，而 value method 只会接受一个 value 的副本
+
+## Go 中的 array
+
++ array 是值，赋值会造成整个 array 的复制
++ 如果将 array 作为函数参数传递，那么会复制整个数组
++ array[10], array[20] 是不同的类型

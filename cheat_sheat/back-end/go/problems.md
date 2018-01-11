@@ -7,6 +7,7 @@
 
 1. happen before, happen after, happen concurrency
 1. init > import package > main.main
+1. `runtime.GC(); runtime.MemStats
 
 ## Channel
 
@@ -15,6 +16,7 @@
 ## others
 
 + [go `struct{}` 用法](https://gocn.io/question/103)
++ 通常函数的返回一个变量引用时，这个变量会在堆上分配，哪些情况时特殊的？(内联函数)
 
 ## test and benchmark
 
@@ -31,3 +33,10 @@
 + array 是值，赋值会造成整个 array 的复制
 + 如果将 array 作为函数参数传递，那么会复制整个数组
 + array[10], array[20] 是不同的类型
+
+## go 中返回值、defer、return 的差别
+
++ defer 采用先入后出的策略运行
++ return 有个将返回值复制的过程
++ 有名返回和无名返回是有差别的
++ [reference](https://studygolang.com/articles/4809)

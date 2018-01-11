@@ -1,4 +1,3 @@
-
 # rpc
 
 1. `runtime.GOMAXPROCS` 设置最大的可用 CPU
@@ -12,8 +11,6 @@
 + 服务的内存、cpu 限制
 + 机房、集群设置
 + 地址
-
-# 一个 Micro Service
 
 ## 服务注册和发现
 
@@ -34,3 +31,44 @@
 ## 定时任务
 
 + [chronos](https://mesos.github.io/chronos/)
+
+## 接口示例 func in go
+
+```go
+type EndPoint func(ctx context.Context, req interface{}) (interface{}, error)
+
+// Middleware deal with input EndPoint and output EndPoint
+type Middleware func(EndPoint) EndPoint
+
+// Chain connect middlewares into one middleware.
+func Chain(outer Middleware, others ...Middleware) Middleware {
+    return func(next EndPoint) EndPoint {
+        for i := len(others) - 1; i >= 0; i-- {
+            next = others[i](next)
+        }
+        return outer(next)
+    }
+}
+
+func Build(mws []Middleware) Middleware {
+    if len(mws) == 0 {
+        return emptyMiddleware
+    }
+    return func(next EndPoint) EndPoint {
+        return mws[0](Build(mws[1:])(next))
+    }
+}
+
+func emptyMiddleware(next EndPoint) EndPoint {
+    return next
+}
+
+type KiteBase interface {
+    GetLogID() string   // 日志 id，用于垂直查错
+    GetCaller() string  // 调用者
+    GetAddr() string    // 获得调用地址
+    GetClient() string  // 获得 client 类型
+}
+```
+
+## 熔断

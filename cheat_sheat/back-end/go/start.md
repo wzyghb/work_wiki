@@ -56,7 +56,10 @@
 ### other and other
 
 + [fmt.Printf](https://gobyexample.com/string-formatting)
++ [go 中 string、struct 和 slice 的内存模型啥样](go 学习笔记)
 
 ## 技巧
 
 + [接口型函数](http://www.flysnow.org/2016/12/30/golang-function-interface.html)
+
+

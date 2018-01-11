@@ -74,7 +74,6 @@ zgrep "collect event success" *.log.gz | grep -v "Group" | grep -E "iOS|iPhone" 
 + `-x` 在运行结果之前，先输出执行的那一行命令
 + `-o pipefail` 因为 `-e` 命令不适合于管道，管道成功失败等价于最后一个命令的状态。
 
-
 ## 让进程在后台可靠运行
 
 用户注销 (logout) 和网络断开时，终端会收到 HUP （hangup) 信号，从而关闭所有子进程，所以有两种办法：
@@ -314,6 +313,6 @@ fi
 exec /usr/sbin/sshd -D -f /etc/ssh/sshd_config -e
 ```
 
-## make 
+## make
 
 [ref](http://www.ruanyifeng.com/blog/2015/02/make.html)
